@@ -1,0 +1,98 @@
+/* Scalable canvas */
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,body{
+  background: #000;
+  background: %UNITY_CUSTOM_BACKGROUND%;
+  width: 100%;
+  height: 100%;
+  overflow:visible;
+  padding:0;
+  margin:0;
+}
+
+div.fullWidth {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+div.fullWidth canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* Logo */
+div#loadingBox {
+  width: 100%;
+  height: 100px;
+  position: absolute;
+  top: 50%;
+  margin-top: -10px;
+  text-align: center;
+}
+
+img#logo {
+  height: calc(100% - 25px);
+  content:url("logo.png");
+}
+
+
+/* Progress bar */
+div#bgBar {
+  position: absolute;
+  width: 200px;
+  margin-left: -100px;
+  left: 50%;
+  height: 5px;
+  display: block;
+  background-color: #333;
+}
+
+div#progressBar {
+  left: 50%;
+  position: absolute;
+  margin-left: -100px;
+  width: 0px;
+  height: 5px;
+  background-color: #2796C4;
+  border-radius: 2px;
+}
+
+div#bgBar {
+  border-radius: 2px;
+}
+
+p#loadingInfo {
+  color: #e6e6e6;
+  letter-spacing: 1px;
+  position: absolute;
+  width: 100%;
+  font-family: "Monaco", sans-serif;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 8px;
+  margin-top: 10px;
+}
+
+/* Game */
+div#gameContainer{
+  background: transparent!important;
+  position: absolute;
+}
+div#gameContainer canvas{
+  position: absolute;
+  image-rendering: optimizeSpeed;
+        image-rendering: -webkit-crisp-edges;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -o-crisp-edges;
+  image-rendering: crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+        image-rendering: optimize-contrast;
+  image-rendering: pixelated;
+  -ms-interpolation-mode: nearest-neighbor;
+}

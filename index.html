@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>motoDEX</title>
+
+  <link rel="stylesheet" href="TemplateData/style.css">
+  <link rel="stylesheet" href="TemplateData/customStyle.css">
+  <script src="TemplateData/UnityProgress.js"></script>
+  <script src="Build/UnityLoader.js"></script>
+  
+  <script>
+    var gameInstance = UnityLoader.instantiate("gameContainer", "Build/moto.json", {onProgress: UnityProgress});
+  </script>
+
+</head>
+
+<body>
+  
+    <div id="gameContainer" style="width: 1920px; height: 1080px; margin: auto"></div>
+
+</body>
+
+</html>
