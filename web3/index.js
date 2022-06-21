@@ -186,8 +186,13 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
         gasPrice: gasPrice ? gasPrice : undefined,
       })
       .on("transactionHash", (transactionHash) => {
-        window.web3gl.sendContractResponse = transactionHash;
+        //window.web3gl.sendContractResponse = transactionHash;
       })
+      .on('receipt', (receipt) => {
+         console.log('create NFT RECEIPT');
+         console.log(receipt);
+         window.web3gl.sendContractResponse = JSON.stringify(receipt);
+     })
       .on("error", (error) => {
         window.web3gl.sendContractResponse = error.message;
       });
