@@ -181,7 +181,7 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
   new web3.eth.Contract(JSON.parse(abi), contract).methods[method](...JSON.parse(args))
       .send({
         from,
-        value,
+        value: value ? value : undefined,
         gas: gasLimit ? gasLimit : undefined,
         gasPrice: gasPrice ? gasPrice : undefined,
       })
