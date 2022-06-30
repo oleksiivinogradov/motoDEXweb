@@ -198,110 +198,110 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
       });
 }
 
-/*async function addNetwork(chainId) {
+// async function addNetwork(chainId) {
 
-	let params;
+// 	let params;
 
-	console.log('addNetwork chainId ' + chainId);
+// 	console.log('addNetwork chainId ' + chainId);
 
-	switch (chainId) {
-	case 56 :
-	params = [{
-	chainId: '0x38',
-	chainName: 'Binance Smart Chain Mainnet',
-	nativeCurrency: {
-	name: 'BNB',
-	symbol: 'BNB',
-	decimals: 18
-	},
-	rpcUrls: ['https://bsc-dataseed.binance.org/'],
-	blockExplorerUrls: ['https://bscscan.com']
-	}]
-	break;
-	case 97 :
-	params = [{
-	chainId: '0x61',
-	chainName: 'Binance Smart Chain Testnet',
-	nativeCurrency: {
-	name: 'BNB',
-	symbol: 'BNB',
-	decimals: 18
-	},
-	rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
-	blockExplorerUrls: ['https://testnet.bscscan.com']
-	}]
-	break;
-	case 137 :
-	params = [{
-	chainId: '0x89',
-	chainName: 'Polygon Mainnet',
-	nativeCurrency: {
-	name: 'MATIC',
-	symbol: 'MATIC',
-	decimals: 18
-	},
-	rpcUrls: ['https://polygon-rpc.com/'],
-	blockExplorerUrls: ['https://polygonscan.com/']
-	}]
-	break;
-	case 1313161555 :
-	params = [{
-	chainId: '0x4E454153',
-	chainName: 'Aurora Testnet',
-	nativeCurrency: {
-	name: 'ETH',
-	symbol: 'ETH',
-	decimals: 18
-	},
-	rpcUrls: ['https://testnet.aurora.dev'],
-	blockExplorerUrls: ['https://testnet.aurorascan.dev']
-	}]
-	break;
-	case 1313161554 :
-	params = [{
-	chainId: '0x4E454152',
-	chainName: 'Aurora Mainnet',
-	nativeCurrency: {
-	name: 'ETH',
-	symbol: 'ETH',
-	decimals: 18
-	},
-	rpcUrls: ['https://mainnet.aurora.dev'],
-	blockExplorerUrls: ['https://aurorascan.dev']
-	}]
-	break;
-	case 2221 :
-	params = [{
-	chainId: '0x8AD',
-	chainName: 'Kava EVM Testnet',
-	nativeCurrency: {
-	name: 'KAVA',
-	symbol: 'KAVA',
-	decimals: 18
-	},
-	rpcUrls: ['https://evm.evm-alpha.kava.io'],
-	blockExplorerUrls: ['https://explorer.evm-alpha.kava.io']
-	}]
-	break;
-	case 2222 :
-	params = [{
-	chainId: '0x8AE',
-	chainName: 'Kava EVM',
-	nativeCurrency: {
-	name: 'KAVA',
-	symbol: 'KAVA',
-	decimals: 18
-	},
-	rpcUrls: ['https://evm.kava.io'],
-	blockExplorerUrls: ['https://explorer.kava.io']
-	}]
-	break;
-	default:
-	alert('Network not supported to adding!');
+// 	switch (chainId) {
+// 	case 56 :
+// 	params = [{
+// 	chainId: '0x38',
+// 	chainName: 'Binance Smart Chain Mainnet',
+// 	nativeCurrency: {
+// 	name: 'BNB',
+// 	symbol: 'BNB',
+// 	decimals: 18
+// 	},
+// 	rpcUrls: ['https://bsc-dataseed.binance.org/'],
+// 	blockExplorerUrls: ['https://bscscan.com']
+// 	}]
+// 	break;
+// 	case 97 :
+// 	params = [{
+// 	chainId: '0x61',
+// 	chainName: 'Binance Smart Chain Testnet',
+// 	nativeCurrency: {
+// 	name: 'BNB',
+// 	symbol: 'BNB',
+// 	decimals: 18
+// 	},
+// 	rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
+// 	blockExplorerUrls: ['https://testnet.bscscan.com']
+// 	}]
+// 	break;
+// 	case 137 :
+// 	params = [{
+// 	chainId: '0x89',
+// 	chainName: 'Polygon Mainnet',
+// 	nativeCurrency: {
+// 	name: 'MATIC',
+// 	symbol: 'MATIC',
+// 	decimals: 18
+// 	},
+// 	rpcUrls: ['https://polygon-rpc.com/'],
+// 	blockExplorerUrls: ['https://polygonscan.com/']
+// 	}]
+// 	break;
+// 	case 1313161555 :
+// 	params = [{
+// 	chainId: '0x4E454153',
+// 	chainName: 'Aurora Testnet',
+// 	nativeCurrency: {
+// 	name: 'ETH',
+// 	symbol: 'ETH',
+// 	decimals: 18
+// 	},
+// 	rpcUrls: ['https://testnet.aurora.dev'],
+// 	blockExplorerUrls: ['https://testnet.aurorascan.dev']
+// 	}]
+// 	break;
+// 	case 1313161554 :
+// 	params = [{
+// 	chainId: '0x4E454152',
+// 	chainName: 'Aurora Mainnet',
+// 	nativeCurrency: {
+// 	name: 'ETH',
+// 	symbol: 'ETH',
+// 	decimals: 18
+// 	},
+// 	rpcUrls: ['https://mainnet.aurora.dev'],
+// 	blockExplorerUrls: ['https://aurorascan.dev']
+// 	}]
+// 	break;
+// 	case 2221 :
+// 	params = [{
+// 	chainId: '0x8AD',
+// 	chainName: 'Kava EVM Testnet',
+// 	nativeCurrency: {
+// 	name: 'KAVA',
+// 	symbol: 'KAVA',
+// 	decimals: 18
+// 	},
+// 	rpcUrls: ['https://evm.evm-alpha.kava.io'],
+// 	blockExplorerUrls: ['https://explorer.evm-alpha.kava.io']
+// 	}]
+// 	break;
+// 	case 2222 :
+// 	params = [{
+// 	chainId: '0x8AE',
+// 	chainName: 'Kava EVM',
+// 	nativeCurrency: {
+// 	name: 'KAVA',
+// 	symbol: 'KAVA',
+// 	decimals: 18
+// 	},
+// 	rpcUrls: ['https://evm.kava.io'],
+// 	blockExplorerUrls: ['https://explorer.kava.io']
+// 	}]
+// 	break;
+// 	default:
+// 	alert('Network not supported to adding!');
 
-	}
-	console.log('addNetwork params' + JSON.stringify(params));
-	window.ethereum.request({ method: 'wallet_addEthereumChain', params })
-	.then(() => console.log('Success'))
-	.catch((err
-}*/
+// 	}
+// 	console.log('addNetwork params' + JSON.stringify(params));
+// 	window.ethereum.request({ method: 'wallet_addEthereumChain', params })
+// 	.then(() => console.log('Success'))
+// 	.catch((err
+// }
