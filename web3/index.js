@@ -24,6 +24,10 @@ window.web3gl = {
   sendTransactionResponse: "",
   sendContract,
   sendContractResponse: "",
+  addNetwork,
+  addNetworkResponse: "",
+  addMoney,
+  addMoneyResponse: ""
 };
 
 // will be defined after connect()
@@ -105,7 +109,7 @@ async function connect() {
           params: [{ chainId: `0x${window.web3ChainId.toString(16)}` }], // chainId must be in hexadecimal numbers
         })
         .catch(() => {
-          window.location.reload();
+          //window.location.reload();
         });
   }
 
@@ -198,110 +202,155 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
       });
 }
 
-// async function addNetwork(chainId) {
+async function addNetwork(chainId) {
+    var eth;
+    chainId = parseInt(chainId, 10);
 
-// 	let params;
+    if (typeof ethereum !== 'undefined') {
+        eth = new Web3(ethereum);
+    } else if (typeof web3 !== 'undefined') {
+        eth = new Web3(web3.givenProvider);
+    } else {
+        eth = new Web3(ethereum);
+    }
 
-// 	console.log('addNetwork chainId ' + chainId);
+    if (typeof eth !== 'undefined') {
+        // let network = 0;
+        // window.web3 = new Web3(window.ethereum);
+        // network = await web3.eth.getChainId();
+        // // network = await web3.eth.getChainId();
+        // let netID = network.toString();   // if (netID === chainId.toString()) {
+                                                  //     alert("Network has already been added to Metamask.");
+                                                  //     return;
+                                                  // } else {
+        let params;
 
-// 	switch (chainId) {
-// 	case 56 :
-// 	params = [{
-// 	chainId: '0x38',
-// 	chainName: 'Binance Smart Chain Mainnet',
-// 	nativeCurrency: {
-// 	name: 'BNB',
-// 	symbol: 'BNB',
-// 	decimals: 18
-// 	},
-// 	rpcUrls: ['https://bsc-dataseed.binance.org/'],
-// 	blockExplorerUrls: ['https://bscscan.com']
-// 	}]
-// 	break;
-// 	case 97 :
-// 	params = [{
-// 	chainId: '0x61',
-// 	chainName: 'Binance Smart Chain Testnet',
-// 	nativeCurrency: {
-// 	name: 'BNB',
-// 	symbol: 'BNB',
-// 	decimals: 18
-// 	},
-// 	rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
-// 	blockExplorerUrls: ['https://testnet.bscscan.com']
-// 	}]
-// 	break;
-// 	case 137 :
-// 	params = [{
-// 	chainId: '0x89',
-// 	chainName: 'Polygon Mainnet',
-// 	nativeCurrency: {
-// 	name: 'MATIC',
-// 	symbol: 'MATIC',
-// 	decimals: 18
-// 	},
-// 	rpcUrls: ['https://polygon-rpc.com/'],
-// 	blockExplorerUrls: ['https://polygonscan.com/']
-// 	}]
-// 	break;
-// 	case 1313161555 :
-// 	params = [{
-// 	chainId: '0x4E454153',
-// 	chainName: 'Aurora Testnet',
-// 	nativeCurrency: {
-// 	name: 'ETH',
-// 	symbol: 'ETH',
-// 	decimals: 18
-// 	},
-// 	rpcUrls: ['https://testnet.aurora.dev'],
-// 	blockExplorerUrls: ['https://testnet.aurorascan.dev']
-// 	}]
-// 	break;
-// 	case 1313161554 :
-// 	params = [{
-// 	chainId: '0x4E454152',
-// 	chainName: 'Aurora Mainnet',
-// 	nativeCurrency: {
-// 	name: 'ETH',
-// 	symbol: 'ETH',
-// 	decimals: 18
-// 	},
-// 	rpcUrls: ['https://mainnet.aurora.dev'],
-// 	blockExplorerUrls: ['https://aurorascan.dev']
-// 	}]
-// 	break;
-// 	case 2221 :
-// 	params = [{
-// 	chainId: '0x8AD',
-// 	chainName: 'Kava EVM Testnet',
-// 	nativeCurrency: {
-// 	name: 'KAVA',
-// 	symbol: 'KAVA',
-// 	decimals: 18
-// 	},
-// 	rpcUrls: ['https://evm.evm-alpha.kava.io'],
-// 	blockExplorerUrls: ['https://explorer.evm-alpha.kava.io']
-// 	}]
-// 	break;
-// 	case 2222 :
-// 	params = [{
-// 	chainId: '0x8AE',
-// 	chainName: 'Kava EVM',
-// 	nativeCurrency: {
-// 	name: 'KAVA',
-// 	symbol: 'KAVA',
-// 	decimals: 18
-// 	},
-// 	rpcUrls: ['https://evm.kava.io'],
-// 	blockExplorerUrls: ['https://explorer.kava.io']
-// 	}]
-// 	break;
-// 	default:
-// 	alert('Network not supported to adding!');
+        console.log('addNetwork chainId ' + chainId);
+		switch (chainId) {
+            case 56 :
+                params = [{
+                    chainId: '0x38',
+                    chainName: 'Binance Smart Chain Mainnet',
+                    nativeCurrency: {
+                        name: 'BNB',
+                        symbol: 'BNB',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://bsc-dataseed.binance.org/'],
+                    blockExplorerUrls: ['https://bscscan.com']
+                }]
+                break;
+            case 97 :
+                params = [{
+                    chainId: '0x61',
+                    chainName: 'Binance Smart Chain Testnet',
+                    nativeCurrency: {
+                        name: 'BNB',
+                        symbol: 'BNB',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
+                    blockExplorerUrls: ['https://testnet.bscscan.com']
+                }]
+                break;
+            case 137 :
+                params = [{
+                    chainId: '0x89',
+                    chainName: 'Polygon Mainnet',
+                    nativeCurrency: {
+                        name: 'MATIC',
+                        symbol: 'MATIC',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://polygon-rpc.com/'],
+                    blockExplorerUrls: ['https://polygonscan.com/']
+                }]
+                break;
+            case 1313161555 :
+                params = [{
+                    chainId: '0x4E454153',
+                    chainName: 'Aurora Testnet',
+                    nativeCurrency: {
+                        name: 'ETH',
+                        symbol: 'ETH',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://testnet.aurora.dev'],
+                    blockExplorerUrls: ['https://testnet.aurorascan.dev']
+                }]
+                break;
+            case 1313161554 :
+                params = [{
+                    chainId: '0x4E454152',
+                    chainName: 'Aurora Mainnet',
+                    nativeCurrency: {
+                        name: 'ETH',
+                        symbol: 'ETH',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://mainnet.aurora.dev'],
+                    blockExplorerUrls: ['https://aurorascan.dev']
+                }]
+                break;
+            case 2221 :
+                params = [{
+                    chainId: '0x8AD',
+                    chainName: 'Kava EVM Testnet',
+                    nativeCurrency: {
+                        name: 'KAVA',
+                        symbol: 'KAVA',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://evm.evm-alpha.kava.io'],
+                    blockExplorerUrls: ['https://explorer.evm-alpha.kava.io']
+                }]
+                break;
+            case 2222 :
+                params = [{
+                    chainId: '0x8AE',
+                    chainName: 'Kava EVM',
+                    nativeCurrency: {
+                        name: 'KAVA',
+                        symbol: 'KAVA',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://evm.kava.io'],
+                    blockExplorerUrls: ['https://explorer.kava.io']
+                }]
+                break;
+            default:
+                alert('Network not supported to adding!');
 
-// 	}
-// 	console.log('addNetwork params' + JSON.stringify(params));
-// 	window.ethereum.request({ method: 'wallet_addEthereumChain', params })
-// 	.then(() => console.log('Success'))
-// 	.catch((err
-// }
+        }
+        console.log('addNetwork params' + JSON.stringify(params));
+        window.ethereum.request({ method: 'wallet_addEthereumChain', params })
+            .then(() => {
+            	window.ethereum
+			        .request({
+			          method: "wallet_switchEthereumChain",
+			          params: [{ chainId: `0x${window.web3ChainId.toString(16)}` }], // chainId must be in hexadecimal numbers
+			        }).then(() => {
+			        	console.log('Add Success');
+			        	console.log('Switch Success');
+			        	window.web3gl.addNetworkResponse = "Success";
+			        })
+			        .catch(() => {
+			        	window.web3gl.addNetworkResponse = "Error";
+			          	//window.location.reload();
+			        });
+            })
+            .catch((error) => {
+            	console.log("Error", error.message);
+            	window.web3gl.addNetworkResponse = "Error";
+            });
+    } else {
+        alert('Unable to locate a compatible web3 browser!');
+        window.web3gl.addNetworkResponse = "Error";
+    }    
+}
+
+async function addMoney(currency){
+    window.web3gl.addMoneyResponse = "https://buy.ramp.network?userAddress=$"+widget.entitie.walletAddress+"&swapAsset=$"+currency+"&fiatCurrency=USD&fiatValue=$"+double.parse(widget.args.controller.text)+"&hostApiKey=3drqkj4knryjjaf379e2xzpohxmqmr3h64tt5bsk&hostAppName=OpenBiSea&hostLogoUrl=https://res2.weblium.site/res/606b20dca1c3e80021e6a82c/60780ff9e61afe0021f8af90_optimized_927";
+    // String _generateURL(String currency) =>
+      // "https://buy.ramp.network?userAddress=${widget.entitie.walletAddress}&swapAsset=$currency&fiatCurrency=USD&fiatValue=${double.parse(widget.args.controller.text)}&hostApiKey=3drqkj4knryjjaf379e2xzpohxmqmr3h64tt5bsk&hostAppName=OpenBiSea&hostLogoUrl=https://res2.weblium.site/res/606b20dca1c3e80021e6a82c/60780ff9e61afe0021f8af90_optimized_927";
+}
