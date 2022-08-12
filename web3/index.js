@@ -26,8 +26,7 @@ window.web3gl = {
   sendContractResponse: "",
   addNetwork,
   addNetworkResponse: "",
-  addMoney,
-  addMoneyResponse: ""
+  changeChainId
 };
 
 // will be defined after connect()
@@ -346,11 +345,11 @@ async function addNetwork(chainId) {
     } else {
         alert('Unable to locate a compatible web3 browser!');
         window.web3gl.addNetworkResponse = "Error";
-    }    
+    }     
 }
 
-async function addMoney(currency){
-    window.web3gl.addMoneyResponse = "https://buy.ramp.network?userAddress=$"+widget.entitie.walletAddress+"&swapAsset=$"+currency+"&fiatCurrency=USD&fiatValue=$"+double.parse(widget.args.controller.text)+"&hostApiKey=3drqkj4knryjjaf379e2xzpohxmqmr3h64tt5bsk&hostAppName=OpenBiSea&hostLogoUrl=https://res2.weblium.site/res/606b20dca1c3e80021e6a82c/60780ff9e61afe0021f8af90_optimized_927";
-    // String _generateURL(String currency) =>
-      // "https://buy.ramp.network?userAddress=${widget.entitie.walletAddress}&swapAsset=$currency&fiatCurrency=USD&fiatValue=${double.parse(widget.args.controller.text)}&hostApiKey=3drqkj4knryjjaf379e2xzpohxmqmr3h64tt5bsk&hostAppName=OpenBiSea&hostLogoUrl=https://res2.weblium.site/res/606b20dca1c3e80021e6a82c/60780ff9e61afe0021f8af90_optimized_927";
+async function changeChainId(chainId) {
+  chainId = parseInt(chainId, 10);
+  window.web3ChainId = chainId;
 }
+    
