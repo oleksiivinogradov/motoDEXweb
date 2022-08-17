@@ -26,7 +26,9 @@ window.web3gl = {
   sendContractResponse: "",
   addNetwork,
   addNetworkResponse: "",
-  changeChainId
+  changeChainId,
+  getAllErc721,
+  getAllErc721Response: ""
 };
 
 // will be defined after connect()
@@ -349,7 +351,21 @@ async function addNetwork(chainId) {
 }
 
 async function changeChainId(chainId) {
-  chainId = parseInt(chainId, 10);
-  window.web3ChainId = chainId;
+	chainId = parseInt(chainId, 10);
+  	window.web3ChainId = chainId;
+}
+
+async function getAllErc721(abi, nftUniV3ContractAddress) {
+	const from = (await web3.eth.getAccounts())[0];
+ 	const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
+	let balance = parseInt(await nftContract.methods.balanceOf(from).call());
+	let data = [];
+	while (balance > 0) {
+	    balance = balance -1;
+	    const tokenID = await nftContract.methods.tokenOfOwnerByIndex(from,balance+'').call();
+		const tokenURI = await nftContract.methods.tokenURI(tokenID).call();
+		data.push({"contract": nftUniV3ContractAddress, "tokenId": tokenID, "uri": tokenURI, "balance":"1"});
+	}
+	window.web3gl.getAllErc721Response = JSON.stringify(data);
 }
     
