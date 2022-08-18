@@ -28,7 +28,14 @@ window.web3gl = {
   addNetworkResponse: "",
   changeChainId,
   getAllErc721,
-  getAllErc721Response: ""
+  getAllErc721Response: "",
+  methodCall,
+  methodCallResponse: "",
+  getTxStatus,
+  getTxStatusResponse: "",
+  getBalance,
+  getBalanceResponse: ""
+  
 };
 
 // will be defined after connect()
@@ -110,6 +117,7 @@ async function connect() {
           params: [{ chainId: `0x${window.web3ChainId.toString(16)}` }], // chainId must be in hexadecimal numbers
         })
         .catch(() => {
+          addNetwork(window.web3ChainId);
           //window.location.reload();
         });
   }
@@ -319,9 +327,44 @@ async function addNetwork(chainId) {
                     blockExplorerUrls: ['https://explorer.kava.io']
                 }]
                 break;
+            case 1001 :
+                params = [{
+                    chainId: '0x3e9',
+                    chainName: 'Klaytn Baobab',
+                    nativeCurrency: {
+                        name: 'KLAY',
+                        symbol: 'KLAY',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://api.baobab.klaytn.net:8651'],
+                    blockExplorerUrls: ['https://baobab.scope.klaytn.com/']
+                }]
+                break;
+            case 4 :
+                params = [{
+                    chainId: '0x4',
+                    chainName: 'Rinkeby Test Network',
+                    nativeCurrency: {
+                        name: 'RinkebyETH',
+                        symbol: 'RinkebyETH',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://rinkeby.infura.io/v3/'],
+                    blockExplorerUrls: ['https://rinkeby.etherscan.io/']
+                }]
+                break;
             default:
                 alert('Network not supported to adding!');
 
+        }
+        if (chainId == 4)
+        {
+          window.ethereum
+              .request({
+                method: "wallet_switchEthereumChain",
+                params: [{ chainId: `0x${window.web3ChainId.toString(16)}` }], // chainId must be in hexadecimal numbers
+              });
+              return;
         }
         console.log('addNetwork params' + JSON.stringify(params));
         window.ethereum.request({ method: 'wallet_addEthereumChain', params })
@@ -352,7 +395,8 @@ async function addNetwork(chainId) {
 
 async function changeChainId(chainId) {
 	chainId = parseInt(chainId, 10);
-  	window.web3ChainId = chainId;
+  window.web3ChainId = chainId;
+  addNetwork(window.web3ChainId);
 }
 
 async function getAllErc721(abi, nftUniV3ContractAddress) {
@@ -368,4 +412,62 @@ async function getAllErc721(abi, nftUniV3ContractAddress) {
 	}
 	window.web3gl.getAllErc721Response = JSON.stringify(data);
 }
-    
+
+async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
+  console.log(method);
+  const from = (await web3.eth.getAccounts())[0];
+  const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
+  let response = await nftContract.methods[method](...JSON.parse(args))
+  .call({
+        from,
+        value: value ? value : undefined
+  });
+  console.log(response);
+  console.log(typeof response);
+  if (typeof response != "string")
+  {
+    window.web3gl.methodCallResponse = JSON.stringify(response);
+  }
+  else
+  {
+    window.web3gl.methodCallResponse = response;
+  }
+  console.log(window.web3gl.methodCallResponse);
+}
+
+async function getTxStatus(transactionHash) {
+  const from = (await web3.eth.getAccounts())[0];
+  let response = await web3.eth.getTransactionReceipt(transactionHash);
+  console.log(response);
+  if (response.status == true)
+  {
+    response = "success"
+  }
+  else if (response.status == false)
+  {
+    response = "fail"
+  }
+  console.log(response);
+  if (typeof response != "string")
+  {
+    window.web3gl.getTxStatusResponse = JSON.stringify(response);
+  }
+  else
+  {
+    window.web3gl.getTxStatusResponse = response;
+  }
+}
+
+async function getBalance() {
+  const from = (await web3.eth.getAccounts())[0];
+  let response = parseInt(await web3.eth.getBalance(from));
+  //response = response * Math.pow(10, -18);
+  if (typeof response != "string")
+  {
+    window.web3gl.getBalanceResponse = JSON.stringify(response);
+  }
+  else
+  {
+    window.web3gl.getBalanceResponse = response;
+  }
+}
