@@ -329,7 +329,7 @@ async function addNetwork(chainId) {
                 break;
             case 1001 :
                 params = [{
-                    chainId: '0x3e9',
+                    chainId: '0x3E9',
                     chainName: 'Klaytn Baobab',
                     nativeCurrency: {
                         name: 'KLAY',
@@ -351,6 +351,45 @@ async function addNetwork(chainId) {
                     },
                     rpcUrls: ['https://rinkeby.infura.io/v3/'],
                     blockExplorerUrls: ['https://rinkeby.etherscan.io/']
+                }]
+                break;
+            case 15555 :
+                params = [{
+                    chainId: '0x3CC3',
+                    chainName: 'Trust Tesnet',
+                    nativeCurrency: {
+                        name: 'EVM',
+                        symbol: 'EVM',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://api.testnet-dev.trust.one'],
+                    blockExplorerUrls: ['https://trustscan.one']
+                }]
+                break;
+            case 9000 :
+                params = [{
+                    chainId: '0x2328',
+                    chainName: 'Evmos Testnet',
+                    nativeCurrency: {
+                        name: 'tEVMOS',
+                        symbol: 'tEVMOS',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://eth.bd.evmos.dev:8545'],
+                    blockExplorerUrls: ['https://evm.evmos.dev']
+                }]
+                break;
+            case 1281 :
+                params = [{
+                    chainId: '0x501',
+                    chainName: 'Octopus Testnet',
+                    nativeCurrency: {
+                        name: 'EBAR',
+                        symbol: 'EBAR',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://gateway.testnet.octopus.network/barnacle-evm/wj1hhcverunusc35jifki19otd4od1n5'],
+                    blockExplorerUrls: ['']
                 }]
                 break;
             default:
