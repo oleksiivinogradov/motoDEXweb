@@ -3,28 +3,72 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | motoDEX</title>
+    <title>OpenBiSea | MotoDEX</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
-    <script src="TemplateData/UnityProgress.js"></script>
-    <script src="Build/UnityLoader.js"></script>
+	<script src="Build/UnityLoader.js"></script>
     <script>
-      var unityInstance = UnityLoader.instantiate("unityContainer", "Build/motoDEXweb.json", {onProgress: UnityProgress});
+      var unityInstance = UnityLoader.instantiate("unityContainer", "Build/MotoDEXWeb.json", 
+	  {
+		onProgress: SetUnityProgress
+	  });
     </script>
   </head>
   <body>
-    <div class="webgl-content" style="display: table; width: 100%; height: 100%;">
-      <div id="unityContainer"></div>
+	<div class="webgl-content" style="display: table; width: 100%; height: 100%;">
+		<div id="unityContainer" class="unity-desktop">
+			<div id="custom-logo"></div>
+			<div id="custom-loader">
+				<div class="fill"></div>
+				<div id="custom-bar">
+					<div class="progressBar"></div>
+				</div>
+				<div class="progressLabel">
+					<tr>0%</tr>
+				</div>
+			</div>
+		</div>
     </div>
+	
     <script type="text/javascript">
-      var resize = function() {
-        document.getElementById("unityContainer").style.width = innerWidth + "px";
-        document.getElementById("unityContainer").style.height = innerHeight + "px";
-      }
+		var container = document.querySelector("#unityContainer");
+		var loadingBar = document.querySelector("#progressBar");
+		var loadingProgress = document.querySelector("#progressLabel");
+		var logo = document.querySelector("#custom-logo");
+		var loader = document.querySelector("#custom-loader");
+		
+		
+		var resize = function() 
+		{
+			container.style.width = innerWidth + "px";
+			container.style.height = innerHeight + "px";
+		}
 
-      resize();
+		resize();
+		window.addEventListener("resize", resize);
+		
+		function SetUnityProgress(unityInstance, progress)
+		{
+			if (!unityInstance.Module)
+				return;
+				
+			loadingBar.animate(
+				[
+					{ width: (progress * 100) + "%" }
+				],
+				{
+					duration: 300,
+					fill: "forwards"
+				}
+			);
 
-      window.addEventListener("resize", resize);
+			loadingProgress.textContent = (progress * 100).toFixed() + "%";
+			if (progress >= 1)
+			{
+				logo.style.display = "none";
+				loader.style.display = "none";
+			}
+		}
     </script>
   </body>
 </html>
