@@ -284,7 +284,7 @@ async function addNetwork(chainId) {
                         symbol: 'ETH',
                         decimals: 18
                     },
-                    rpcUrls: ['https://testnet.aurora.dev'],
+                    rpcUrls: ['https://aurora-testnet.infura.io/v3/bb7b522604e54a2f8ad251e7417b2355'],
                     blockExplorerUrls: ['https://testnet.aurorascan.dev']
                 }]
                 break;
