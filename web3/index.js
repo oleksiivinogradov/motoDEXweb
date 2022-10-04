@@ -34,7 +34,9 @@ window.web3gl = {
   getTxStatus,
   getTxStatusResponse: "",
   getBalance,
-  getBalanceResponse: ""
+  getBalanceResponse: "",
+  connectNearWallet,
+  connectNearWalletAccount: ""
   
 };
 
@@ -434,8 +436,8 @@ async function addNetwork(chainId) {
 
 async function changeChainId(chainId) {
 	chainId = parseInt(chainId, 10);
-  window.web3ChainId = chainId;
-  addNetwork(window.web3ChainId);
+  	window.web3ChainId = chainId;
+  	addNetwork(window.web3ChainId);
 }
 
 async function getAllErc721(abi, nftUniV3ContractAddress) {
@@ -509,4 +511,96 @@ async function getBalance() {
   {
     window.web3gl.getBalanceResponse = response;
   }
+}
+
+
+async function connectNearWallet(mainnet, routeBackURL) {
+//    console.log("Connecting to NEAR... mainnet" + mainnet)
+    const near = new nearApi.Near({
+        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+        networkId: mainnet ? 'default' : 'testnet',
+        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+    });
+
+    const wallet = new nearApi.WalletConnection(near, 'OpenBiSea');
+    const successUrl = (routeBackURL !== undefined) ? routeBackURL : window.location.href;
+    //console.log("connectNearWallet successUrl " + successUrl +" routeBackURL " + routeBackURL)
+
+    if(!wallet.isSignedIn())
+        await wallet.requestSignIn({
+            title:'OpenBiSea',
+            successUrl: successUrl,
+            failureUrl: (routeBackURL !== undefined) ? routeBackURL : window.location.href
+        });
+    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+    console.log("Near Wallet: " + JSON.parse(account.connection.signer.keyStore.localStorage.OpenBiSea_wallet_auth_key).accountId);
+    window.web3gl.connectNearWalletAccount = JSON.parse(account.connection.signer.keyStore.localStorage.OpenBiSea_wallet_auth_key).accountId;
+    return wallet;
+}
+
+async function motoDexGetPriceForType(mainnet, motoDexContract, type) {
+    const near = new nearApi.Near({
+        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+        networkId: mainnet ? 'default' : 'testnet',
+        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+    });
+    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+
+    const contract = new nearApi.Contract(
+        account, // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            viewMethods: ["value_in_main_coin", "get_price_for_type"], // view methods do not change state but usually return a value
+            sender: account, // account object to initialize and sign transactions.
+        }
+    );
+    // console.log("contract " + contract);
+
+    const value_in_main_coin = await contract.value_in_main_coin({ type_nft: parseInt(type) });
+    const value_in_main_coinFull = eToNumber(value_in_main_coin);
+
+    const get_price_for_type = await contract.get_price_for_type({ type_nft: parseInt(type) });
+    const get_price_for_typeFull = eToNumber(get_price_for_type);
+    console.log("motoDexGetPriceForType value_in_main_coinFull " + value_in_main_coinFull + ' get_price_for_typeFull ' + get_price_for_typeFull + " motoDexContract " + motoDexContract);
+    return JSON.stringify({value_in_main_coin: value_in_main_coinFull, get_price_for_type: get_price_for_typeFull});
+}
+
+async function motoDexBuyNFTFor(mainnet, motoDexContract, type, referral) {
+    console.log("motoDexBuyNFTFor motoDexContract " + motoDexContract);
+
+    let wallet = await connectNearWallet(mainnet)
+    const contract = new nearApi.Contract(
+        wallet.account(), // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            changeMethods: ["purchase"],
+            sender: wallet.account(), // account object to initialize and sign transactions.
+        }
+    );
+    // const amountString = eToNumber(amountInt);
+    let parameters = {type_nft:type};
+    if (referral !== null && referral !== undefined && referral.length > 2) parameters = {type_nft:type,referral:referral};
+    const prices = await motoDexGetPriceForType(mainnet, motoDexContract, type);
+    const pricesJSON = JSON.parse(prices);
+    const value_in_main_coin = pricesJSON.value_in_main_coin;
+    await contract.purchase(parameters, "300000000000000", value_in_main_coin);
+}
+
+async function listNearNFTsWeb(mainnet, contractAddress, selectedAccount) {
+    let wallet = await connectNearWallet(mainnet)
+
+    const contract = new nearApi.Contract(
+        wallet.account(), // the account object that is connecting
+        contractAddress,// name of contract you're connecting to
+        {
+            viewMethods: ["nft_tokens_for_owner"], // view methods do not change state but usually return a value
+            sender: wallet.account(), // account object to initialize and sign transactions.
+        }
+    );
+    // console.log("listNearNFTsWeb contract " + contract);
+
+    const nft_tokens_for_owner = await contract.nft_tokens_for_owner({ account_id: selectedAccount });
+    return JSON.stringify(nft_tokens_for_owner);
 }
