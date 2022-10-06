@@ -36,7 +36,13 @@ window.web3gl = {
   getBalance,
   getBalanceResponse: "",
   connectNearWallet,
-  connectNearWalletAccount: ""
+  connectNearWalletAccount: "",
+  nearSendContract,
+  nearSendContractResponse: "",
+  nearMethodCall,
+  nearMethodCallResponse: "",
+  listNearNFTsWeb,
+  listNearNFTsWebResponse: ""
   
 };
 
@@ -515,7 +521,8 @@ async function getBalance() {
 
 
 async function connectNearWallet(mainnet, routeBackURL) {
-//    console.log("Connecting to NEAR... mainnet" + mainnet)
+    console.log("Connecting to NEAR... network " + mainnet)
+    mainnet = await checkNetwork(mainnet);
     const near = new nearApi.Near({
         keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
         networkId: mainnet ? 'default' : 'testnet',
@@ -539,7 +546,8 @@ async function connectNearWallet(mainnet, routeBackURL) {
     return wallet;
 }
 
-async function motoDexGetPriceForType(mainnet, motoDexContract, type) {
+async function nearGetPriceForType(mainnet, motoDexContract, type) {
+    mainnet = await checkNetwork(mainnet);
     const near = new nearApi.Near({
         keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
         networkId: mainnet ? 'default' : 'testnet',
@@ -559,16 +567,17 @@ async function motoDexGetPriceForType(mainnet, motoDexContract, type) {
     // console.log("contract " + contract);
 
     const value_in_main_coin = await contract.value_in_main_coin({ type_nft: parseInt(type) });
-    const value_in_main_coinFull = eToNumber(value_in_main_coin);
+    const value_in_main_coinFull = eToNumber(value_in_main_coin.toLocaleString('fullwide', {useGrouping:false}));
 
     const get_price_for_type = await contract.get_price_for_type({ type_nft: parseInt(type) });
-    const get_price_for_typeFull = eToNumber(get_price_for_type);
-    console.log("motoDexGetPriceForType value_in_main_coinFull " + value_in_main_coinFull + ' get_price_for_typeFull ' + get_price_for_typeFull + " motoDexContract " + motoDexContract);
+    const get_price_for_typeFull = eToNumber(get_price_for_type.toLocaleString('fullwide', {useGrouping:false}));
+    console.log("nearGetPriceForType value_in_main_coinFull " + value_in_main_coinFull + ' get_price_for_typeFull ' + get_price_for_typeFull + " motoDexContract " + motoDexContract);
     return JSON.stringify({value_in_main_coin: value_in_main_coinFull, get_price_for_type: get_price_for_typeFull});
 }
 
-async function motoDexBuyNFTFor(mainnet, motoDexContract, type, referral) {
-    console.log("motoDexBuyNFTFor motoDexContract " + motoDexContract);
+async function nearBuyNFTFor(mainnet, motoDexContract, type, referral) {
+    console.log("motoDexBuyNFTFor motoDexContract " + motoDexContract + "; NFT type " + type);
+    mainnet = await checkNetwork(mainnet);
 
     let wallet = await connectNearWallet(mainnet)
     const contract = new nearApi.Contract(
@@ -582,15 +591,18 @@ async function motoDexBuyNFTFor(mainnet, motoDexContract, type, referral) {
     // const amountString = eToNumber(amountInt);
     let parameters = {type_nft:type};
     if (referral !== null && referral !== undefined && referral.length > 2) parameters = {type_nft:type,referral:referral};
-    const prices = await motoDexGetPriceForType(mainnet, motoDexContract, type);
+    const prices = await nearGetPriceForType(mainnet, motoDexContract, type);
     const pricesJSON = JSON.parse(prices);
     const value_in_main_coin = pricesJSON.value_in_main_coin;
-    await contract.purchase(parameters, "300000000000000", value_in_main_coin);
+    const buyResponse = await contract.purchase(parameters, "300000000000000", value_in_main_coin);
+    return JSON.stringify(buyResponse);
 }
 
 async function listNearNFTsWeb(mainnet, contractAddress, selectedAccount) {
+	  console.log("listNearNFTsWeb network " + mainnet + "; motoDexContract " + contractAddress + "; selectedAccount " + selectedAccount);
+    mainnet = await checkNetwork(mainnet);
+    
     let wallet = await connectNearWallet(mainnet)
-
     const contract = new nearApi.Contract(
         wallet.account(), // the account object that is connecting
         contractAddress,// name of contract you're connecting to
@@ -602,5 +614,107 @@ async function listNearNFTsWeb(mainnet, contractAddress, selectedAccount) {
     // console.log("listNearNFTsWeb contract " + contract);
 
     const nft_tokens_for_owner = await contract.nft_tokens_for_owner({ account_id: selectedAccount });
+    window.web3gl.listNearNFTsWebResponse = JSON.stringify(nft_tokens_for_owner);
     return JSON.stringify(nft_tokens_for_owner);
 }
+
+async function nearSendContract(mainnet, motoDexContract, method, args, value) {
+    args = JSON.parse(args);
+    console.log(args);
+    console.log(args[0]);
+  	let response;
+    mainnet = await checkNetwork(mainnet);
+    switch (method) {
+            case "purchase" :
+                response = await nearBuyNFTFor(mainnet, motoDexContract, parseInt(args[0]), args[1]);
+                break;
+   			default:
+                alert('Method is not added'); 
+	}
+	if (typeof response != "string")
+  	{
+    	window.web3gl.nearSendContractResponse = JSON.stringify(response);
+  	}
+  	else
+  	{
+    	window.web3gl.nearSendContractResponse = response;
+  	}
+}
+
+async function nearMethodCall(mainnet, motoDexContract, method, args, value) {
+	let response;
+  mainnet = await checkNetwork(mainnet);
+    switch (method) {
+            case "methodName" :
+                // call function
+                break;
+            case "methodName2" :
+                // call function
+                break;
+   			default:
+                alert('Method is not added'); 
+	}
+	if (typeof response != "string")
+  	{
+    	window.web3gl.nearMethodCallResponse = JSON.stringify(response);
+  	}
+  	else
+  	{
+    	window.web3gl.nearMethodCallResponse = response;
+  	}
+}
+
+function eToNumber(num) {
+    let sign = "";
+    (num += "").charAt(0) == "-" && (num = num.substring(1), sign = "-");
+    let arr = num.split(/[e]/ig);
+    if (arr.length < 2) return sign + num;
+    let dot = (.1).toLocaleString().substr(1, 1), n = arr[0], exp = +arr[1],
+        w = (n = n.replace(/^0+/, '')).replace(dot, ''),
+        pos = n.split(dot)[1] ? n.indexOf(dot) + exp : w.length + exp,
+        L   = pos - w.length, s = "" + BigInt(w);
+    w   = exp >= 0 ? (L >= 0 ? s + "0".repeat(L) : r()) : (pos <= 0 ? "0" + dot + "0".repeat(Math.abs(pos)) + s : r());
+    L= w.split(dot); if (L[0]==0 && L[1]==0 || (+w==0 && +s==0) ) w = 0; //** added 9/10/2021
+    return sign + w;
+    function r() {return w.replace(new RegExp(`^(.{${pos}})(.)`), `$1${dot}$2`)}
+}
+
+async function checkNetwork(mainnet) {
+  switch (mainnet) {
+        case "testnet" :
+          mainnet = false;
+          break;
+        case "mainnet" :
+          mainnet = true;
+          break;
+        default:
+          mainnet = false; 
+  }
+  return mainnet;
+}
+
+// View methods
+// tokenURI : tokenId (uint256)
+// valueInMainCoin : valueInUSD (uint256)
+// getHealthForId : tokenId (uint256)
+// getPriceForType : typeNft (uint8)
+// getPercentForTrack : tokenId (uint256)
+// balanceOf : owner (address)
+// minimalFeeInUSD : "[]"
+// latestEpochUpdate : "[]"
+// tokenIdsAndOwners : "[]"
+// getGameSessions : "[]"
+// getAllGameBids : "[]"
+// getLatestPrice : "[]"
+// syncEpochResultsBidsFinal : "[]"
+// syncEpochResultsMotosFinal : "[]"
+// getLimitsAndCounters : "[]"
+
+// Change methods
+// returnMoto : ""; tokenId (uint256)
+// returnTrack : ""; tokenId (uint256)
+// addHealthNFT : ""; tokenId (uint256), healthPillTokenId (uint256)
+// bidFor : bidFor; trackTokenId (uint8), motoTokenId (uint8)
+// addMoto : addMoto; tokenId (uint256)
+// addTrack : addTrack; tokenId (uint256)
+// addHealthMoney : addHealthMoney; tokenId (uint256)
