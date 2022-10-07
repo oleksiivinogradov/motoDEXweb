@@ -575,6 +575,36 @@ async function nearGetPriceForType(mainnet, motoDexContract, type) {
     return JSON.stringify({value_in_main_coin: value_in_main_coinFull, get_price_for_type: get_price_for_typeFull});
 }
 
+async function nearMinimalFeeInUSD(mainnet, motoDexContract) {
+    mainnet = await checkNetwork(mainnet);
+    const near = new nearApi.Near({
+        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+        networkId: mainnet ? 'default' : 'testnet',
+        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+    });
+    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+
+    const contract = new nearApi.Contract(
+        account, // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            viewMethods: ["minimal_fee_in_usd", "value_in_main_coin"], // view methods do not change state but usually return a value
+            sender: account, // account object to initialize and sign transactions.
+        }
+    );
+    // console.log("contract " + contract);
+
+    // const minimal_fee_in_usd = await contract.minimal_fee_in_usd();
+    // console.log(minimal_fee_in_usd);
+    // const value_in_main_coin = await contract.value_in_main_coin({ type_nft: parseInt(minimal_fee_in_usd) });
+    // const value_in_main_coinFull = eToNumber(value_in_main_coin.toLocaleString('fullwide', {useGrouping:false}));
+    const value_in_main_coinFull = eToNumber("1778827035712731");
+
+    console.log("nearMinimalFeeInUSD value_in_main_coinFull " + value_in_main_coinFull + " motoDexContract " + motoDexContract);
+    return JSON.stringify({minimal_fee_in_usd: value_in_main_coinFull});
+}
+
 async function nearBuyNFTFor(mainnet, motoDexContract, type, referral) {
     console.log("motoDexBuyNFTFor motoDexContract " + motoDexContract + "; NFT type " + type);
     mainnet = await checkNetwork(mainnet);
@@ -596,6 +626,50 @@ async function nearBuyNFTFor(mainnet, motoDexContract, type, referral) {
     const value_in_main_coin = pricesJSON.value_in_main_coin;
     const buyResponse = await contract.purchase(parameters, "300000000000000", value_in_main_coin);
     return JSON.stringify(buyResponse);
+}
+
+async function nearAddMoto(mainnet, motoDexContract, tokenId) {
+    console.log("nearAddMoto motoDexContract " + motoDexContract + "; NFT tokenId " + tokenId);
+    mainnet = await checkNetwork(mainnet);
+
+    let wallet = await connectNearWallet(mainnet)
+    const contract = new nearApi.Contract(
+        wallet.account(), // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            changeMethods: ["add_moto"],
+            sender: wallet.account(), // account object to initialize and sign transactions.
+        }
+    );
+    // const amountString = eToNumber(amountInt);
+    let parameters = {token_id:tokenId};
+    const prices = await nearMinimalFeeInUSD(mainnet, motoDexContract);
+    const pricesJSON = JSON.parse(prices);
+    const minimal_fee_in_usd = pricesJSON.minimal_fee_in_usd;
+    const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
+    return JSON.stringify(addResponse);
+}
+
+async function nearAddTrack(mainnet, motoDexContract, tokenId) {
+    console.log("nearAddTrack motoDexContract " + motoDexContract + "; NFT tokenId " + tokenId);
+    mainnet = await checkNetwork(mainnet);
+
+    let wallet = await connectNearWallet(mainnet)
+    const contract = new nearApi.Contract(
+        wallet.account(), // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            changeMethods: ["add_track"],
+            sender: wallet.account(), // account object to initialize and sign transactions.
+        }
+    );
+    // const amountString = eToNumber(amountInt);
+    let parameters = {token_id:tokenId};
+    const prices = await nearMinimalFeeInUSD(mainnet, motoDexContract);
+    const pricesJSON = JSON.parse(prices);
+    const minimal_fee_in_usd = pricesJSON.minimal_fee_in_usd;
+    const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
+    return JSON.stringify(addResponse);
 }
 
 async function listNearNFTsWeb(mainnet, contractAddress, selectedAccount) {
@@ -627,6 +701,12 @@ async function nearSendContract(mainnet, motoDexContract, method, args, value) {
     switch (method) {
             case "purchase" :
                 response = await nearBuyNFTFor(mainnet, motoDexContract, parseInt(args[0]), args[1]);
+                break;
+            case "addMoto" :
+                response = await nearAddMoto(mainnet, motoDexContract,  JSON.stringify(args));
+                break;
+            case "addTrack" :
+                response = await nearAddTrack(mainnet, motoDexContract, JSON.stringify(args));
                 break;
    			default:
                 alert('Method is not added'); 
