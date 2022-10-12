@@ -13,6 +13,9 @@ document.body.appendChild(Object.assign(document.createElement("script"), { type
 // uncomment to enable walletconnect
 document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "https://unpkg.com/@walletconnect/web3-provider@1.7.1/dist/umd/index.min.js" }));
 
+// load google-analytics.js to get access to analytics
+document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "./js/google-analytics.js" }));
+
 // load web3gl to connect to unity
 window.web3gl = {
   networkId: 0,
@@ -198,6 +201,10 @@ const gasPrice = "333333333333"
 window.web3gl.sendContract(method, abi, contract, args, value, gasLimit, gasPrice)
 */
 async function sendContract(method, abi, contract, args, value, gasLimit, gasPrice) {
+  if (method == "purchase")
+  {
+    gtag('event', 'purchase_nft', { 'purchase_nft': 'true' });
+  }
   const from = (await web3.eth.getAccounts())[0];
   new web3.eth.Contract(JSON.parse(abi), contract).methods[method](...JSON.parse(args))
       .send({
