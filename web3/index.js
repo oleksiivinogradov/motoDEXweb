@@ -16,6 +16,11 @@ document.body.appendChild(Object.assign(document.createElement("script"), { type
 // load google-analytics.js to get access to analytics
 document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "./js/google-analytics.js" }));
 
+document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "./web3/borsh.bundle.js" }));
+
+// // load nearAPI.js to get access to Near API
+// document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "./web3/nearAPI.js" }));
+
 // load web3gl to connect to unity
 window.web3gl = {
   networkId: 0,
@@ -45,7 +50,8 @@ window.web3gl = {
   nearMethodCall,
   nearMethodCallResponse: "",
   listNearNFTsWeb,
-  listNearNFTsWebResponse: ""
+  listNearNFTsWebResponse: "",
+  googleAnalyticsSendEvent
   
 };
 
@@ -203,7 +209,7 @@ window.web3gl.sendContract(method, abi, contract, args, value, gasLimit, gasPric
 async function sendContract(method, abi, contract, args, value, gasLimit, gasPrice) {
   if (method == "purchase")
   {
-    gtag('event', 'purchase_nft', { 'purchase_nft': 'true' });
+  	googleAnalyticsSendEvent("purchase_nft");
   }
   const from = (await web3.eth.getAccounts())[0];
   new web3.eth.Contract(JSON.parse(abi), contract).methods[method](...JSON.parse(args))
@@ -661,6 +667,13 @@ async function nearAddTrack(mainnet, motoDexContract, tokenId) {
     console.log("nearAddTrack motoDexContract " + motoDexContract + "; NFT tokenId " + tokenId);
     mainnet = await checkNetwork(mainnet);
 
+    const near = new nearApi.Near({
+        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+        networkId: mainnet ? 'default' : 'testnet',
+        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+    });
+
     let wallet = await connectNearWallet(mainnet)
     const contract = new nearApi.Contract(
         wallet.account(), // the account object that is connecting
@@ -670,13 +683,128 @@ async function nearAddTrack(mainnet, motoDexContract, tokenId) {
             sender: wallet.account(), // account object to initialize and sign transactions.
         }
     );
-    // const amountString = eToNumber(amountInt);
-    let parameters = {token_id:tokenId};
-    const prices = await nearMinimalFeeInUSD(mainnet, motoDexContract);
-    const pricesJSON = JSON.parse(prices);
-    const minimal_fee_in_usd = pricesJSON.minimal_fee_in_usd;
-    const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
-    return JSON.stringify(addResponse);
+    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+    const accountId = JSON.parse(account.connection.signer.keyStore.localStorage.OpenBiSea_wallet_auth_key).accountId;
+    const transactions = await nearAddTrackTransactions(accountId, motoDexContract, tokenId); 
+    return wallet.requestSignTransactions({ transactions });
+    // // const amountString = eToNumber(amountInt);
+    // let parameters = {token_id:tokenId};
+    // const prices = await nearMinimalFeeInUSD(mainnet, motoDexContract);
+    // const pricesJSON = JSON.parse(prices);
+    // const minimal_fee_in_usd = pricesJSON.minimal_fee_in_usd;
+    // const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
+    // return JSON.stringify(addResponse);
+}
+
+
+async function nearAddTrackTransactions(accountId, motoDexContract, tokenId) {
+  const transactions = [];
+
+  // Create transfer transaction
+  // "receiver_id": "'$MOTODEX_CONTRACT'", "token_id": "1", "msg": "{\"action\":{\"type\":\"AddTrack\"}}"
+  const transferAction = {
+      args: {
+          receiver_id: motoDexContract, // NFT CONTRACT
+          token_id: tokenId,
+          msg: JSON.stringify({ action: { type: "AddTrack" } }),
+      },
+      gas: '50000000000000',
+      deposit: "1",
+      methodName: "nft_transfer_call",
+  };
+  const transferTransaction = await actionsToTransaction(
+      accountId,
+      motoDexContract,
+      [transferAction]
+  );
+
+  transactions.push(transferTransaction);
+
+  const addTrackAction = {
+      args: {
+          token_id: tokenId,
+      },
+      gas: '50000000000000',
+      deposit: nearApi.utils.format.parseNearAmount("0.1"),
+      methodName: "add_track",
+  };
+  const addTrackTransaction = await actionsToTransaction(
+      accountId,
+      motoDexContract,
+      [addTrackAction]
+  );
+
+  transactions.push(addTrackTransaction);
+
+  // return transactions
+  return transactions;
+}
+
+async function actionsToTransaction(accountId, receiverId, actions) {
+  return await createTx(
+      accountId,
+      receiverId,
+      actions.map((action) =>
+          nearApi.transactions.functionCall(
+              action.methodName,
+              action.args,
+              action.gas,
+              action.deposit,
+          )
+      )
+  );
+}
+
+async function createTx(
+    accountId,
+    receiverId,
+    actions,
+    nonceOffset = 1
+) {
+    let wallet = await connectNearWallet();
+    console.log('connection', wallet);
+    // if (!wallet.isSignedIn()) {
+    //     await wallet.requestSignIn(
+    //         contractAccount,
+    //         'MotoDex'
+    //     );
+    // }
+    const account = wallet.account();
+
+    const connection = account.connection;
+
+    account.accountId = accountId;
+    const localKey = await connection.signer.getPublicKey(
+        account.accountId,
+        connection.networkId
+    );
+
+    const accessKey = await account.accessKeyForTransaction(
+        receiverId,
+        actions,
+        localKey
+    );
+
+    if (!accessKey) {
+        throw new Error(
+            `Cannot find matching key for transaction sent to ${receiverId}`
+        );
+    }
+
+    const block = await connection.provider.block({ finality: "final" });
+    const blockHash = borsh.baseDecode(block.header.hash);
+
+    const publicKey = nearApi.utils.PublicKey.from(accessKey.public_key);
+    const nonce = accessKey.access_key.nonce + nonceOffset;
+
+    return nearApi.transactions.createTransaction(
+        account.accountId,
+        publicKey,
+        receiverId,
+        nonce,
+        actions,
+        blockHash
+    );
 }
 
 async function listNearNFTsWeb(mainnet, contractAddress, selectedAccount) {
@@ -779,6 +907,13 @@ async function checkNetwork(mainnet) {
   }
   return mainnet;
 }
+
+async function googleAnalyticsSendEvent(eventName) {
+	console.log("googleAnalyticsSendEvent: " + eventName);
+	gtag('event', eventName, { eventName: true });
+}
+
+
 
 // View methods
 // tokenURI : tokenId (uint256)
