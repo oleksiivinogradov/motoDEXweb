@@ -413,6 +413,19 @@ async function addNetwork(chainId) {
                     blockExplorerUrls: ['']
                 }]
                 break;
+            case 1029 :
+                params = [{
+                    chainId: '0x405',
+                    chainName: 'BitTorrent Chain Donau',
+                    nativeCurrency: {
+                        name: 'BTT',
+                        symbol: 'BTT',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://pre-rpc.bt.io/'],
+                    blockExplorerUrls: ['https://testscan.bt.io/']
+                }]
+                break;
             default:
                 alert('Network not supported to adding!');
 
@@ -794,23 +807,23 @@ async function nearAddTransactions(accountId, motoDexContract, tokenId, minimalF
 
   // Create transfer transaction
   // "receiver_id": "'$MOTODEX_CONTRACT'", "token_id": "1", "msg": "{\"action\":{\"type\":\"AddTrack\"}}"
-  const transferAction = {
-      args: {
-          receiver_id: motoDexContract[1], // NFT CONTRACT
-          token_id: tokenId,
-          msg: JSON.stringify({ action: { type: addMoto ? "AddMoto" : "AddTrack" } }),
-      },
-      gas: '50000000000000',
-      deposit: "1",
-      methodName: "nft_transfer_call",
-  };
-  const transferTransaction = await actionsToTransaction(
-      accountId,
-      motoDexContract[0],
-      [transferAction]
-  );
+  // const transferAction = {
+  //     args: {
+  //         receiver_id: motoDexContract[1], // NFT CONTRACT
+  //         token_id: tokenId,
+  //         msg: JSON.stringify({ action: { type: addMoto ? "AddMoto" : "AddTrack" } }),
+  //     },
+  //     gas: '50000000000000',
+  //     deposit: "1",
+  //     methodName: "nft_transfer_call",
+  // };
+  // const transferTransaction = await actionsToTransaction(
+  //     accountId,
+  //     motoDexContract[0],
+  //     [transferAction]
+  // );
 
-  transactions.push(transferTransaction);
+  // transactions.push(transferTransaction);
 
   const addNFTAction = {
       args: {
@@ -840,7 +853,7 @@ async function nearReturnTransactions(accountId, motoDexContract, tokenId, minim
           token_id: tokenId,
       },
       gas: '50000000000000',
-      //deposit: minimalFee, //nearApi.utils.format.parseNearAmount("0.1"),
+      deposit: minimalFee, //nearApi.utils.format.parseNearAmount("0.1"),
       methodName: returnMoto ? "return_moto" : "return_track",
   };
   const returnNFTTransaction = await actionsToTransaction(
@@ -931,13 +944,13 @@ async function listNearNFTsWeb(mainnet, contractAddress, selectedAccount) {
         wallet.account(), // the account object that is connecting
         contractAddress,// name of contract you're connecting to
         {
-            viewMethods: ["nft_tokens_for_owner"], // view methods do not change state but usually return a value
+            viewMethods: ["nft_tokens_for_owners"], // view methods do not change state but usually return a value
             sender: wallet.account(), // account object to initialize and sign transactions.
         }
     );
     // console.log("listNearNFTsWeb contract " + contract);
 
-    const nft_tokens_for_owner = await contract.nft_tokens_for_owner({ account_id: selectedAccount });
+    const nft_tokens_for_owner = await contract.nft_tokens_for_owners({ account_id: selectedAccount });
     window.web3gl.listNearNFTsWebResponse = JSON.stringify(nft_tokens_for_owner);
     return JSON.stringify(nft_tokens_for_owner);
 }
@@ -1069,14 +1082,11 @@ async function googleAnalyticsSendEvent(eventName) {
 
 // View methods
 // tokenURI : tokenId (uint256)
-// valueInMainCoin : valueInUSD (uint256)
 // getHealthForId : tokenId (uint256)
 // getPriceForType : typeNft (uint8)
 // getPercentForTrack : tokenId (uint256)
 // balanceOf : owner (address)
-// minimalFeeInUSD : "[]"
 // latestEpochUpdate : "[]"
-// tokenIdsAndOwners : "[]"
 // getGameSessions : "[]"
 // getAllGameBids : "[]"
 // getLatestPrice : "[]"
@@ -1085,10 +1095,6 @@ async function googleAnalyticsSendEvent(eventName) {
 // getLimitsAndCounters : "[]"
 
 // Change methods
-// returnMoto : ""; tokenId (uint256)
-// returnTrack : ""; tokenId (uint256)
 // addHealthNFT : ""; tokenId (uint256), healthPillTokenId (uint256)
 // bidFor : bidFor; trackTokenId (uint8), motoTokenId (uint8)
-// addMoto : addMoto; tokenId (uint256)
-// addTrack : addTrack; tokenId (uint256)
 // addHealthMoney : addHealthMoney; tokenId (uint256)
