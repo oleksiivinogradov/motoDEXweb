@@ -626,13 +626,13 @@ async function nearMinimalFeeInUSD(mainnet, motoDexContract) {
     const minimal_fee_in_usd = await contract.get_minimal_fee();
     console.log(minimal_fee_in_usd);
 
-    const value_in_main_coin = await contract.value_in_main_coin({ type_nft: parseInt(minimal_fee_in_usd) });
-    const value_in_main_coin_float = parseFloat(value_in_main_coin) * 1.001;
-    const value_in_main_coinFull = eToNumber(value_in_main_coin_float.toLocaleString('fullwide', {useGrouping:false}));
+    // const value_in_main_coin = await contract.value_in_main_coin({ type_nft: parseInt(minimal_fee_in_usd) });
+    // const value_in_main_coin_float = parseFloat(value_in_main_coin) * 1.001;
+    // const value_in_main_coinFull = eToNumber(value_in_main_coin_float.toLocaleString('fullwide', {useGrouping:false}));
     //const value_in_main_coinFull = eToNumber("16666666666666666666666666");
 
-    console.log("nearMinimalFeeInUSD value_in_main_coinFull " + value_in_main_coinFull + " motoDexContract " + motoDexContract);
-    return JSON.stringify({minimal_fee_in_usd: value_in_main_coinFull});
+    console.log("nearMinimalFeeInUSD minimal_fee_in_usd " + minimal_fee_in_usd + " motoDexContract " + motoDexContract);
+    return JSON.stringify({minimal_fee_in_usd: minimal_fee_in_usd});
 }
 
 async function nearBuyNFTFor(mainnet, motoDexContract, type, referral) {
@@ -755,9 +755,9 @@ async function nearReturnMoto(mainnet, motoDexContract, tokenId) {
     
     // // const amountString = eToNumber(amountInt);
     // let parameters = {token_id:tokenId};
-    const prices = await nearMinimalFeeInUSD(mainnet, motoDexContract[1]);
-    const pricesJSON = JSON.parse(prices);
-    const minimal_fee_in_usd = pricesJSON.minimal_fee_in_usd;
+    // const prices = await nearMinimalFeeInUSD(mainnet, motoDexContract[1]);
+    // const pricesJSON = JSON.parse(prices);
+    const minimal_fee_in_usd = "1";
     // const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
     // return JSON.stringify(addResponse);
 
@@ -791,9 +791,10 @@ async function nearReturnTrack(mainnet, motoDexContract, tokenId) {
     
     // // const amountString = eToNumber(amountInt);
     // let parameters = {token_id:tokenId};
-    const prices = await nearMinimalFeeInUSD(mainnet, motoDexContract[1]);
-    const pricesJSON = JSON.parse(prices);
-    const minimal_fee_in_usd = pricesJSON.minimal_fee_in_usd;
+    // const prices = await nearMinimalFeeInUSD(mainnet, motoDexContract[1]);
+    // const pricesJSON = JSON.parse(prices);
+    const minimal_fee_in_usd = "1";
+    console.log("minimal_fee_in_usd: " + minimal_fee_in_usd);
     // const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
     // return JSON.stringify(addResponse);
 
@@ -853,7 +854,7 @@ async function nearReturnTransactions(accountId, motoDexContract, tokenId, minim
           token_id: tokenId,
       },
       gas: '50000000000000',
-      deposit: minimalFee, //nearApi.utils.format.parseNearAmount("0.1"),
+      deposit: minimalFee,
       methodName: returnMoto ? "return_moto" : "return_track",
   };
   const returnNFTTransaction = await actionsToTransaction(
