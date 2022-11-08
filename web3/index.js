@@ -426,6 +426,19 @@ async function addNetwork(chainId) {
                     blockExplorerUrls: ['https://testscan.bt.io/']
                 }]
                 break;
+            case 50021 :
+                params = [{
+                    chainId: '0xC365',
+                    chainName: 'GTON Testnet',
+                    nativeCurrency: {
+                        name: 'GCD',
+                        symbol: 'GCD',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://testnet.gton.network/'],
+                    blockExplorerUrls: ['https://explorer.testnet.gton.network/']
+                }]
+                break;
             default:
                 alert('Network not supported to adding!');
 
@@ -599,7 +612,7 @@ async function nearGetPriceForType(mainnet, motoDexContract, type) {
     const get_price_for_type = await contract.get_price_for_type({ type_nft: parseInt(type) });
     const get_price_for_typeFull = eToNumber(get_price_for_type.toLocaleString('fullwide', {useGrouping:false}));
     console.log("nearGetPriceForType value_in_main_coinFull " + value_in_main_coinFull + ' get_price_for_typeFull ' + get_price_for_typeFull + " motoDexContract " + motoDexContract);
-    return JSON.stringify({value_in_main_coin: value_in_main_coinFull, get_price_for_type: get_price_for_typeFull});
+    return JSON.stringify({value_in_main_coin: value_in_main_coinFull, value_in_main_coin_correct: value_in_main_coin, get_price_for_type: get_price_for_typeFull});
 }
 
 async function nearMinimalFeeInUSD(mainnet, motoDexContract) {
@@ -635,6 +648,114 @@ async function nearMinimalFeeInUSD(mainnet, motoDexContract) {
     return JSON.stringify({minimal_fee_in_usd: minimal_fee_in_usd});
 }
 
+async function nearHealthInWei(mainnet, motoDexContract, tokenId) {
+    mainnet = await checkNetwork(mainnet);
+    const near = new nearApi.Near({
+        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+        networkId: mainnet ? 'default' : 'testnet',
+        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+    });
+    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+
+    const contract = new nearApi.Contract(
+        account, // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            viewMethods: ["get_token_health"], // view methods do not change state but usually return a value
+            sender: account, // account object to initialize and sign transactions.
+        }
+    );
+
+	console.log("nearHealthInWei motoDexContract: " + motoDexContract);
+    const health_in_wei = await contract.get_token_health({ token_id : tokenId });
+    console.log(health_in_wei);
+
+    console.log("nearMinimalFeeInUSD health_in_wei " + health_in_wei + " motoDexContract " + motoDexContract);
+    return JSON.stringify({health_in_wei:health_in_wei});
+}
+
+async function nearGetPercentForTrack(mainnet, motoDexContract, tokenId) {
+    mainnet = await checkNetwork(mainnet);
+    const near = new nearApi.Near({
+        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+        networkId: mainnet ? 'default' : 'testnet',
+        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+    });
+    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+
+    const contract = new nearApi.Contract(
+        account, // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            viewMethods: ["get_percent_for_track"], // view methods do not change state but usually return a value
+            sender: account, // account object to initialize and sign transactions.
+        }
+    );
+
+	console.log("nearGetPercentForTrack motoDexContract: " + motoDexContract);
+    const response = await contract.get_percent_for_track({ token_id : tokenId });
+    console.log(response);
+
+    console.log("nearMinimalFeeInUSD get_percent_for_track " + response + " motoDexContract " + motoDexContract);
+    return JSON.stringify(response);
+}
+
+async function nearGetGameSessions(mainnet, motoDexContract) {
+    mainnet = await checkNetwork(mainnet);
+    const near = new nearApi.Near({
+        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+        networkId: mainnet ? 'default' : 'testnet',
+        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+    });
+    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+
+    const contract = new nearApi.Contract(
+        account, // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            viewMethods: ["get_active_sessions_full_view"], // view methods do not change state but usually return a value
+            sender: account, // account object to initialize and sign transactions.
+        }
+    );
+
+	console.log("nearGetGameSessions motoDexContract: " + motoDexContract);
+    const response = await contract.get_active_sessions_full_view();
+    console.log(response);
+
+    console.log("nearMinimalFeeInUSD get_active_sessions_full_view " + response + " motoDexContract " + motoDexContract);
+    return JSON.stringify(response);
+}
+
+async function nearGetAllGameBids(mainnet, motoDexContract) {
+    mainnet = await checkNetwork(mainnet);
+    const near = new nearApi.Near({
+        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+        networkId: mainnet ? 'default' : 'testnet',
+        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+    });
+    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+
+    const contract = new nearApi.Contract(
+        account, // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            viewMethods: ["get_game_bids_paged"], // view methods do not change state but usually return a value
+            sender: account, // account object to initialize and sign transactions.
+        }
+    );
+
+	console.log("nearGetAllGameBids motoDexContract: " + motoDexContract);
+    const response = await contract.get_game_bids_paged();
+    console.log(response);
+
+    console.log("nearMinimalFeeInUSD get_game_bids_paged " + response + " motoDexContract " + motoDexContract);
+    return JSON.stringify(response);
+}
+
 async function nearBuyNFTFor(mainnet, motoDexContract, type, referral) {
     console.log("motoDexBuyNFTFor motoDexContract " + motoDexContract + "; NFT type " + type);
     mainnet = await checkNetwork(mainnet);
@@ -656,6 +777,25 @@ async function nearBuyNFTFor(mainnet, motoDexContract, type, referral) {
     const value_in_main_coin = pricesJSON.value_in_main_coin;
     const buyResponse = await contract.purchase(parameters, "300000000000000", value_in_main_coin);
     return JSON.stringify(buyResponse);
+}
+
+async function nearAddHealthMoney(mainnet, motoDexContract, tokenId, healthPillTokenId, value) {
+    console.log("motoDexBuyNFTFor motoDexContract " + motoDexContract + "; NFT type " + type);
+    mainnet = await checkNetwork(mainnet);
+
+    let wallet = await connectNearWallet(mainnet)
+    const contract = new nearApi.Contract(
+        wallet.account(), // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            changeMethods: ["add_health_money"],
+            sender: wallet.account(), // account object to initialize and sign transactions.
+        }
+    );
+    let parameters = {token_id:tokenId};
+    if (healthPillTokenId !== null && healthPillTokenId !== undefined && healthPillTokenId.length > 2) parameters = {token_id:tokenId,health_pill_token_id:healthPillTokenId};
+    const addHealthMoneyResponse = await contract.add_health_money(parameters, "300000000000000", value_in_main_coin);
+    return JSON.stringify(addHealthMoneyResponse);
 }
 
 async function nearAddMoto(mainnet, motoDexContract, tokenId) {
@@ -979,6 +1119,12 @@ async function nearSendContract(mainnet, motoDexContract, method, args, value) {
             case "returnTrack" :
                 response = await nearReturnTrack(mainnet, motoDexContract, String(args[0]));
                 break;
+            case "addHealthNFT" :
+                response = await nearAddHealthMoney(mainnet, motoDexContract, String(args[0]),  String(args[1]), parseInt(value));
+                break;
+            case "addHealthMoney" :
+                response = await nearAddHealthMoney(mainnet, motoDexContract, String(args[0]), null, value);
+                break;
    			default:
                 alert('Method is not added'); 
 	}
@@ -1003,9 +1149,31 @@ async function nearMethodCall(mainnet, motoDexContract, method, args, value) {
             case "tokenIdsAndOwners" :
                 response = await nearTokenIdsAndOwners(mainnet, motoDexContract[1]);
                 break;
-            case "methodName2" :
-                // call function
+            case "getPriceForType" :
+                response = await nearGetPriceForType(mainnet, motoDexContract[1], parseInt(args[0]));
+                response = JSON.parse(response).get_price_for_type;
                 break;
+            case "valueInMainCoin" :
+                response = await nearGetPriceForType(mainnet, motoDexContract[1], parseInt(args[0]));
+                response = JSON.parse(response).value_in_main_coinFull;
+                break;
+            case "valueInMainCoinCorrect" :
+                response = await nearGetPriceForType(mainnet, motoDexContract[1], parseInt(args[0]));
+                response = JSON.parse(response).value_in_main_coin_correct;
+                break;      
+            case "getHealthForId" :
+                response = await nearHealthInWei(mainnet, motoDexContract[1], args[0]);
+                response =  JSON.parse(response).health_in_wei;
+                break;
+            case "getPercentForTrack" :
+                response = await nearGetPercentForTrack(mainnet, motoDexContract[1], args[0]);
+                break;
+            case "getGameSessions" :
+                response = await nearGetGameSessions(mainnet, motoDexContract[1]);
+                break;
+            case "getAllGameBids" :
+                response = await nearGetAllGameBids(mainnet, motoDexContract[1]);
+                break;    
    			default:
                 alert('Method is not added'); 
 	}
@@ -1082,14 +1250,13 @@ async function googleAnalyticsSendEvent(eventName) {
 
 
 // View methods
-// tokenURI : tokenId (uint256)
-// getHealthForId : tokenId (uint256)
-// getPriceForType : typeNft (uint8)
-// getPercentForTrack : tokenId (uint256)
+// !!tokenURI : tokenId (uint256)
+// !!getHealthForId : tokenId (uint256)
+// !!getPercentForTrack : tokenId (uint256)
 // balanceOf : owner (address)
 // latestEpochUpdate : "[]"
-// getGameSessions : "[]"
-// getAllGameBids : "[]"
+// !!getGameSessions : "[]"
+// !!getAllGameBids : "[]"
 // getLatestPrice : "[]"
 // syncEpochResultsBidsFinal : "[]"
 // syncEpochResultsMotosFinal : "[]"
