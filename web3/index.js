@@ -18,6 +18,9 @@ document.body.appendChild(Object.assign(document.createElement("script"), { type
 
 document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "./web3/borsh.bundle.js" }));
 
+document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "//unpkg.com/@concordium/browser-wallet-api-helpers@1.0.0/lib/concordiumHelpers.min.js" }));
+document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "//unpkg.com/@concordium/web-sdk@2.1.0/lib/concordium.min.js" }));
+
 // // load nearAPI.js to get access to Near API
 // document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "./web3/nearAPI.js" }));
 
@@ -64,6 +67,11 @@ paste this in inspector to connect to wallet:
 window.web3gl.connect()
 */
 async function connect() {
+  if (window.web3ChainId == 1456327825)
+  {
+  	web3gl.connectAccount = await connectConcordiumWallet(false);
+  	return;
+  }
   // uncomment to enable torus and walletconnect
   const providerOptions = {
     // torus: {
@@ -439,6 +447,19 @@ async function addNetwork(chainId) {
                     blockExplorerUrls: ['https://explorer.testnet.gton.network/']
                 }]
                 break;
+            case 1456327825 :  // Not real, just for Concordium
+                params = [{
+                    chainId: '0x56CDCC91',
+                    chainName: 'Concordium Testnet',
+                    nativeCurrency: {
+                        name: 'CCD',
+                        symbol: 'CCD',
+                        decimals: 18
+                    },
+                    rpcUrls: [''],
+                    blockExplorerUrls: ['']
+                }]
+                break;
             default:
                 alert('Network not supported to adding!');
 
@@ -451,6 +472,10 @@ async function addNetwork(chainId) {
                 params: [{ chainId: `0x${window.web3ChainId.toString(16)}` }], // chainId must be in hexadecimal numbers
               });
               return;
+        }
+        else if (chainId == 1456327825)
+        {
+        	return;
         }
         console.log('addNetwork params' + JSON.stringify(params));
         window.ethereum.request({ method: 'wallet_addEthereumChain', params })
@@ -558,6 +583,23 @@ async function getBalance() {
   }
 }
 
+async function connectConcordiumWallet(mainnet, routeBackURL) {
+    console.log("Connecting to CCD... mainnet " + mainnet);
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const consensusStatus = await client.getConsensusStatus();
+    const lastFinalizedBlock = await consensusStatus.lastFinalizedBlock;
+    console.log("Connecting to CCD... lastFinalizedBlock " + lastFinalizedBlock);
+    const acct = { credId: accountAddress };//new concordiumSDK.AccountAddress(accountAddress);
+    console.log("Connecting to CCD... acct " + JSON.stringify(acct));
+
+    const accountInfo = await client.getAccountInfo(acct);
+    //console.log("Connecting to CCD... accountInfo.accountAmount " + accountInfo.accountAmount);
+    const accountAmount = accountInfo.accountAmount;
+    return accountAddress;
+}
 
 async function connectNearWallet(mainnet, routeBackURL) {
     console.log("Connecting to NEAR... network " + mainnet)
