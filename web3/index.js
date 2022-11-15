@@ -218,6 +218,14 @@ const gasPrice = "333333333333"
 window.web3gl.sendContract(method, abi, contract, args, value, gasLimit, gasPrice)
 */
 async function sendContract(method, abi, contract, args, value, gasLimit, gasPrice) {
+
+  if (window.web3ChainId == 1456327825)
+  {
+    let concResponse = JSON.stringify(await concrodiumSendContract(contract, method, args, value));
+    console.log(concResponse);
+    window.web3gl.methodCallResponse = concResponse;
+    return;
+  }
   if (method == "purchase")
   {
   	googleAnalyticsSendEvent("purchase_nft");
@@ -514,6 +522,13 @@ async function changeChainId(chainId) {
 }
 
 async function getAllErc721(abi, nftUniV3ContractAddress) {
+  if (window.web3ChainId == 1456327825)
+  {
+    let concResponse = JSON.stringify(await concordiumNftTokensForOwners(nftUniV3ContractAddress));
+    console.log(concResponse);
+    window.web3gl.getAllErc721Response = concResponse;
+    return;
+  }
 	const from = (await web3.eth.getAccounts())[0];
  	const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
 	let balance = parseInt(await nftContract.methods.balanceOf(from).call());
@@ -529,6 +544,13 @@ async function getAllErc721(abi, nftUniV3ContractAddress) {
 
 async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
   console.log(method);
+  if (window.web3ChainId == 1456327825)
+  {
+    let concResponse = JSON.stringify(await concordiumMethodCall(nftUniV3ContractAddress, method, args, value));
+    console.log(concResponse);
+    window.web3gl.methodCallResponse = concResponse;
+    return;
+  }
   const from = (await web3.eth.getAccounts())[0];
   const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
   let response = await nftContract.methods[method](...JSON.parse(args))
@@ -586,6 +608,75 @@ async function getBalance() {
   }
 }
 
+async function concrodiumSendContract(motoDexContract, method, args, value) {
+    args = JSON.parse(args);
+    console.log(args);
+    console.log(args[0]);
+    let response;
+    switch (method) {
+            case "purchase" :
+                response = await concordiumPurchase(motoDexContract, parseInt(args[0]));
+                break;
+            case "addMoto" :
+                response = await concordiumAddNft(motoDexContract,  String(args[0]), true);
+                break;
+            case "addTrack" :
+                response = await concordiumAddNft(motoDexContract, String(args[0]), false);
+                break;
+            case "returnMoto" :
+                response = await concordiumReturnNft(motoDexContract, String(args[0]), true);
+                break;
+            case "returnTrack" :
+                response = await concordiumReturnNft(motoDexContract, String(args[0]), false);
+                break;
+            case "addHealthNFT" :
+                response = await concordiumAddHealthNftParams(motoDexContract, String(args[0]),  String(args[1]));
+                break;
+            case "addHealthMoney" :
+                response = await concordiumAddHealthMoney(motoDexContract, String(args[0]));
+                break;
+        default:
+                alert('Method is not added'); 
+    }
+    return response;
+}
+
+async function concordiumMethodCall(motoDexContract, method, args, value) {
+  args = JSON.parse(args);
+  console.log(args);
+  console.log(args[0]);
+  let response;
+    switch (method) {
+            case "tokenIdsAndOwners" :
+                response = await concordiumTokenIdsAndOwners(motoDexContract);
+                break;
+            case "getPriceForType" :
+                response = await concordiumValueInMainCoin(motoDexContract, parseInt(args[0]));
+                response = JSON.parse(response);
+                break;
+            case "valueInMainCoin" :
+                response = await concordiumValueInMainCoin(motoDexContract, parseInt(args[0]));
+                response = JSON.parse(response);
+                break;      
+            case "getHealthForId" :
+                response = await concordiumGetTokenHealth(motoDexContract, args[0]);
+                response =  JSON.parse(response);
+                break;
+            case "getPercentForTrack" :
+                response = await concordiumGetPercentForTrack(motoDexContract, args[0]);
+                break;
+            // case "getGameSessions" :
+            //     response = await nearGetGameSessions(mainnet, motoDexContract[1]);
+            //     break;
+            // case "getAllGameBids" :
+            //     response = await nearGetAllGameBids(mainnet, motoDexContract[1]);
+            //     break;    
+        default:
+                alert('Method is not added'); 
+  }
+  return response;
+}
+
 async function connectConcordiumWallet(mainnet, routeBackURL) {
     console.log("Connecting to CCD... mainnet " + mainnet);
     const provider = await concordiumHelpers.detectConcordiumProvider();
@@ -610,8 +701,8 @@ async function concordiumTokenIdsAndOwners(motoDexContract) {
   console.log("Connecting to CCD... accountAddress " + accountAddress);
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
-    subindex: 0,
-    index: 1857,
+    subindex: 0n,
+    index: 1857n,
   };
 
   const contractName = motoDexContract;
@@ -647,9 +738,29 @@ async function concordiumTokenIdsAndOwners(motoDexContract) {
   console.log(rawReturnValue);
   const schema = moduleFileBuffer; // Load schema from file
   const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  const returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+  let returnValue = "";
+  try{
+    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+  }
+  catch (error) {
+    console.log(methodName + error.message);
+  }
   console.log(returnValue);
-  return returnValue;
+  if (returnValue == ""){
+    return returnValue;
+  }
+  let structData = [];
+  for (let i = 0; i < returnValue.length; i++) {
+    const trackTokenID = returnValue[i].track_token_id.Some ? returnValue[i].track_token_id.Some[0] : "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+    const trackType = returnValue[i].track_type.Some ? returnValue[i].track_type.Some[0] : "255";
+    const motoTokenID = returnValue[i].moto_token_id.Some ? returnValue[i].moto_token_id.Some[0] : "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+    const motoType = returnValue[i].moto_type.Some ? returnValue[i].moto_type.Some[0] : "255";
+    const owner = returnValue[i].owner_id.Account[0];
+    structData.splice(i, 0, [trackTokenID, trackType, motoTokenID, motoType, owner]);
+  }
+  let fullStructData = {"0":structData, "1":String(returnValue.length)};
+  console.log(fullStructData);
+  return fullStructData;
 }
 
 async function concordiumNftTokensForOwners(motoDexContract) {
@@ -658,8 +769,8 @@ async function concordiumNftTokensForOwners(motoDexContract) {
   console.log("Connecting to CCD... accountAddress " + accountAddress);
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
-    subindex: 0,
-    index: 1857,
+    subindex: 0n,
+    index: 1857n,
   };
 
   const contractName = motoDexContract;
@@ -696,9 +807,27 @@ async function concordiumNftTokensForOwners(motoDexContract) {
   console.log(rawReturnValue);
   const schema = moduleFileBuffer; // Load schema from file
   const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  const returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+  let returnValue = "";
+  try{
+    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+  }
+  catch (error) {
+    console.log(methodName + error.message);
+  }
   console.log(returnValue);
-  return returnValue;
+  if (returnValue == ""){
+    return returnValue;
+  }
+  let structData = [];
+  for (let i = 0; i < returnValue.length; i++) {
+    const tokenID = returnValue[i].token_id;
+    const tokenURI = returnValue[i].metadata.uri;
+    const name = returnValue[i].metadata.name;
+    const typeNft = returnValue[i].metadata.type_nft;
+    structData.push({"contract": motoDexContract, "tokenId": tokenID, "uri": tokenURI, "balance":"1", "ItemData": {"name": name, "type": typeNft}});
+  }
+  console.log(structData);
+  return structData;
 }
 
 async function concordiumGetTokenHealth(motoDexContract, tokenId) {
@@ -707,8 +836,8 @@ async function concordiumGetTokenHealth(motoDexContract, tokenId) {
   console.log("Connecting to CCD... accountAddress " + accountAddress);
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
-    subindex: 0,
-    index: 1857,
+    subindex: 0n,
+    index: 1857n,
   };
 
   const contractName = motoDexContract;
@@ -754,8 +883,8 @@ async function concordiumValueInMainCoin(motoDexContract, typeNft) {
   console.log("Connecting to CCD... accountAddress " + accountAddress);
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
-    subindex: 0,
-    index: 1857,
+    subindex: 0n,
+    index: 1857n,
   };
 
   const contractName = motoDexContract;
@@ -801,8 +930,8 @@ async function concordiumGetPercentForTrack(motoDexContract, tokenId) {
   console.log("Connecting to CCD... accountAddress " + accountAddress);
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
-    subindex: 0,
-    index: 1857,
+    subindex: 0n,
+    index: 1857n,
   };
 
   const contractName = motoDexContract;
@@ -853,8 +982,8 @@ async function concordiumPurchase(motoDexContract, typeNft) {
   console.log("Connecting to CCD... accountAddress " + accountAddress);
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
-    subindex: 0,
-    index: 1857,
+    subindex: 0n,
+    index: 1857n,
   };
 
   const instanceInfo = await client.getInstanceInfo(
@@ -902,8 +1031,8 @@ async function concordiumAddHealthMoney(motoDexContract, tokenId) {
   console.log("Connecting to CCD... accountAddress " + accountAddress);
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
-    subindex: 0,
-    index: 1857,
+    subindex: 0n,
+    index: 1857n,
   };
 
   const instanceInfo = await client.getInstanceInfo(
@@ -950,8 +1079,8 @@ async function concordiumAddHealthNftParams(motoDexContract, tokenId, healthPill
   console.log("Connecting to CCD... accountAddress " + accountAddress);
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
-    subindex: 0,
-    index: 1857,
+    subindex: 0n,
+    index: 1857n,
   };
 
   const instanceInfo = await client.getInstanceInfo(
@@ -1001,8 +1130,8 @@ async function concordiumAddNft(motoDexContract, tokenId, isMoto) {
   console.log("Connecting to CCD... accountAddress " + accountAddress);
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
-    subindex: 0,
-    index: 1857,
+    subindex: 0n,
+    index: 1857n,
   };
 
   const instanceInfo = await client.getInstanceInfo(
@@ -1050,8 +1179,8 @@ async function concordiumReturnNft(motoDexContract, tokenId, isMoto) {
   console.log("Connecting to CCD... accountAddress " + accountAddress);
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
-    subindex: 0,
-    index: 1857,
+    subindex: 0n,
+    index: 1857n,
   };
 
   const instanceInfo = await client.getInstanceInfo(
