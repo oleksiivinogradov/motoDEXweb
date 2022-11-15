@@ -1141,7 +1141,7 @@ async function nearGetPriceForType(mainnet, motoDexContract, type) {
     // console.log("contract " + contract);
 
     const value_in_main_coin = await contract.value_in_main_coin({ type_nft: parseInt(type) });
-    const value_in_main_coin_float = parseFloat(value_in_main_coin) * 1.001;
+    const value_in_main_coin_float = parseFloat(value_in_main_coin) * 1.02;
     const value_in_main_coinFull = eToNumber(value_in_main_coin_float.toLocaleString('fullwide', {useGrouping:false}));
 
     const get_price_for_type = await contract.get_price_for_type({ type_nft: parseInt(type) });
