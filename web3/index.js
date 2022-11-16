@@ -1412,7 +1412,7 @@ async function nearGetAllGameBids(mainnet, motoDexContract) {
         }
     );
 
-	  console.log("nearGetAllGameBids motoDexContract: " + motoDexContract);
+	console.log("nearGetAllGameBids motoDexContract: " + motoDexContract);
     const response = await contract.get_game_bids_paged();
     console.log(response);
 
