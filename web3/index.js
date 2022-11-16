@@ -1204,7 +1204,7 @@ async function concordiumReturnNft(motoDexContract, tokenId, isMoto) {
       0
   );
 
-  const amount = { microGtuAmount: BigInt(1) };
+  const amount = { microGtuAmount: BigInt(0) };
 
   const txHash = await provider.sendTransaction(
       accountAddress,
