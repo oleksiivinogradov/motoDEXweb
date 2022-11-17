@@ -71,8 +71,6 @@ async function connect() {
   if (window.web3ChainId == 1456327825)
   {
   	web3gl.connectAccount = await connectConcordiumWallet(false);
-    const vlaue = await concordiumValueInMainCoin("MOTODEX", 0);
-    console.log(vlaue);
   	return;
   }
   // uncomment to enable torus and walletconnect
@@ -218,18 +216,29 @@ const gasPrice = "333333333333"
 window.web3gl.sendContract(method, abi, contract, args, value, gasLimit, gasPrice)
 */
 async function sendContract(method, abi, contract, args, value, gasLimit, gasPrice) {
-
-  if (window.web3ChainId == 1456327825)
-  {
-    let concResponse = JSON.stringify(await concrodiumSendContract(contract, method, args, value));
-    console.log(concResponse);
-    window.web3gl.methodCallResponse = concResponse;
-    return;
-  }
   if (method == "purchase")
   {
   	googleAnalyticsSendEvent("purchase_nft");
   }
+
+  if (window.web3ChainId == 1456327825)
+  {
+    let concResponse = await concrodiumSendContract(contract, method, args, value);
+    if ( concResponse == "received" ) concResponse = "success";
+    console.log(concResponse);
+    console.log(typeof concResponse);
+    if (typeof concResponse != "string")
+    {
+      window.web3gl.sendContractResponse = JSON.stringify(concResponse);
+    }
+    else
+    {
+      window.web3gl.sendContractResponse = concResponse;
+    }
+    console.log(window.web3gl.sendContractResponse);
+    return;
+  }
+
   const from = (await web3.eth.getAccounts())[0];
   new web3.eth.Contract(JSON.parse(abi), contract).methods[method](...JSON.parse(args))
       .send({
@@ -613,7 +622,8 @@ async function concrodiumSendContract(motoDexContract, method, args, value) {
     console.log(args);
     console.log(args[0]);
     let response;
-    switch (method) {
+    try {
+      switch (method) {
             case "purchase" :
                 response = await concordiumPurchase(motoDexContract, parseInt(args[0]));
                 break;
@@ -636,7 +646,11 @@ async function concrodiumSendContract(motoDexContract, method, args, value) {
                 response = await concordiumAddHealthMoney(motoDexContract, String(args[0]));
                 break;
         default:
-                alert('Method is not added'); 
+                alert('Method is not added');
+      } 
+    }catch (error) {
+      console.log(method + " - " + error.message);
+      response = "fail";
     }
     return response;
 }
@@ -1023,6 +1037,9 @@ async function concordiumPurchase(motoDexContract, typeNft) {
       parameters,
       bin64
   );
+  let txStatus = await client.getTransactionStatus(txHash);
+  if ( txStatus.status == "received" ) window.location.reload(); 
+  return txStatus.status;
 }
 
 async function concordiumAddHealthMoney(motoDexContract, tokenId) {
@@ -1071,6 +1088,8 @@ async function concordiumAddHealthMoney(motoDexContract, tokenId) {
       parameters,
       bin64
   );
+  const txStatus = await client.getTransactionStatus(txHash);
+  return txStatus.status;
 }
 
 async function concordiumAddHealthNftParams(motoDexContract, tokenId, healthPillTokenId) {
@@ -1122,6 +1141,8 @@ async function concordiumAddHealthNftParams(motoDexContract, tokenId, healthPill
       parameters,
       bin64
   );
+  const txStatus = await client.getTransactionStatus(txHash);
+  return txStatus.status;
 }
 
 async function concordiumAddNft(motoDexContract, tokenId, isMoto) {
@@ -1171,6 +1192,9 @@ async function concordiumAddNft(motoDexContract, tokenId, isMoto) {
       parameters,
       bin64
   );
+  //const txStatus = await provider.request("getTransactionStatus",{transactionHash:txHash});
+  const txStatus = await client.getTransactionStatus(txHash);
+  return txStatus.status;
 }
 
 async function concordiumReturnNft(motoDexContract, tokenId, isMoto) {
@@ -1219,6 +1243,8 @@ async function concordiumReturnNft(motoDexContract, tokenId, isMoto) {
       parameters,
       bin64
   );
+  const txStatus = await client.getTransactionStatus(txHash);
+  return txStatus.status;
 }
 
 
@@ -1852,28 +1878,28 @@ async function nearMethodCall(mainnet, motoDexContract, method, args, value) {
 }
 async function nearTokenIdsAndOwners(mainnet, motoDexContract) {
 	mainnet = await checkNetwork(mainnet);
-    const near = new nearApi.Near({
-        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
-        networkId: mainnet ? 'default' : 'testnet',
-        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
-        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
-    });
-    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+  const near = new nearApi.Near({
+      keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+      networkId: mainnet ? 'default' : 'testnet',
+      nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+      walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+  });
+  const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
 
-    const contract = new nearApi.Contract(
-        account, // the account object that is connecting
-        motoDexContract,// name of contract you're connecting to
-        {
-            viewMethods: ["token_ids_and_owners"], // view methods do not change state but usually return a value
-            sender: account, // account object to initialize and sign transactions.
-        }
-    );
+  const contract = new nearApi.Contract(
+      account, // the account object that is connecting
+      motoDexContract,// name of contract you're connecting to
+      {
+          viewMethods: ["token_ids_and_owners"], // view methods do not change state but usually return a value
+          sender: account, // account object to initialize and sign transactions.
+      }
+  );
 
 	console.log("nearTokenIdsAndOwners motoDexContract: " + motoDexContract);
-    const token_ids_and_owners = await contract.token_ids_and_owners();
-    console.log("nearTokenIdsAndOwners");
-    console.log(token_ids_and_owners);
-    return JSON.stringify(token_ids_and_owners);
+  const token_ids_and_owners = await contract.token_ids_and_owners();
+  console.log("nearTokenIdsAndOwners");
+  console.log(token_ids_and_owners);
+  return JSON.stringify(token_ids_and_owners);
 }
 
 
