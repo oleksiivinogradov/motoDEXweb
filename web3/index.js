@@ -1922,7 +1922,8 @@ async function nearMethodCall(mainnet, motoDexContract, method, args, value) {
     motoDexContract = JSON.parse(motoDexContract);
     console.log(args);
     console.log(args[0]);
-	let response;
+	  let response;
+    console.log(method);
   	mainnet = await checkNetwork(mainnet);
     switch (method) {
             case "tokenIdsAndOwners" :
@@ -1952,6 +1953,9 @@ async function nearMethodCall(mainnet, motoDexContract, method, args, value) {
                 break;
             case "getAllGameBids" :
                 response = await nearGetAllGameBids(mainnet, motoDexContract[1]);
+                break;
+            case "latestEpochUpdate" :
+                response = "0";
                 break;    
    			default:
                 alert('Method is not added'); 
