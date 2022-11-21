@@ -716,7 +716,7 @@ async function concordiumTokenIdsAndOwners(motoDexContract) {
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
     subindex: 0n,
-    index: 1857n,
+    index: 2025n,
   };
 
   const contractName = motoDexContract;
@@ -784,7 +784,7 @@ async function concordiumNftTokensForOwners(motoDexContract) {
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
     subindex: 0n,
-    index: 1857n,
+    index: 2025n,
   };
 
   const contractName = motoDexContract;
@@ -851,7 +851,7 @@ async function concordiumGetTokenHealth(motoDexContract, tokenId) {
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
     subindex: 0n,
-    index: 1857n,
+    index: 2025n,
   };
 
   const contractName = motoDexContract;
@@ -898,7 +898,7 @@ async function concordiumValueInMainCoin(motoDexContract, typeNft) {
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
     subindex: 0n,
-    index: 1857n,
+    index: 2025n,
   };
 
   const contractName = motoDexContract;
@@ -945,7 +945,7 @@ async function concordiumGetPercentForTrack(motoDexContract, tokenId) {
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
     subindex: 0n,
-    index: 1857n,
+    index: 2025n,
   };
 
   const contractName = motoDexContract;
@@ -992,7 +992,7 @@ async function concordiumGetTokenTypeId(motoDexContract, tokenId) {
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
     subindex: 0n,
-    index: 1857n,
+    index: 2025n,
   };
 
   const contractName = motoDexContract;
@@ -1045,7 +1045,7 @@ async function concordiumPurchase(motoDexContract, typeNft) {
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
     subindex: 0n,
-    index: 1857n,
+    index: 2025n,
   };
 
   const instanceInfo = await client.getInstanceInfo(
@@ -1097,7 +1097,7 @@ async function concordiumAddHealthMoney(motoDexContract, tokenId) {
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
     subindex: 0n,
-    index: 1857n,
+    index: 2025n,
   };
 
   const instanceInfo = await client.getInstanceInfo(
@@ -1148,7 +1148,7 @@ async function concordiumAddHealthNftParams(motoDexContract, tokenId, healthPill
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
     subindex: 0n,
-    index: 1857n,
+    index: 2025n,
   };
 
   const instanceInfo = await client.getInstanceInfo(
@@ -1201,7 +1201,7 @@ async function concordiumAddNft(motoDexContract, tokenId, isMoto) {
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
     subindex: 0n,
-    index: 1857n,
+    index: 2025n,
   };
 
   const instanceInfo = await client.getInstanceInfo(
@@ -1253,7 +1253,7 @@ async function concordiumReturnNft(motoDexContract, tokenId, isMoto) {
   const client = await provider.getJsonRpcClient();
   const contractAddress = {
     subindex: 0n,
-    index: 1857n,
+    index: 2025n,
   };
 
   const instanceInfo = await client.getInstanceInfo(
