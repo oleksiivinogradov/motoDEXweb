@@ -763,7 +763,9 @@ async function concordiumTokenIdsAndOwners(motoDexContract) {
     console.log(methodName + error.message);
   }
   console.log(returnValue);
+  if (returnValue.length == 0) returnValue = "";
   if (returnValue == ""){
+    console.log(returnValue);
     return returnValue;
   }
   let structData = [];
@@ -1081,21 +1083,11 @@ async function concordiumGetAllGameBids(motoDexContract, tokenId) {
 
   var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const parameters = {};
-
-  const inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
   const result = await client.invokeContract(
       {
           invoker: new concordiumSDK.AccountAddress(accountAddress),
           contract: contractAddress,
-          method: methodName,
-          parameter: inputParams
+          method: methodName
       }
   );
   const rawReturnValue = Buffer.from(result.returnValue, 'hex');
