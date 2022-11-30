@@ -673,7 +673,11 @@ async function concordiumMethodCall(motoDexContract, method, args, value) {
             case "valueInMainCoin" :
                 response = await concordiumValueInMainCoin(motoDexContract, parseInt(args[0]));
                 response = JSON.parse(response);
-                break;      
+                break; 
+            case "getTokenType" :
+                response = await concordiumGetTokenTypeId(motoDexContract, args[0]);
+                response = JSON.parse(response);
+                break;     
             case "getHealthForId" :
                 response = await concordiumGetTokenHealth(motoDexContract, args[0]);
                 response =  JSON.parse(response);
