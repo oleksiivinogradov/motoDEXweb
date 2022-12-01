@@ -647,6 +647,9 @@ async function concrodiumSendContract(motoDexContract, method, args, value) {
             case "addHealthMoney" :
                 response = await concordiumAddHealthMoney(motoDexContract, String(args[0]));
                 break;
+            case "bidFor" :
+                response = await concordiumBidFor(motoDexContract, String(args[0]),  String(args[1]), value);
+                break;
         default:
                 alert('Method is not added');
       } 
@@ -1109,8 +1112,17 @@ async function concordiumGetAllGameBids(motoDexContract, tokenId) {
   if (returnValue == "[]"){
     return returnValue;
   }
-  console.log(returnValue);
-  return returnValue;
+  let structData = {"0":[],"1":String(returnValue.length)};
+  for (let i = 0; i < returnValue.length; i++) {
+    const amount = returnValue[i].amount;
+    const trackId = returnValue[i].track_token_id;
+    const motoId = returnValue[i].moto_token_id;
+    const timestamp = returnValue[i].timestamp;
+    const bidder = returnValue[i].bidder.Account[0];
+    structData["0"].push([amount, trackId, motoId, timestamp, bidder]);
+  }
+  console.log(structData);
+  return structData;
 }
 
 async function concordiumGetTokenTypeId(motoDexContract, tokenId) {
@@ -1255,6 +1267,56 @@ async function concordiumAddHealthMoney(motoDexContract, tokenId) {
   const typeNft = await concordiumGetTokenTypeId(motoDexContract, tokenId);
   const value_in_main_coin = await concordiumValueInMainCoin(motoDexContract, typeNft);
   const amount = { microGtuAmount: BigInt(value_in_main_coin) };
+
+  const txHash = await provider.sendTransaction(
+      accountAddress,
+      concordiumSDK.AccountTransactionType.Update,
+      {
+          amount: amount,
+          contractAddress: contractAddress,
+          receiveName: methodName,
+          maxContractExecutionEnergy: 30000n,
+          parameters: inputParams,
+      },
+      parameters,
+      bin64
+  );
+  const txStatus = await client.getTransactionStatus(txHash);
+  return txStatus.status;
+}
+
+async function concordiumBidFor(motoDexContract, trackTokenId, motoTokenId, value) {
+  const provider = await concordiumHelpers.detectConcordiumProvider();
+  const accountAddress = await provider.connect();
+  console.log("Connecting to CCD... accountAddress " + accountAddress);
+  const client = await provider.getJsonRpcClient();
+  const contractAddress = {
+    subindex: 0n,
+    index: BigInt(motoDexContract.split(":")[1]),
+  };
+
+  const instanceInfo = await client.getInstanceInfo(
+      contractAddress);
+
+  const contractName = motoDexContract.split(":")[0];
+  let receiveFunctionName = 'bidFor';
+  let methodName = contractName + '.' + receiveFunctionName;
+  const moduleFileBuffer = new Buffer(bin64, 'base64');
+  const parameters = {
+      "track_token_id": trackTokenId, // String
+      "moto_token_id": motoTokenId // String
+  };
+  let inputParams = concordiumSDK.serializeUpdateContractParameters(
+      contractName,
+      receiveFunctionName,
+      parameters,
+      moduleFileBuffer,
+      0
+  );
+
+  if (value == null || value == "0") value = "1";
+  //const value_in_main_coin = await concordiumValueInMainCoin(motoDexContract, typeNft);
+  const amount = { microGtuAmount: BigInt(value) };
 
   const txHash = await provider.sendTransaction(
       accountAddress,
@@ -1689,7 +1751,10 @@ async function nearAddHealthMoney(mainnet, motoDexContract, tokenId, healthPillT
     let parameters = {token_id:tokenId};
     let value_in_main_coin;
     if (healthPillTokenId !== null && healthPillTokenId !== undefined && healthPillTokenId.length > 2) {
-        parameters = {token_id:tokenId,health_pill_token_id:healthPillTokenId};
+        parameters = {
+            token_id:tokenId,
+            health_pill_token_id:healthPillTokenId
+        };
         value_in_main_coin = minimal_fee_in_usd;
     }
     else{
@@ -1701,6 +1766,32 @@ async function nearAddHealthMoney(mainnet, motoDexContract, tokenId, healthPillT
 
     const addHealthMoneyResponse = await contract.add_health_money(parameters, "300000000000000", value_in_main_coin);
     return JSON.stringify(addHealthMoneyResponse);
+}
+
+async function nearBidFor(mainnet, motoDexContract, trackTokenId, motoTokenId, value) {
+    console.log("motoDexBuyNFTFor motoDexContract " + motoDexContract + "; trackTokenId " + trackTokenId + "; motoTokenId " + motoTokenId);
+    mainnet = await checkNetwork(mainnet);
+
+    let wallet = await connectNearWallet(mainnet)
+    const contract = new nearApi.Contract(
+        wallet.account(), // the account object that is connecting
+        motoDexContract[0],// name of contract you're connecting to
+        {
+            changeMethods: ["bid_for"],
+            sender: wallet.account(), // account object to initialize and sign transactions.
+        }
+    );
+    console.log(wallet.account());
+    const minimal_fee_in_usd = "1";
+    let parameters = {
+        track_token_id:trackTokenId,
+        moto_token_id:motoTokenId
+    };
+    let value_in_main_coin = value;
+    if (value_in_main_coin == null || value_in_main_coin == "0") value_in_main_coin = minimal_fee_in_usd;
+
+    const response = await contract.bid_for(parameters, "300000000000000", value_in_main_coin);
+    return JSON.stringify(response);
 }
 
 async function nearAddMoto(mainnet, motoDexContract, tokenId) {
@@ -2029,6 +2120,9 @@ async function nearSendContract(mainnet, motoDexContract, method, args, value) {
                 break;
             case "addHealthMoney" :
                 response = await nearAddHealthMoney(mainnet, motoDexContract, String(args[0]), null, value);
+                break;
+            case "bidFor" :
+                response = await nearBidFor(mainnet, motoDexContract, String(args[0]),  String(args[1]), value);
                 break;
    			default:
                 alert('Method is not added'); 
