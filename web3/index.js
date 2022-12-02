@@ -1750,7 +1750,7 @@ async function nearAddHealthMoney(mainnet, motoDexContract, tokenId, healthPillT
     const minimal_fee_in_usd = "1";
     let parameters = {token_id:tokenId};
     let value_in_main_coin;
-    if (healthPillTokenId !== null && healthPillTokenId !== undefined && healthPillTokenId.length > 2) {
+    if (healthPillTokenId !== null && healthPillTokenId !== undefined && healthPillTokenId.length !== "") {
         parameters = {
             token_id:tokenId,
             health_pill_token_id:healthPillTokenId
