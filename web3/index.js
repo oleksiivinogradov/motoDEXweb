@@ -1416,7 +1416,7 @@ async function concordiumAddNft(motoDexContract, tokenId, isMoto) {
   );
 
   const minimal_fee_in_usd = await concordiumMinimalFeeInUSD();
-  const amount = { microGtuAmount: BigInt("0") };
+  const amount = { microGtuAmount: BigInt(minimal_fee_in_usd) };
 
   const txHash = await provider.sendTransaction(
       accountAddress,
@@ -1432,14 +1432,7 @@ async function concordiumAddNft(motoDexContract, tokenId, isMoto) {
       bin64
   );
   //const txStatus = await provider.request("getTransactionStatus",{transactionHash:txHash});
-  let txStatus = await client.getTransactionStatus(txHash);
-  console.log(txStatus.status)
-  if (txStatus.status == "received"){
-  	while (txStatus.status != "finalized"){
-  		txStatus = await client.getTransactionStatus(txHash);
-  		console.log(txStatus.status)
-  	}
-  }
+  const txStatus = await client.getTransactionStatus(txHash);
   return txStatus.status;
 }
 
