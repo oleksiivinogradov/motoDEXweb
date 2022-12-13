@@ -440,7 +440,7 @@ async function addNetwork(chainId) {
                         decimals: 18
                     },
                     rpcUrls: ['https://gateway.testnet.octopus.network/barnacle-evm/wj1hhcverunusc35jifki19otd4od1n5'],
-                    blockExplorerUrls: ['https://explorer.testnet.oct.network/barnacle0928']
+                    blockExplorerUrls: ['https://explorer.testnet.oct.network/barnacle-evm']
                 }]
                 break;
             case 1029 :
