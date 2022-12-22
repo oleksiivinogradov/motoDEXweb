@@ -1861,10 +1861,15 @@ async function nearAddHealthMoney(mainnet, motoDexContract, tokenId, healthPillT
         value_in_main_coin = minimal_fee_in_usd;
     }
     else{
-        const typeNft = await nearGetTokenTypeNft(mainnet, motoDexContract[0], tokenId);
-        const prices = await nearGetPriceForType(mainnet, motoDexContract[0], typeNft);
-        const pricesJSON = JSON.parse(prices);
-        value_in_main_coin = pricesJSON.value_in_main_coin;
+        if (value != ""){
+          value_in_main_coin = value;
+        }
+        else{
+          const typeNft = await nearGetTokenTypeNft(mainnet, motoDexContract[0], tokenId);
+          const prices = await nearGetPriceForType(mainnet, motoDexContract[0], typeNft);
+          const pricesJSON = JSON.parse(prices);
+          value_in_main_coin = pricesJSON.value_in_main_coin;
+        }
     }
 
     const addHealthMoneyResponse = await contract.add_health_money(parameters, "300000000000000", value_in_main_coin);
