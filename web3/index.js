@@ -1682,7 +1682,7 @@ async function nearLatestEpoch(mainnet, motoDexContract) {
         account, // the account object that is connecting
         motoDexContract,// name of contract you're connecting to
         {
-            viewMethods: ["get_epoch_min_interval"], // view methods do not change state but usually return a value
+            viewMethods: ["get_epoch_min_interval"], // Temporary(return 1)
             sender: account, // account object to initialize and sign transactions.
         }
     );
@@ -1695,6 +1695,105 @@ async function nearLatestEpoch(mainnet, motoDexContract) {
     console.log("nearMinimalFeeInUSD epoch_min_interval " + epoch_min_interval + " motoDexContract " + motoDexContract);
     window.web3gl.nearLatestEpochResponse = JSON.stringify(epoch_min_interval);
     return JSON.stringify({epoch_min_interval: epoch_min_interval});
+}
+
+async function nearGetLatestPrice(mainnet, motoDexContract) {
+    mainnet = await checkNetwork(mainnet);
+    const near = new nearApi.Near({
+        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+        networkId: mainnet ? 'default' : 'testnet',
+        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+    });
+    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+
+    const contract = new nearApi.Contract(
+        account, // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            viewMethods: ["get_latest_price"], // Temporary
+            sender: account, // account object to initialize and sign transactions.
+        }
+    );
+    // console.log("contract " + contract);
+
+    console.log("nearGetLatestPrice motoDexContract: " + motoDexContract);
+    let get_latest_price;
+    try {
+      get_latest_price = await contract.get_latest_price();
+    } catch (error) {
+      console.log(error.message);
+      get_latest_price = [];
+    }
+    
+    console.log("get_latest_price = " + get_latest_price);
+    return JSON.stringify(get_latest_price);
+}
+
+async function nearSyncEpochResultsBidsFinal(mainnet, motoDexContract) {
+    mainnet = await checkNetwork(mainnet);
+    const near = new nearApi.Near({
+        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+        networkId: mainnet ? 'default' : 'testnet',
+        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+    });
+    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+
+    const contract = new nearApi.Contract(
+        account, // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            viewMethods: ["sync_epoch_results_bids_final"], // Temporary
+            sender: account, // account object to initialize and sign transactions.
+        }
+    );
+    // console.log("contract " + contract);
+
+    console.log("nearSyncEpochResultsBidsFinal motoDexContract: " + motoDexContract);
+    let sync_epoch_results_bids_final;
+    try {
+      sync_epoch_results_bids_final = await contract.sync_epoch_results_bids_final();
+    } catch (error) {
+      console.log(error.message);
+      sync_epoch_results_bids_final = [];
+    }
+    
+    console.log("sync_epoch_results_bids_final = " + sync_epoch_results_bids_final);
+    return JSON.stringify(sync_epoch_results_bids_final);
+}
+
+async function nearSyncEpochResultsMotosFinal(mainnet, motoDexContract) {
+    mainnet = await checkNetwork(mainnet);
+    const near = new nearApi.Near({
+        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+        networkId: mainnet ? 'default' : 'testnet',
+        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+    });
+    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+
+    const contract = new nearApi.Contract(
+        account, // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            viewMethods: ["sync_epoch_results_motos_final"], // Temporary
+            sender: account, // account object to initialize and sign transactions.
+        }
+    );
+    // console.log("contract " + contract);
+
+    console.log("nearSyncEpochResultsMotosFinal motoDexContract: " + motoDexContract);
+    let sync_epoch_results_motos_final;
+    try {
+      sync_epoch_results_motos_final = await contract.sync_epoch_results_motos_final();
+    } catch (error) {
+      console.log(error.message);
+      sync_epoch_results_motos_final = [];
+    }
+    
+    console.log("sync_epoch_results_motos_final = " + sync_epoch_results_motos_final);
+    return JSON.stringify(sync_epoch_results_motos_final);
 }
 
 async function nearHealthInWei(mainnet, motoDexContract, tokenId) {
@@ -1824,7 +1923,7 @@ async function nearGetAllGameBids(mainnet, motoDexContract) {
         }
     );
 
-	console.log("nearGetAllGameBids motoDexContract: " + motoDexContract);
+	  console.log("nearGetAllGameBids motoDexContract: " + motoDexContract);
     const response = await contract.get_game_bids_paged();
     console.log(response);
 
@@ -2304,7 +2403,16 @@ async function nearMethodCall(mainnet, motoDexContract, method, args, value) {
             case "latestEpochUpdate" :
                 response = await nearLatestEpochUpdate(mainnet, motoDexContract[1]);
                 response =  JSON.parse(response).epoch_min_interval;
-                break;    
+                break;
+            case "getLatestPrice" :
+                response = await nearGetLatestPrice(mainnet, motoDexContract[1]);
+                break;
+            case "syncEpochResultsBidsFinal" :
+                response = await nearSyncEpochResultsBidsFinal(mainnet, motoDexContract[1]);
+                break;
+            case "syncEpochResultsMotosFinal" :
+                response = await nearSyncEpochResultsMotosFinal(mainnet, motoDexContract[1]);
+                break;
    			default:
                 alert('Method is not added'); 
 	}
