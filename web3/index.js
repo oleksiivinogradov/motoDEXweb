@@ -752,7 +752,16 @@ async function concordiumMethodCall(motoDexContract, method, args, value) {
                 response = await concordiumGetAllGameBids(motoDexContract);
                 break;
             case "latestEpochUpdate" :
-                response = 0;
+                response = await concordiumLatestEpochUpdate(motoDexContract);
+                break;
+            case "getLatestPrice" :
+                response = await concordiumGetLatestPrice(motoDexContract);
+                break;
+            case "syncEpochResultsBidsFinal" :
+                response = await concordiumSyncEpochResultsBidsFinal(motoDexContract);
+                break;
+            case "syncEpochResultsMotosFinal" :
+                response = await concordiumSyncEpochResultsMotosFinal(motoDexContract);
                 break;    
       default:
                 alert('Method is not added'); 
@@ -919,8 +928,224 @@ async function concordiumNftTokensForOwners(motoDexContract) {
   return structData;
 }
 
-async function concordiumLatestEpoch(motoDexContract) {
-  return 0;
+async function concordiumLatestEpochUpdate(motoDexContract) {
+  const provider = await concordiumHelpers.detectConcordiumProvider();
+  const accountAddress = await provider.connect();
+  console.log("Connecting to CCD... accountAddress " + accountAddress);
+  const client = await provider.getJsonRpcClient();
+  const contractAddress = {
+    subindex: 0n,
+    index: BigInt(motoDexContract.split(":")[1]),
+  };
+
+  const contractName = motoDexContract.split(":")[0];
+  const receiveFunctionName = 'latestEpochUpdate'; // Temporary
+  const methodName = contractName + '.' + receiveFunctionName;
+
+  var moduleFileBuffer = new Buffer(bin64, 'base64');
+
+  const result = await client.invokeContract(
+      {
+          invoker: new concordiumSDK.AccountAddress(accountAddress),
+          contract: contractAddress,
+          method: methodName
+      }
+  );
+
+  console.log(result);
+  if (result.returnValue == undefined) result.returnValue = "";
+
+  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+  console.log(rawReturnValue);
+  const schema = moduleFileBuffer; // Load schema from file
+  const schemaVersion = concordiumSDK.SchemaVersion.V1;
+  let returnValue = 0;
+  try{
+    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+  }
+  catch (error) {
+    console.log(methodName + error.message);
+  }
+  console.log(returnValue);
+  if (returnValue == 0){
+    return returnValue;
+  }
+  // let structData = {"0":[],"1":String(returnValue.length)};
+  // for (let i = 0; i < returnValue.length; i++) {
+  //   const amount = returnValue[i].amount;
+  //   const trackId = returnValue[i].track_token_id;
+  //   const motoId = returnValue[i].moto_token_id;
+  //   const timestamp = returnValue[i].timestamp;
+  //   const bidder = returnValue[i].bidder.Account[0];
+  //   structData["0"].push([amount, trackId, motoId, timestamp, bidder]);
+  // }
+  // console.log(structData);
+  return returnValue; // structData;
+}
+
+async function concordiumGetLatestPrice(motoDexContract) {
+  const provider = await concordiumHelpers.detectConcordiumProvider();
+  const accountAddress = await provider.connect();
+  console.log("Connecting to CCD... accountAddress " + accountAddress);
+  const client = await provider.getJsonRpcClient();
+  const contractAddress = {
+    subindex: 0n,
+    index: BigInt(motoDexContract.split(":")[1]),
+  };
+
+  const contractName = motoDexContract.split(":")[0];
+  const receiveFunctionName = 'getLatestPrice'; // Temporary
+  const methodName = contractName + '.' + receiveFunctionName;
+
+  var moduleFileBuffer = new Buffer(bin64, 'base64');
+
+  const result = await client.invokeContract(
+      {
+          invoker: new concordiumSDK.AccountAddress(accountAddress),
+          contract: contractAddress,
+          method: methodName
+      }
+  );
+
+  console.log(result);
+  if (result.returnValue == undefined) result.returnValue = "";
+
+  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+  console.log(rawReturnValue);
+  const schema = moduleFileBuffer; // Load schema from file
+  const schemaVersion = concordiumSDK.SchemaVersion.V1;
+  let returnValue = "[]";
+  try{
+    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+  }
+  catch (error) {
+    console.log(methodName + error.message);
+  }
+  console.log(returnValue);
+  if (returnValue == "[]"){
+    return returnValue;
+  }
+  // let structData = {"0":[],"1":String(returnValue.length)};
+  // for (let i = 0; i < returnValue.length; i++) {
+  //   const amount = returnValue[i].amount;
+  //   const trackId = returnValue[i].track_token_id;
+  //   const motoId = returnValue[i].moto_token_id;
+  //   const timestamp = returnValue[i].timestamp;
+  //   const bidder = returnValue[i].bidder.Account[0];
+  //   structData["0"].push([amount, trackId, motoId, timestamp, bidder]);
+  // }
+  // console.log(structData);
+  return returnValue; // structData;
+}
+
+async function concordiumSyncEpochResultsBidsFinal(motoDexContract) {
+  const provider = await concordiumHelpers.detectConcordiumProvider();
+  const accountAddress = await provider.connect();
+  console.log("Connecting to CCD... accountAddress " + accountAddress);
+  const client = await provider.getJsonRpcClient();
+  const contractAddress = {
+    subindex: 0n,
+    index: BigInt(motoDexContract.split(":")[1]),
+  };
+
+  const contractName = motoDexContract.split(":")[0];
+  const receiveFunctionName = 'syncEpochResultsBidsFinal'; // Temporary
+  const methodName = contractName + '.' + receiveFunctionName;
+
+  var moduleFileBuffer = new Buffer(bin64, 'base64');
+
+  const result = await client.invokeContract(
+      {
+          invoker: new concordiumSDK.AccountAddress(accountAddress),
+          contract: contractAddress,
+          method: methodName
+      }
+  );
+
+  console.log(result);
+  if (result.returnValue == undefined) result.returnValue = "";
+
+  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+  console.log(rawReturnValue);
+  const schema = moduleFileBuffer; // Load schema from file
+  const schemaVersion = concordiumSDK.SchemaVersion.V1;
+  let returnValue = "[]";
+  try{
+    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+  }
+  catch (error) {
+    console.log(methodName + error.message);
+  }
+  console.log(returnValue);
+  if (returnValue == "[]"){
+    return returnValue;
+  }
+  // let structData = {"0":[],"1":String(returnValue.length)};
+  // for (let i = 0; i < returnValue.length; i++) {
+  //   const amount = returnValue[i].amount;
+  //   const trackId = returnValue[i].track_token_id;
+  //   const motoId = returnValue[i].moto_token_id;
+  //   const timestamp = returnValue[i].timestamp;
+  //   const bidder = returnValue[i].bidder.Account[0];
+  //   structData["0"].push([amount, trackId, motoId, timestamp, bidder]);
+  // }
+  // console.log(structData);
+  return returnValue; // structData;
+}
+
+async function concordiumSyncEpochResultsMotosFinal(motoDexContract) {
+  const provider = await concordiumHelpers.detectConcordiumProvider();
+  const accountAddress = await provider.connect();
+  console.log("Connecting to CCD... accountAddress " + accountAddress);
+  const client = await provider.getJsonRpcClient();
+  const contractAddress = {
+    subindex: 0n,
+    index: BigInt(motoDexContract.split(":")[1]),
+  };
+
+  const contractName = motoDexContract.split(":")[0];
+  const receiveFunctionName = 'syncEpochResultsMotosFinal'; // Temporary
+  const methodName = contractName + '.' + receiveFunctionName;
+
+  var moduleFileBuffer = new Buffer(bin64, 'base64');
+
+  const result = await client.invokeContract(
+      {
+          invoker: new concordiumSDK.AccountAddress(accountAddress),
+          contract: contractAddress,
+          method: methodName
+      }
+  );
+
+  console.log(result);
+  if (result.returnValue == undefined) result.returnValue = "";
+
+  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+  console.log(rawReturnValue);
+  const schema = moduleFileBuffer; // Load schema from file
+  const schemaVersion = concordiumSDK.SchemaVersion.V1;
+  let returnValue = "[]";
+  try{
+    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+  }
+  catch (error) {
+    console.log(methodName + error.message);
+  }
+  console.log(returnValue);
+  if (returnValue == "[]"){
+    return returnValue;
+  }
+  // let structData = {"0":[],"1":String(returnValue.length)};
+  // for (let i = 0; i < returnValue.length; i++) {
+  //   const amount = returnValue[i].amount;
+  //   const trackId = returnValue[i].track_token_id;
+  //   const motoId = returnValue[i].moto_token_id;
+  //   const timestamp = returnValue[i].timestamp;
+  //   const bidder = returnValue[i].bidder.Account[0];
+  //   structData["0"].push([amount, trackId, motoId, timestamp, bidder]);
+  // }
+  // console.log(structData);
+  return returnValue; // structData;
 }
 
 async function concordiumGetTokenHealth(motoDexContract, tokenId) {
