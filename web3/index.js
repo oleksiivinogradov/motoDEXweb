@@ -1983,6 +1983,7 @@ async function nearGetLatestPrice(mainnet, motoDexContract) {
     let get_latest_price;
     try {
       get_latest_price = await contract.get_latest_price();
+      get_latest_price = '{"0":"' + get_latest_price + '","1":"1"}'
     } catch (error) {
       console.log(error.message);
       get_latest_price = [];
