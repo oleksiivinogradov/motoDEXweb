@@ -566,7 +566,7 @@ async function getLatestEpoch(abi, nftUniV3ContractAddress) {
   console.log("latestEpochUpdate");
   if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
   {
-    let concResponse = JSON.stringify(await concordiumLatestEpoch(nftUniV3ContractAddress));
+    let concResponse = JSON.stringify(await concordiumLatestEpochUpdate(nftUniV3ContractAddress));
     console.log(concResponse);
     window.web3gl.getLatestEpochResponse = concResponse;
     return;
@@ -1515,11 +1515,12 @@ async function concordiumMinimalFeeInUSD(motoDexContract) {
   let returnValue = "";
   try{
     returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-    returnValue = returnValue.min_fee;
+    returnValue = returnValue.min_fee_usd;
   }
   catch (error) {
     console.log(methodName + error.message);
   }
+  console.log(returnValue);
   return returnValue;
 }
 
@@ -1928,19 +1929,18 @@ async function nearLatestEpoch(mainnet, motoDexContract) {
         account, // the account object that is connecting
         motoDexContract,// name of contract you're connecting to
         {
-            viewMethods: ["get_epoch_min_interval"], // Temporary(return 1)
+            viewMethods: ["get_latest_epoch_update"], 
             sender: account, // account object to initialize and sign transactions.
         }
     );
-    // console.log("contract " + contract);
 
    console.log("nearLatestEpochUpdate motoDexContract: " + motoDexContract);
-    const epoch_min_interval = await contract.get_epoch_min_interval();
-    console.log("epoch_min_interval = " + epoch_min_interval);
+    const latest_epoch_update = await contract.get_latest_epoch_update();
+    console.log("latest_epoch_update = " + latest_epoch_update);
 
-    console.log("nearMinimalFeeInUSD epoch_min_interval " + epoch_min_interval + " motoDexContract " + motoDexContract);
-    window.web3gl.nearLatestEpochResponse = JSON.stringify(epoch_min_interval);
-    return JSON.stringify({epoch_min_interval: epoch_min_interval});
+    console.log("nearMinimalFeeInUSD latest_epoch_update " + latest_epoch_update + " motoDexContract " + motoDexContract);
+    window.web3gl.nearLatestEpochResponse = latest_epoch_update;
+    return JSON.stringify({latest_epoch_update: latest_epoch_update});
 }
 
 async function nearGetLatestPrice(mainnet, motoDexContract) {
@@ -1974,7 +1974,7 @@ async function nearGetLatestPrice(mainnet, motoDexContract) {
     }
     
     console.log("get_latest_price = " + get_latest_price);
-    return JSON.stringify(get_latest_price);
+    return get_latest_price;
 }
 
 async function nearSyncEpochResultsBidsFinal(mainnet, motoDexContract) {
