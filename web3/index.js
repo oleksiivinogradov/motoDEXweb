@@ -1903,7 +1903,7 @@ async function nearMinimalFeeInUSD(mainnet, motoDexContract) {
     // console.log("contract " + contract);
 
 	 console.log("nearMinimalFeeInUSD motoDexContract: " + motoDexContract);
-    const minimal_fee_in_usd = await contract.get_minimal_fee();
+    let minimal_fee_in_usd = await contract.get_minimal_fee();
     console.log(minimal_fee_in_usd);
 
     // const value_in_main_coin = await contract.value_in_main_coin({ type_nft: parseInt(minimal_fee_in_usd) });
@@ -2201,7 +2201,32 @@ async function nearBuyNFTFor(mainnet, motoDexContract, type, referral) {
     return JSON.stringify(buyResponse);
 }
 
-async function nearAddHealthMoney(mainnet, motoDexContract, tokenId, healthPillTokenId, value) {
+async function nearAddHealthNFT(mainnet, motoDexContract, tokenId, healthPillTokenId) {
+    console.log("motoDexBuyNFTFor motoDexContract " + motoDexContract + "; tokenId " + tokenId);
+    mainnet = await checkNetwork(mainnet);
+
+    let wallet = await connectNearWallet(mainnet)
+    const contract = new nearApi.Contract(
+        wallet.account(), // the account object that is connecting
+        motoDexContract[0],// name of contract you're connecting to
+        {
+            changeMethods: ["add_health_nft"],
+            sender: wallet.account(), // account object to initialize and sign transactions.
+        }
+    );
+    console.log(wallet.account());
+    const yoctoNear = "1";
+    let parameters = {
+        token_id:tokenId,
+        health_pill_token_id:healthPillTokenId
+    };
+    
+
+    const addHealthMoneyResponse = await contract.add_health_nft(parameters, "300000000000000", yoctoNear);
+    return JSON.stringify(addHealthMoneyResponse);
+}
+
+async function nearAddHealthMoney(mainnet, motoDexContract, tokenId, value) {
     console.log("motoDexBuyNFTFor motoDexContract " + motoDexContract + "; tokenId " + tokenId);
     mainnet = await checkNetwork(mainnet);
 
@@ -2215,26 +2240,16 @@ async function nearAddHealthMoney(mainnet, motoDexContract, tokenId, healthPillT
         }
     );
     console.log(wallet.account());
-    const minimal_fee_in_usd = "1";
     let parameters = {token_id:tokenId};
     let value_in_main_coin;
-    if (healthPillTokenId !== null && healthPillTokenId !== undefined && healthPillTokenId.length !== "") {
-        parameters = {
-            token_id:tokenId,
-            health_pill_token_id:healthPillTokenId
-        };
-        value_in_main_coin = minimal_fee_in_usd;
+    if (value != ""){
+      value_in_main_coin = value;
     }
     else{
-        if (value != ""){
-          value_in_main_coin = value;
-        }
-        else{
-          const typeNft = await nearGetTokenTypeNft(mainnet, motoDexContract[0], tokenId);
-          const prices = await nearGetPriceForType(mainnet, motoDexContract[0], typeNft);
-          const pricesJSON = JSON.parse(prices);
-          value_in_main_coin = pricesJSON.value_in_main_coin;
-        }
+      const typeNft = await nearGetTokenTypeNft(mainnet, motoDexContract[0], tokenId);
+      const prices = await nearGetPriceForType(mainnet, motoDexContract[0], typeNft);
+      const pricesJSON = JSON.parse(prices);
+      value_in_main_coin = pricesJSON.value_in_main_coin;
     }
 
     const addHealthMoneyResponse = await contract.add_health_money(parameters, "300000000000000", value_in_main_coin);
@@ -2255,13 +2270,13 @@ async function nearBidFor(mainnet, motoDexContract, trackTokenId, motoTokenId, v
         }
     );
     console.log(wallet.account());
-    const minimal_fee_in_usd = "1";
+    const yoctoNear = "1";
     let parameters = {
         track_token_id:trackTokenId,
         moto_token_id:motoTokenId
     };
     let value_in_main_coin = value;
-    if (value_in_main_coin == null || value_in_main_coin == "0") value_in_main_coin = minimal_fee_in_usd;
+    if (value_in_main_coin == null || value_in_main_coin == "0") value_in_main_coin = yoctoNear;
 
     const response = await contract.bid_for(parameters, "300000000000000", value_in_main_coin);
     return JSON.stringify(response);
@@ -2364,13 +2379,11 @@ async function nearReturnMoto(mainnet, motoDexContract, tokenId) {
     
     // // const amountString = eToNumber(amountInt);
     // let parameters = {token_id:tokenId};
-    // const prices = await nearMinimalFeeInUSD(mainnet, motoDexContract[1]);
-    // const pricesJSON = JSON.parse(prices);
-    const minimal_fee_in_usd = "1";
+    const yoctoNear = "1";
     // const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
     // return JSON.stringify(addResponse);
 
-    const transactions = await nearReturnTransactions(accountId, motoDexContract, tokenId, minimal_fee_in_usd, true); 
+    const transactions = await nearReturnTransactions(accountId, motoDexContract, tokenId, yoctoNear, true); 
     return wallet.requestSignTransactions({ transactions });
 }
 
@@ -2400,14 +2413,12 @@ async function nearReturnTrack(mainnet, motoDexContract, tokenId) {
     
     // // const amountString = eToNumber(amountInt);
     // let parameters = {token_id:tokenId};
-    // const prices = await nearMinimalFeeInUSD(mainnet, motoDexContract[1]);
-    // const pricesJSON = JSON.parse(prices);
-    const minimal_fee_in_usd = "1";
+    const yoctoNear = "1";
     console.log("minimal_fee_in_usd: " + minimal_fee_in_usd);
     // const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
     // return JSON.stringify(addResponse);
 
-    const transactions = await nearReturnTransactions(accountId, motoDexContract, tokenId, minimal_fee_in_usd, false); 
+    const transactions = await nearReturnTransactions(accountId, motoDexContract, tokenId, yoctoNear, false); 
     return wallet.requestSignTransactions({ transactions });
 }
 
@@ -2589,10 +2600,10 @@ async function nearSendContract(mainnet, motoDexContract, method, args, value) {
                 response = await nearReturnTrack(mainnet, motoDexContract, String(args[0]));
                 break;
             case "addHealthNFT" :
-                response = await nearAddHealthMoney(mainnet, motoDexContract, String(args[0]),  String(args[1]), parseInt(value));
+                response = await nearAddHealthNFT(mainnet, motoDexContract, String(args[0]),  String(args[1]));
                 break;
             case "addHealthMoney" :
-                response = await nearAddHealthMoney(mainnet, motoDexContract, String(args[0]), null, value);
+                response = await nearAddHealthMoney(mainnet, motoDexContract, String(args[0]), value);
                 break;
             case "bidFor" :
                 response = await nearBidFor(mainnet, motoDexContract, String(args[0]),  String(args[1]), value);
