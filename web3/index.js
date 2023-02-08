@@ -59,6 +59,7 @@ window.web3gl = {
   listNearNFTsWebResponse: "",
   nearLatestEpoch,
   nearLatestEpochResponse: "",
+  webGLReload,
   googleAnalyticsSendEvent
   
 };
@@ -2737,6 +2738,10 @@ async function checkNetwork(mainnet) {
           mainnet = false; 
   }
   return mainnet;
+}
+
+async function webGLReload(){
+  window.location.reload();
 }
 
 async function googleAnalyticsSendEvent(eventName) {
