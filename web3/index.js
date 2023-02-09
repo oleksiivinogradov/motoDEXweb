@@ -2741,6 +2741,12 @@ async function checkNetwork(mainnet) {
 }
 
 async function webGLReload(){
+  try {
+    Cookies.remove(prod, { path: '/' });
+  } catch (error) {
+    console.log("Removing cookes error: " + error);
+  }
+  
   window.location.reload();
 }
 
