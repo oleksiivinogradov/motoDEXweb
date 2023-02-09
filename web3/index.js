@@ -2742,12 +2742,12 @@ async function checkNetwork(mainnet) {
 
 async function webGLReload(){
   try {
-    Cookies.remove(prod, { path: '/' });
+    window.localStorage.clear();
   } catch (error) {
     console.log("Removing cookes error: " + error);
   }
+  setTimeout(() => { window.location.reload(); }, 100);
   
-  window.location.reload();
 }
 
 async function googleAnalyticsSendEvent(eventName) {
