@@ -2746,8 +2746,8 @@ async function webGLReload(){
   } catch (error) {
     console.log("Removing cookes error: " + error);
   }
-  setTimeout(() => { window.location.reload(); }, 100);
   
+  setTimeout(() => { window.location.reload(); }, 100);
 }
 
 async function googleAnalyticsSendEvent(eventName) {
