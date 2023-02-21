@@ -1834,7 +1834,7 @@ async function connectNearWallet(mainnet, routeBackURL) {
         keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
         networkId: mainnet ? 'default' : 'testnet',
         nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
-        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://testnet.mynearwallet.com/'
     });
 
     const wallet = new nearApi.WalletConnection(near, 'OpenBiSea');
