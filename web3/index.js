@@ -367,7 +367,7 @@ async function addNetwork(chainId) {
                         decimals: 18
                     },
                     rpcUrls: ['https://mainnet.aurora.dev'],
-                    blockExplorerUrls: ['https://aurorascan.dev']
+                    blockExplorerUrls: ['https://explorer.aurora.dev/']
                 }]
                 break;
             case 2221 :
