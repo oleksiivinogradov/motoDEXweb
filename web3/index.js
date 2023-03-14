@@ -2734,6 +2734,9 @@ async function checkNetwork(mainnet) {
         case "mainnet" :
           mainnet = true;
           break;
+        case true :
+          mainnet = true;
+          break;
         default:
           mainnet = false; 
   }
