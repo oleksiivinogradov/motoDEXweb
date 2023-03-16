@@ -2285,7 +2285,9 @@ async function nearBidFor(mainnet, motoDexContract, trackTokenId, motoTokenId, v
 
 async function nearAddMoto(mainnet, motoDexContract, tokenId) {
     console.log("nearAddMoto motoDexContract " + motoDexContract + "; NFT tokenId " + tokenId);
+    console.log(mainnet);
     mainnet = await checkNetwork(mainnet);
+    console.log(mainnet);
 
     const near = new nearApi.Near({
         keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
@@ -2315,7 +2317,7 @@ async function nearAddMoto(mainnet, motoDexContract, tokenId) {
     // const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
     // return JSON.stringify(addResponse);
 
-    const transactions = await nearAddTransactions(accountId, motoDexContract, tokenId, minimal_fee_in_usd, true); 
+    const transactions = await nearAddTransactions(accountId, motoDexContract, tokenId, minimal_fee_in_usd, true, mainnet); 
     return wallet.requestSignTransactions({ transactions });
 }
 
@@ -2350,7 +2352,7 @@ async function nearAddTrack(mainnet, motoDexContract, tokenId) {
     // const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
     // return JSON.stringify(addResponse);
 
-    const transactions = await nearAddTransactions(accountId, motoDexContract, tokenId, minimal_fee_in_usd, false); 
+    const transactions = await nearAddTransactions(accountId, motoDexContract, tokenId, minimal_fee_in_usd, false, mainnet); 
     return wallet.requestSignTransactions({ transactions });
 }
 
@@ -2384,7 +2386,7 @@ async function nearReturnMoto(mainnet, motoDexContract, tokenId) {
     // const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
     // return JSON.stringify(addResponse);
 
-    const transactions = await nearReturnTransactions(accountId, motoDexContract, tokenId, yoctoNear, true); 
+    const transactions = await nearReturnTransactions(accountId, motoDexContract, tokenId, yoctoNear, true, mainnet); 
     return wallet.requestSignTransactions({ transactions });
 }
 
@@ -2419,12 +2421,12 @@ async function nearReturnTrack(mainnet, motoDexContract, tokenId) {
     // const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
     // return JSON.stringify(addResponse);
 
-    const transactions = await nearReturnTransactions(accountId, motoDexContract, tokenId, yoctoNear, false); 
+    const transactions = await nearReturnTransactions(accountId, motoDexContract, tokenId, yoctoNear, false, mainnet); 
     return wallet.requestSignTransactions({ transactions });
 }
 
 
-async function nearAddTransactions(accountId, motoDexContract, tokenId, minimalFee, addMoto = true) {
+async function nearAddTransactions(accountId, motoDexContract, tokenId, minimalFee, addMoto = true, mainnet) {
   const transactions = [];
 
   // Create transfer transaction
@@ -2458,7 +2460,8 @@ async function nearAddTransactions(accountId, motoDexContract, tokenId, minimalF
   const addNFTTransaction = await actionsToTransaction(
       accountId,
       motoDexContract[1],
-      [addNFTAction]
+      [addNFTAction],
+      mainnet
   );
 
   transactions.push(addNFTTransaction);
@@ -2467,7 +2470,7 @@ async function nearAddTransactions(accountId, motoDexContract, tokenId, minimalF
   return transactions;
 }
 
-async function nearReturnTransactions(accountId, motoDexContract, tokenId, minimalFee, returnMoto = true) {
+async function nearReturnTransactions(accountId, motoDexContract, tokenId, minimalFee, returnMoto = true, mainnet) {
   const transactions = [];
 
   const returnNFTAction = {
@@ -2481,7 +2484,8 @@ async function nearReturnTransactions(accountId, motoDexContract, tokenId, minim
   const returnNFTTransaction = await actionsToTransaction(
       accountId,
       motoDexContract[1],
-      [returnNFTAction]
+      [returnNFTAction],
+      mainnet
   );
 
   transactions.push(returnNFTTransaction);
@@ -2490,7 +2494,7 @@ async function nearReturnTransactions(accountId, motoDexContract, tokenId, minim
   return transactions;
 }
 
-async function actionsToTransaction(accountId, receiverId, actions) {
+async function actionsToTransaction(accountId, receiverId, actions, mainnet) {
   return await createTx(
       accountId,
       receiverId,
@@ -2501,7 +2505,8 @@ async function actionsToTransaction(accountId, receiverId, actions) {
               action.gas,
               action.deposit,
           )
-      )
+      ),
+      mainnet
   );
 }
 
@@ -2509,9 +2514,10 @@ async function createTx(
     accountId,
     receiverId,
     actions,
+    mainnet,
     nonceOffset = 1
 ) {
-    let wallet = await connectNearWallet();
+    let wallet = await connectNearWallet(mainnet);
     console.log('connection', wallet);
     // if (!wallet.isSignedIn()) {
     //     await wallet.requestSignIn(
