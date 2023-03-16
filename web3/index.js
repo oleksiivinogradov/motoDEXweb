@@ -89,9 +89,9 @@ async function connect() {
     else{
       console.log("CCD Test");
       bin64 = testCCDBin64;
-  	  web3gl.connectAccount = await connectConcordiumWallet(false);
+      web3gl.connectAccount = await connectConcordiumWallet(false);
     } 
-  	return;
+    return;
   }
   // uncomment to enable torus and walletconnect
   const providerOptions = {
@@ -238,7 +238,7 @@ window.web3gl.sendContract(method, abi, contract, args, value, gasLimit, gasPric
 async function sendContract(method, abi, contract, args, value, gasLimit, gasPrice) {
   if (method == "purchase")
   {
-  	googleAnalyticsSendEvent("purchase_nft");
+    googleAnalyticsSendEvent("purchase_nft");
   }
 
   if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
@@ -304,7 +304,7 @@ async function addNetwork(chainId) {
         let params;
 
         console.log('addNetwork chainId ' + chainId);
-		switch (chainId) {
+    switch (chainId) {
             case 56 :
                 params = [{
                     chainId: '0x38',
@@ -528,28 +528,28 @@ async function addNetwork(chainId) {
         }
         else if (chainId == 1456327825 || chainId == 1456327830)
         {
-        	return;
+          return;
         }
         console.log('addNetwork params' + JSON.stringify(params));
         window.ethereum.request({ method: 'wallet_addEthereumChain', params })
             .then(() => {
-            	window.ethereum
-			        .request({
-			          method: "wallet_switchEthereumChain",
-			          params: [{ chainId: `0x${window.web3ChainId.toString(16)}` }], // chainId must be in hexadecimal numbers
-			        }).then(() => {
-			        	console.log('Add Success');
-			        	console.log('Switch Success');
-			        	window.web3gl.addNetworkResponse = "Success";
-			        })
-			        .catch(() => {
-			        	window.web3gl.addNetworkResponse = "Error";
-			          	//window.location.reload();
-			        });
+              window.ethereum
+              .request({
+                method: "wallet_switchEthereumChain",
+                params: [{ chainId: `0x${window.web3ChainId.toString(16)}` }], // chainId must be in hexadecimal numbers
+              }).then(() => {
+                console.log('Add Success');
+                console.log('Switch Success');
+                window.web3gl.addNetworkResponse = "Success";
+              })
+              .catch(() => {
+                window.web3gl.addNetworkResponse = "Error";
+                  //window.location.reload();
+              });
             })
             .catch((error) => {
-            	console.log("Error", error.message);
-            	window.web3gl.addNetworkResponse = "Error";
+              console.log("Error", error.message);
+              window.web3gl.addNetworkResponse = "Error";
             });
     } else {
         alert('Unable to locate a compatible web3 browser!');
@@ -558,9 +558,9 @@ async function addNetwork(chainId) {
 }
 
 async function changeChainId(chainId) {
-	chainId = parseInt(chainId, 10);
-  	window.web3ChainId = chainId;
-  	addNetwork(window.web3ChainId);
+  chainId = parseInt(chainId, 10);
+    window.web3ChainId = chainId;
+    addNetwork(window.web3ChainId);
 }
 
 async function getLatestEpoch(abi, nftUniV3ContractAddress) {
@@ -598,17 +598,17 @@ async function getAllErc721(abi, nftUniV3ContractAddress) {
     window.web3gl.getAllErc721Response = concResponse;
     return;
   }
-	const from = (await web3.eth.getAccounts())[0];
- 	const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
-	let balance = parseInt(await nftContract.methods.balanceOf(from).call());
-	let data = [];
-	while (balance > 0) {
-	    balance = balance -1;
-	    const tokenID = await nftContract.methods.tokenOfOwnerByIndex(from,balance+'').call();
-		const tokenURI = await nftContract.methods.tokenURI(tokenID).call();
-		data.push({"contract": nftUniV3ContractAddress, "tokenId": tokenID, "uri": tokenURI, "balance":"1"});
-	}
-	window.web3gl.getAllErc721Response = JSON.stringify(data);
+  const from = (await web3.eth.getAccounts())[0];
+  const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
+  let balance = parseInt(await nftContract.methods.balanceOf(from).call());
+  let data = [];
+  while (balance > 0) {
+      balance = balance -1;
+      const tokenID = await nftContract.methods.tokenOfOwnerByIndex(from,balance+'').call();
+    const tokenURI = await nftContract.methods.tokenURI(tokenID).call();
+    data.push({"contract": nftUniV3ContractAddress, "tokenId": tokenID, "uri": tokenURI, "balance":"1"});
+  }
+  window.web3gl.getAllErc721Response = JSON.stringify(data);
 }
 
 async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
@@ -723,6 +723,7 @@ async function concordiumMethodCall(motoDexContract, method, args, value) {
   console.log(args);
   console.log(args[0]);
   let response;
+  try {
     switch (method) {
             case "tokenIdsAndOwners" :
                 response = await concordiumTokenIdsAndOwners(motoDexContract);
@@ -755,6 +756,9 @@ async function concordiumMethodCall(motoDexContract, method, args, value) {
             case "latestEpochUpdate" :
                 response = await concordiumLatestEpochUpdate(motoDexContract);
                 break;
+            case "minimalFeeInUSD" :
+                response = await concordiumMinimalFeeInUSD(motoDexContract);
+                break;
             case "getLatestPrice" :
                 response = await concordiumGetLatestPrice(motoDexContract);
                 break;
@@ -766,7 +770,12 @@ async function concordiumMethodCall(motoDexContract, method, args, value) {
                 break;    
       default:
                 alert('Method is not added'); 
+      }
+  }catch (error) {
+      console.log(method + " - " + error.message);
+      response = "fail";
   }
+
   return response;
 }
 
@@ -1903,7 +1912,7 @@ async function nearMinimalFeeInUSD(mainnet, motoDexContract) {
     );
     // console.log("contract " + contract);
 
-	 console.log("nearMinimalFeeInUSD motoDexContract: " + motoDexContract);
+   console.log("nearMinimalFeeInUSD motoDexContract: " + motoDexContract);
     let minimal_fee_in_usd = await contract.get_minimal_fee();
     console.log(minimal_fee_in_usd);
 
@@ -1914,6 +1923,33 @@ async function nearMinimalFeeInUSD(mainnet, motoDexContract) {
 
     console.log("nearMinimalFeeInUSD minimal_fee_in_usd " + minimal_fee_in_usd + " motoDexContract " + motoDexContract);
     return JSON.stringify({minimal_fee_in_usd: minimal_fee_in_usd});
+}
+
+async function nearMinimalFeeRate(mainnet, motoDexContract) {
+    mainnet = await checkNetwork(mainnet);
+    const near = new nearApi.Near({
+        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+        networkId: mainnet ? 'default' : 'testnet',
+        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+    });
+    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+
+    const contract = new nearApi.Contract(
+        account, // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            viewMethods: ["get_minimal_fee_rate"], // view methods do not change state but usually return a value
+            sender: account, // account object to initialize and sign transactions.
+        }
+    );
+
+   console.log("nearMinimalFeeRate motoDexContract: " + motoDexContract);
+    let minimal_fee_rate = await contract.get_minimal_fee_rate();
+    console.log(minimal_fee_rate);
+
+    console.log("nearMinimalFeeRate minimal_fee_in_usd " + minimal_fee_rate + " motoDexContract " + motoDexContract);
+    return JSON.stringify(minimal_fee_rate);
 }
 
 async function nearLatestEpoch(mainnet, motoDexContract) {
@@ -2063,7 +2099,7 @@ async function nearHealthInWei(mainnet, motoDexContract, tokenId) {
         }
     );
 
-	  console.log("nearHealthInWei motoDexContract: " + motoDexContract);
+    console.log("nearHealthInWei motoDexContract: " + motoDexContract);
     const health_in_wei = await contract.get_token_health({ token_id : tokenId });
     console.log(health_in_wei);
 
@@ -2090,7 +2126,7 @@ async function nearGetPercentForTrack(mainnet, motoDexContract, tokenId) {
         }
     );
 
-	  console.log("nearGetPercentForTrack motoDexContract: " + motoDexContract);
+    console.log("nearGetPercentForTrack motoDexContract: " + motoDexContract);
     const response = await contract.get_percent_for_track({ token_id : tokenId });
     console.log(response);
 
@@ -2144,7 +2180,7 @@ async function nearGetGameSessions(mainnet, motoDexContract) {
         }
     );
 
-	  console.log("nearGetGameSessions motoDexContract: " + motoDexContract);
+    console.log("nearGetGameSessions motoDexContract: " + motoDexContract);
     const response = await contract.get_active_sessions_full_view();
     console.log(response);
 
@@ -2171,7 +2207,7 @@ async function nearGetAllGameBids(mainnet, motoDexContract) {
         }
     );
 
-	  console.log("nearGetAllGameBids motoDexContract: " + motoDexContract);
+    console.log("nearGetAllGameBids motoDexContract: " + motoDexContract);
     const response = await contract.get_game_bids_paged();
     console.log(response);
 
@@ -2564,7 +2600,7 @@ async function createTx(
 }
 
 async function listNearNFTsWeb(mainnet, contractAddress, selectedAccount) {
-	  console.log("listNearNFTsWeb network " + mainnet + "; motoDexContract " + contractAddress + "; selectedAccount " + selectedAccount);
+    console.log("listNearNFTsWeb network " + mainnet + "; motoDexContract " + contractAddress + "; selectedAccount " + selectedAccount);
     mainnet = await checkNetwork(mainnet);
     
     let wallet = await connectNearWallet(mainnet)
@@ -2588,7 +2624,7 @@ async function nearSendContract(mainnet, motoDexContract, method, args, value) {
     motoDexContract = JSON.parse(motoDexContract);
     console.log(args);
     console.log(args[0]);
-  	let response;
+    let response;
     mainnet = await checkNetwork(mainnet);
     switch (method) {
             case "purchase" :
@@ -2615,27 +2651,27 @@ async function nearSendContract(mainnet, motoDexContract, method, args, value) {
             case "bidFor" :
                 response = await nearBidFor(mainnet, motoDexContract, String(args[0]),  String(args[1]), value);
                 break;
-   			default:
+        default:
                 alert('Method is not added'); 
-	  }
-	  if (typeof response != "string")
-  	{
-    	window.web3gl.nearSendContractResponse = JSON.stringify(response);
-  	}
-  	else
-  	{
-    	window.web3gl.nearSendContractResponse = response;
-  	}
+    }
+    if (typeof response != "string")
+    {
+      window.web3gl.nearSendContractResponse = JSON.stringify(response);
+    }
+    else
+    {
+      window.web3gl.nearSendContractResponse = response;
+    }
 }
 
 async function nearMethodCall(mainnet, motoDexContract, method, args, value) {
-	args = JSON.parse(args);
+  args = JSON.parse(args);
     motoDexContract = JSON.parse(motoDexContract);
     console.log(args);
     console.log(args[0]);
-	  let response;
+    let response;
     console.log(method);
-  	mainnet = await checkNetwork(mainnet);
+    mainnet = await checkNetwork(mainnet);
     switch (method) {
             case "tokenIdsAndOwners" :
                 response = await nearTokenIdsAndOwners(mainnet, motoDexContract[1]);
@@ -2643,6 +2679,9 @@ async function nearMethodCall(mainnet, motoDexContract, method, args, value) {
             case "getPriceForType" :
                 response = await nearGetPriceForType(mainnet, motoDexContract[1], parseInt(args[0]));
                 response = JSON.parse(response).get_price_for_type;
+                break;
+            case "getMinimalFeeRate" :
+                response = await nearMinimalFeeRate(mainnet, motoDexContract[1]);
                 break;
             case "valueInMainCoin" :
                 response = await nearGetPriceForType(mainnet, motoDexContract[1], parseInt(args[0]));
@@ -2678,20 +2717,20 @@ async function nearMethodCall(mainnet, motoDexContract, method, args, value) {
             case "syncEpochResultsMotosFinal" :
                 response = await nearSyncEpochResultsMotosFinal(mainnet, motoDexContract[1]);
                 break;
-   			default:
+        default:
                 alert('Method is not added'); 
-	}
-	if (typeof response != "string")
-  	{
-    	window.web3gl.nearMethodCallResponse = JSON.stringify(response);
-  	}
-  	else
-  	{
-    	window.web3gl.nearMethodCallResponse = response;
-  	}
+  }
+  if (typeof response != "string")
+    {
+      window.web3gl.nearMethodCallResponse = JSON.stringify(response);
+    }
+    else
+    {
+      window.web3gl.nearMethodCallResponse = response;
+    }
 }
 async function nearTokenIdsAndOwners(mainnet, motoDexContract) {
-	mainnet = await checkNetwork(mainnet);
+  mainnet = await checkNetwork(mainnet);
   const near = new nearApi.Near({
       keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
       networkId: mainnet ? 'default' : 'testnet',
@@ -2709,7 +2748,7 @@ async function nearTokenIdsAndOwners(mainnet, motoDexContract) {
       }
   );
 
-	console.log("nearTokenIdsAndOwners motoDexContract: " + motoDexContract);
+  console.log("nearTokenIdsAndOwners motoDexContract: " + motoDexContract);
   const token_ids_and_owners = await contract.token_ids_and_owners();
   console.log("nearTokenIdsAndOwners");
   console.log(token_ids_and_owners);
@@ -2760,8 +2799,8 @@ async function webGLReload(){
 }
 
 async function googleAnalyticsSendEvent(eventName) {
-	console.log("googleAnalyticsSendEvent: " + eventName);
-	gtag('event', eventName, { eventName: true });
+  console.log("googleAnalyticsSendEvent: " + eventName);
+  gtag('event', eventName, { eventName: true });
 }
 
 // View methods
