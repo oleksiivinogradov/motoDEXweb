@@ -284,6 +284,8 @@ async function addNetwork(chainId) {
     var eth;
     chainId = parseInt(chainId, 10);
 
+    if (web3gl.networkId == chainId) return;
+
     if (typeof ethereum !== 'undefined') {
         eth = new Web3(ethereum);
     } else if (typeof web3 !== 'undefined') {
