@@ -42,4 +42,27 @@ function UnityProgress(unityInstance, progress) {
 
 	  fillText.textContent = (value * 100).toFixed() + "%";
 	}
+
+	// Check if the device is mobile
+	if (/Mobi/.test(navigator.userAgent)) { 
+		if (!unityInstance.mobileLogo) {
+			unityInstance.mobileLogo = document.getElementById("alert-custom-logo");
+			unityInstance.mobileLogo.style.display = "block";
+			unityInstance.container.appendChild(unityInstance.mobileLogo);
+
+
+		    console.log("Creating button image...");
+		   	const playButtonImg = document.getElementById("alert-custom-button");
+		    playButtonImg.style.display = "block";
+		    playButtonImg.addEventListener("click", function() {
+		     	window.location.href = "https://app.openbisea.com/motoDEX";
+		    	playButtonImg.style.display = "none";
+		    });
+		    unityInstance.container.appendChild(playButtonImg);
+		}
+
+		// Hide the desktop logo and progress bar
+		unityInstance.logo.style.display = "none";
+		unityInstance.progress.style.display = "none";
+	}
 }

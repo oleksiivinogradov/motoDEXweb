@@ -16,6 +16,38 @@ body { padding: 0; margin: 0 }
     height: 100%;
 }
 
+#alert-custom-logo {
+	position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-image: url('AlertBG.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    width: 100%;
+    height: 100%;
+}
+
+#alert-custom-button {
+  position: absolute;
+  left: 50%;
+  top: 75%;
+  transform: translate(-50%, -75%);
+  width: 300px;
+  height: 150px;
+  cursor: pointer;
+  background-image: url('AlertBtn.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+#alert-custom-button img {
+  display: none;
+}
+
 #custom-loader {
 	position: absolute;
     	left: 50%;
