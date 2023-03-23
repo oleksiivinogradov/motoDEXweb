@@ -33,10 +33,10 @@ body { padding: 0; margin: 0 }
 #alert-custom-button {
   position: absolute;
   left: 50%;
-  top: 75%;
-  transform: translate(-50%, -75%);
-  width: 300px;
-  height: 150px;
+  top: 77%;
+  transform: translate(-50%, -77%);
+  width: 400px;
+  height: 200px;
   cursor: pointer;
   background-image: url('AlertBtn.png');
   background-size: contain;
