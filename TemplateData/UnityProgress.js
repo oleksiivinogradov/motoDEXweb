@@ -20,8 +20,9 @@ function UnityProgress(unityInstance, progress) {
 
 	if (progress == 1)
 	{
-		unityInstance.logo.style.display = "none";
 		unityInstance.progress.style.display = "none";
+		if (/Mobi/.test(navigator.userAgent)) return;
+		unityInstance.logo.style.display = "none";
 	}
 	
 	// value - 0 to 1
@@ -44,25 +45,21 @@ function UnityProgress(unityInstance, progress) {
 	}
 
 	// Check if the device is mobile
-	if (/Mobi/.test(navigator.userAgent)) { 
+	if (/Mobi/.test(navigator.userAgent)) {
 		if (!unityInstance.mobileLogo) {
 			unityInstance.mobileLogo = document.getElementById("alert-custom-logo");
 			unityInstance.mobileLogo.style.display = "block";
 			unityInstance.container.appendChild(unityInstance.mobileLogo);
 
+			var buyButton = document.getElementById("buyButton");
+			var myLink = "https://app.openbisea.com/motoDEX";
 
-		    console.log("Creating button image...");
-		   	const playButtonImg = document.getElementById("alert-custom-button");
-		    playButtonImg.style.display = "block";
-		    playButtonImg.addEventListener("click", function() {
-		     	window.location.href = "https://app.openbisea.com/motoDEX";
-		    	playButtonImg.style.display = "none";
-		    });
-		    unityInstance.container.appendChild(playButtonImg);
+			buyButton.addEventListener("click", function() {
+			  window.location.href = myLink;
+			});
 		}
 
-		// Hide the desktop logo and progress bar
-		unityInstance.logo.style.display = "none";
+		// Hide the desktop progress bar
 		unityInstance.progress.style.display = "none";
 	}
 }

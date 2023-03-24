@@ -17,31 +17,82 @@ body { padding: 0; margin: 0 }
 }
 
 #alert-custom-logo {
+    width: 80%;
+    height: 70%;
 	position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    background-image: url('AlertBG.png');
-    background-size: cover;
+    background-image: url('Alert_BG.png');
+    background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
-
-    width: 100%;
-    height: 100%;
+    border-radius: 40px;
+    border:white 0.7vh solid;
+    user-select:none; 	
+}
+.alert-custom-img {
+	width: 60%;
+	height: 25%;	
+	position: absolute;
+	left: 50%;
+	top: 14%;
+	transform: translate(-50%, -50%);
+    background-image: url('Logo_Site_Mobile.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;     
 }
 
-#alert-custom-button {
-  position: absolute;
-  left: 50%;
-  top: 77%;
-  transform: translate(-50%, -77%);
-  width: 400px;
-  height: 200px;
-  cursor: pointer;
-  background-image: url('AlertBtn.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
+.alert-custom-text {
+	width: 90%;
+	height: 50%;	
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	font-family: 'Barlow', sans-serif;
+	font-weight: 300;
+	text-align: center;
+	font-size: 3.5vh;
+	color:#fff;  
+	user-select:none;   
+}
+
+.alert-custom-button {
+	width: 70%;
+	height: 25%;	
+	position: absolute;
+	left: 50%;
+	top: 85%;
+	transform: translate(-50%, -50%);
+	font-family: 'Barlow', sans-serif;
+	font-weight: 800;
+	font-size: 4vh;
+	text-shadow: 0.2vh 0.2vh 0.5vh #000000; 
+	color:#fff;  
+	user-select:none;  
+	cursor: pointer;
+	background-image: url('Alert_Btn.png');
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	z-index:1000;  
+}
+.alert-custom-button span{
+    position: absolute;	
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);  
+}
+.alert-custom-button:active {
+    width: 65%;
+    height: 25%;	
+    background-size: contain;
+    background-image: url('Alert_Btn.png');  
+    background-repeat: no-repeat;
+    background-position: center;  
+    font-size: 3.8vh; 
 }
 
 #alert-custom-button img {

@@ -16,6 +16,11 @@
 		onProgress: UnityProgress
 	  });
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;800&display=swap" rel="stylesheet">	
   </head>
   <body>
 	<div id="custom-logo" hidden></div>
@@ -30,8 +35,15 @@
 		</div>		
     </div>
 
-    <div id="alert-custom-logo" hidden></div>
-    <div id="alert-custom-button" hidden></div>
+    <div id="alert-custom-logo" hidden>
+	    <div class="alert-custom-img"></div>
+		<div class="alert-custom-text">
+		  <span>Experience our captivating web game, now available on desktop! Explore a world of adventure, strategy, and endless fun. Don't miss out on the excitement - <br><b>Play Now!</b></span>
+		</div>
+	    <div class="alert-custom-button" id="buyButton">
+	      <span>BUY</span>
+	    </div>		
+	</div>
 
 	
 	<div class="webgl-content" style="display: table; width: 100%; height: 100%;">
