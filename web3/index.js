@@ -116,6 +116,28 @@ async function connect() {
            }
       },
     },
+    "custom-safepalwallet": {
+         display: {
+         logo: "https://seeklogo.com/images/S/safepal-sfp-logo-AAC2DB2D95-seeklogo.com.png",
+         name: "SafePal",
+         description: "Connect to your SafePal Wallet"
+       },
+       package: true,
+       connector: async () => {
+         let provider = null;
+         if (typeof window.ethereum !== 'undefined') {
+           provider = window.ethereum;
+           try {
+             await provider.request({ method: 'eth_requestAccounts' })
+           } catch (error) {
+             throw new Error("User Rejected");
+           }
+         } else {
+           throw new Error("No SafePal Wallet found");
+         }
+         return provider;
+       }
+     }
    //    "custom-polygon": {
    //     display: {
    //         logo: "https://polygon.technology/wp-content/uploads/2021/07/polygon-logo.svg",
