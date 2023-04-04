@@ -118,7 +118,8 @@ async function connect() {
     },
     "custom-safepalwallet": {
          display: {
-         logo: "https://seeklogo.com/images/S/safepal-sfp-logo-AAC2DB2D95-seeklogo.com.png",
+         logo: "https://drive.google.com/uc?export=view&id=1CfTX6AsRfzMa_1zhmavWXoe6jVmHSzM8",
+         downloadableLogo: "https://drive.google.com/u/0/uc?id=1CfTX6AsRfzMa_1zhmavWXoe6jVmHSzM8&export=download",
          name: "SafePal",
          description: "Connect to your SafePal Wallet"
        },
