@@ -118,8 +118,9 @@ async function connect() {
     },
     "custom-safepalwallet": {
          display: {
-         logo: "https://drive.google.com/uc?export=view&id=1CfTX6AsRfzMa_1zhmavWXoe6jVmHSzM8",
-         downloadableLogo: "https://drive.google.com/u/0/uc?id=1CfTX6AsRfzMa_1zhmavWXoe6jVmHSzM8&export=download",
+         logo: "https://www.safepal.com/assets/img/newlook/SafePal-full-logo.svg",  
+         //logo: "https://drive.google.com/uc?export=view&id=1CfTX6AsRfzMa_1zhmavWXoe6jVmHSzM8",
+         //downloadableLogo: "https://drive.google.com/u/0/uc?id=1CfTX6AsRfzMa_1zhmavWXoe6jVmHSzM8&export=download",
          name: "SafePal",
          description: "Connect to your SafePal Wallet"
        },
@@ -138,7 +139,29 @@ async function connect() {
          }
          return provider;
        }
-     }
+     },
+      "custom-okx": {
+           display: {
+           logo: "https://static.coinall.ltd/cdn/zendesk/theme.zdassets.com/theme_assets/2040249/1d1ade3504c300c9020e79e00515247db969b7bc.png",
+           name: "OKX",
+           description: "Connect to OKX Wallet"
+         },
+         package: true,
+         connector: async () => {
+           let provider = null;
+           if (typeof window.ethereum !== 'undefined') {
+             provider = window.ethereum;
+             try {
+               await provider.request({ method: 'eth_requestAccounts' })
+             } catch (error) {
+               throw new Error("User Rejected");
+             }
+           } else {
+             throw new Error("No SafePal Wallet found");
+           }
+           return provider;
+         }
+       }
    //    "custom-polygon": {
    //     display: {
    //         logo: "https://polygon.technology/wp-content/uploads/2021/07/polygon-logo.svg",
