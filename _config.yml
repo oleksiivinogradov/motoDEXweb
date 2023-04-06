@@ -1,1 +1,7 @@
 theme: jekyll-theme-cayman
+
+# Enable Gzip compression
+compress:
+  only:
+    - "*.unityweb"
+  verbose: true
