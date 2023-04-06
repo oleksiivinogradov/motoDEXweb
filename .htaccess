@@ -1,0 +1,6 @@
+AddType application/octet-stream .unityweb
+AddEncoding gzip .unityweb
+
+<FilesMatch "\.(unityweb)$">
+  Header set Content-Encoding gzip
+</FilesMatch>
