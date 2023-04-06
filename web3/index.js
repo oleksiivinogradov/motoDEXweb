@@ -625,21 +625,26 @@ async function getLatestEpoch(abi, nftUniV3ContractAddress) {
     window.web3gl.getLatestEpochResponse = concResponse;
     return;
   }
-  const from = (await web3.eth.getAccounts())[0];
-  const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
-  let response = await nftContract.methods.latestEpochUpdate().call();
-  console.log(response);
-  console.log(typeof response);
-  
-  if (typeof response != "string")  
-  {
-    window.web3gl.getLatestEpochResponse = JSON.stringify(response);
+  try {
+    const from = (await web3.eth.getAccounts())[0];
+    const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
+    let response = await nftContract.methods.latestEpochUpdate().call();
+    console.log(response);
+    console.log(typeof response);
+    
+    if (typeof response != "string")  
+    {
+      window.web3gl.getLatestEpochResponse = JSON.stringify(response);
+    }
+    else
+    {
+      window.web3gl.getLatestEpochResponse = response;
+    }
+    console.log(window.web3gl.getLatestEpochResponse);
+  } catch (error) {
+      console.log("getLatestEpoch - " + error.message);
+      window.web3gl.getLatestEpochResponse = "fail";
   }
-  else
-  {
-    window.web3gl.getLatestEpochResponse = response;
-  }
-  console.log(window.web3gl.getLatestEpochResponse);
 }
 
 
@@ -651,17 +656,22 @@ async function getAllErc721(abi, nftUniV3ContractAddress) {
     window.web3gl.getAllErc721Response = concResponse;
     return;
   }
-  const from = (await web3.eth.getAccounts())[0];
-  const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
-  let balance = parseInt(await nftContract.methods.balanceOf(from).call());
-  let data = [];
-  while (balance > 0) {
-      balance = balance -1;
-      const tokenID = await nftContract.methods.tokenOfOwnerByIndex(from,balance+'').call();
-    const tokenURI = await nftContract.methods.tokenURI(tokenID).call();
-    data.push({"contract": nftUniV3ContractAddress, "tokenId": tokenID, "uri": tokenURI, "balance":"1"});
+  try {
+    const from = (await web3.eth.getAccounts())[0];
+    const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
+    let balance = parseInt(await nftContract.methods.balanceOf(from).call());
+    let data = [];
+    while (balance > 0) {
+        balance = balance -1;
+        const tokenID = await nftContract.methods.tokenOfOwnerByIndex(from,balance+'').call();
+      const tokenURI = await nftContract.methods.tokenURI(tokenID).call();
+      data.push({"contract": nftUniV3ContractAddress, "tokenId": tokenID, "uri": tokenURI, "balance":"1"});
+    }
+    window.web3gl.getAllErc721Response = JSON.stringify(data);
+  } catch (error) {
+      console.log("getAllErc721 - " + error.message);
+      window.web3gl.getAllErc721Response = "fail";
   }
-  window.web3gl.getAllErc721Response = JSON.stringify(data);
 }
 
 async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
@@ -701,8 +711,14 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
 }
 
 async function getTxStatus(transactionHash) {
-  const from = (await web3.eth.getAccounts())[0];
-  let response = await web3.eth.getTransactionReceipt(transactionHash);
+  let response;
+  try {
+    const from = (await web3.eth.getAccounts())[0];
+    response = await web3.eth.getTransactionReceipt(transactionHash);
+  } catch (error) {
+      console.log("getTxStatus - " + error.message);
+      response = "fail";
+  }
   console.log(response);
   if (response.status == true)
   {
@@ -724,9 +740,15 @@ async function getTxStatus(transactionHash) {
 }
 
 async function getBalance() {
-  const from = (await web3.eth.getAccounts())[0];
-  let response = parseInt(await web3.eth.getBalance(from));
-  //response = response * Math.pow(10, -18);
+  let response;
+  try {
+    const from = (await web3.eth.getAccounts())[0];
+    response = parseInt(await web3.eth.getBalance(from));
+    //response = response * Math.pow(10, -18);
+  } catch (error) {
+    console.log("getBalance - " + error.message);
+    response = "fail";
+  }
   if (typeof response != "string")
   {
     window.web3gl.getBalanceResponse = JSON.stringify(response);
