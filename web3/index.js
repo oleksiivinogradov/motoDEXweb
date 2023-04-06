@@ -306,7 +306,8 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
   }
 
   const from = (await web3.eth.getAccounts())[0];
-  new web3.eth.Contract(JSON.parse(abi), contract).methods[method](...JSON.parse(args))
+  try{
+    new web3.eth.Contract(JSON.parse(abi), contract).methods[method](...JSON.parse(args))
       .send({
         from,
         value: value ? value : undefined,
@@ -324,6 +325,10 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
       .on("error", (error) => {
         window.web3gl.sendContractResponse = error.message;
       });
+  } catch (error) {
+    console.log(method + " - " + error.message);
+    window.web3gl.sendContractResponse = error.message;
+  }
 }
 
 async function addNetwork(chainId) {
