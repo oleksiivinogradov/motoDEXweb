@@ -1,6 +1,10 @@
 AddType application/octet-stream .unityweb
 AddEncoding gzip .unityweb
 
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE application/vnd.unity
+</IfModule>
+
 <FilesMatch "\.(unityweb)$">
   Header set Content-Encoding gzip
 </FilesMatch>
