@@ -670,11 +670,17 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
   }
   const from = (await web3.eth.getAccounts())[0];
   const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
-  let response = await nftContract.methods[method](...JSON.parse(args))
-  .call({
-        from,
-        value: value ? value : undefined
-  });
+
+  try {
+      let response = await nftContract.methods[method](...JSON.parse(args))
+        .call({
+              from,
+              value: value ? value : undefined
+        }); 
+  }catch (error) {
+      console.log(method + " - " + error.message);
+      response = "fail";
+  }
   console.log(response);
   console.log(typeof response);
   if (typeof response != "string")
