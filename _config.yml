@@ -3,5 +3,5 @@ theme: jekyll-theme-cayman
 # Enable Gzip compression
 compress:
   only:
-    - "*.unityweb"
+    - "Build/*.unityweb"
   verbose: true
