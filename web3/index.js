@@ -214,8 +214,13 @@ async function connect() {
         });
   }
 
-  // set current account
+  // if the current network is still not equal to the network id, then return and stop the connection
+  if (web3gl.networkId != window.web3ChainId) {
+    web3gl.connectAccount = "fail"; 
+    return;
+  }
 
+  // set current account
   if (provider.selectedAddress !== undefined) web3gl.connectAccount = provider.selectedAddress;
   else web3gl.connectAccount = provider.accounts[0];
 
@@ -602,6 +607,7 @@ async function addNetwork(chainId) {
             })
             .catch((error) => {
               console.log("Error", error.message);
+              alert('Network switching may not work, try switching manually in MetaMask.');
               window.web3gl.addNetworkResponse = "Error";
             });
     } else {
