@@ -1854,8 +1854,9 @@ async function concordiumAddNft(motoDexContract, tokenId, isMoto) {
   );
 
   const minimal_fee_in_usd = await concordiumMinimalFeeInUSD(motoDexContract);
-  const amount = { microGtuAmount: BigInt(minimal_fee_in_usd) };
-
+  //const amount = { microGtuAmount: BigInt(minimal_fee_in_usd) };
+  const amount = { microGtuAmount:  200000000n };
+  
   const txHash = await provider.sendTransaction(
       accountAddress,
       concordiumSDK.AccountTransactionType.Update,
