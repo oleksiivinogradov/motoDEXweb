@@ -684,9 +684,18 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
   console.log(method);
   if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
   {
-    let concResponse = JSON.stringify(await concordiumMethodCall(nftUniV3ContractAddress, method, args, value));
+    let concResponse = await concordiumMethodCall(nftUniV3ContractAddress, method, args, value);
     console.log(concResponse);
-    window.web3gl.methodCallResponse = concResponse;
+
+    if (typeof concResponse != "string")
+    {
+      window.web3gl.methodCallResponse = JSON.stringify(concResponse);
+    } 
+    else
+    {
+      window.web3gl.methodCallResponse = concResponse;
+    }
+    console.log(window.web3gl.methodCallResponse);   
     return;
   }
   const from = (await web3.eth.getAccounts())[0];
