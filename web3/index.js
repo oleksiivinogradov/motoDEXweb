@@ -18,8 +18,8 @@ document.body.appendChild(Object.assign(document.createElement("script"), { type
 
 document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "./web3/borsh.bundle.js" }));
 
-document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "//unpkg.com/@concordium/browser-wallet-api-helpers@2.0.0/lib/concordiumHelpers.min.js" }));
-document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "//unpkg.com/@concordium/web-sdk@3.1.0/lib/concordium.min.js" }));
+document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "//unpkg.com/@concordium/browser-wallet-api-helpers@2.4.0/lib/concordiumHelpers.min.js" }));
+document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "//unpkg.com/@concordium/web-sdk@3.4.1/lib/concordium.min.js" }));
 //document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "./web3/concordium.min.js" }));
 
 // load nearAPI.js to get access to Near API
@@ -1678,9 +1678,12 @@ async function concordiumPurchase(motoDexContract, typeNft) {
       parameters,
       bin64
   );
-  let txStatus = await client.getTransactionStatus(txHash);
-  if ( txStatus.status == "received" ) window.location.reload(); 
-  return txStatus.status;
+  const txStatus = await concordiumCheckTransactionStatus(txHash, client)
+  if ( txStatus == "success" ){
+    await sleep(5000);
+    window.location.reload();
+  }  
+  return txStatus;
 }
 
 async function concordiumAddHealthMoney(motoDexContract, tokenId) {
@@ -1728,8 +1731,8 @@ async function concordiumAddHealthMoney(motoDexContract, tokenId) {
       parameters,
       bin64
   );
-  const txStatus = await client.getTransactionStatus(txHash);
-  return txStatus.status;
+  const txStatus = await concordiumCheckTransactionStatus(txHash, client)
+  return txStatus;
 }
 
 async function concordiumBidFor(motoDexContract, trackTokenId, motoTokenId, value) {
@@ -1778,8 +1781,8 @@ async function concordiumBidFor(motoDexContract, trackTokenId, motoTokenId, valu
       parameters,
       bin64
   );
-  const txStatus = await client.getTransactionStatus(txHash);
-  return txStatus.status;
+  const txStatus = await concordiumCheckTransactionStatus(txHash, client)
+  return txStatus;
 }
 
 async function concordiumAddHealthNftParams(motoDexContract, tokenId, healthPillTokenId) {
@@ -1829,15 +1832,15 @@ async function concordiumAddHealthNftParams(motoDexContract, tokenId, healthPill
       parameters,
       bin64
   );
-  const txStatus = await client.getTransactionStatus(txHash);
-  return txStatus.status;
+  const txStatus = await concordiumCheckTransactionStatus(txHash, client)
+  return txStatus;
 }
 
 async function concordiumAddNft(motoDexContract, tokenId, isMoto) {
   const provider = await concordiumHelpers.detectConcordiumProvider();
   const accountAddress = await provider.connect();
   console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
+  const client = await provider.getJsonRpcClient();  
   const contractAddress = {
     subindex: 0n,
     index: BigInt(motoDexContract.split(":")[1]),
@@ -1879,9 +1882,8 @@ async function concordiumAddNft(motoDexContract, tokenId, isMoto) {
       parameters,
       bin64
   );
-  //const txStatus = await provider.request("getTransactionStatus",{transactionHash:txHash});
-  const txStatus = await client.getTransactionStatus(txHash);
-  return txStatus.status;
+  const txStatus = await concordiumCheckTransactionStatus(txHash, client)
+  return txStatus;
 }
 
 async function concordiumReturnNft(motoDexContract, tokenId, isMoto) {
@@ -1928,8 +1930,8 @@ async function concordiumReturnNft(motoDexContract, tokenId, isMoto) {
       parameters,
       bin64
   );
-  const txStatus = await client.getTransactionStatus(txHash);
-  return txStatus.status;
+  const txStatus = await concordiumCheckTransactionStatus(txHash, client)
+  return txStatus;
 }
 
 
@@ -2853,6 +2855,32 @@ async function nearTokenIdsAndOwners(mainnet, motoDexContract) {
   return JSON.stringify(token_ids_and_owners);
 }
 
+async function concordiumCheckTransactionStatus(txHash, client) {
+  let txStatus = await client.getTransactionStatus(txHash);
+
+  while (txStatus.status == 'received') {
+    // Wait for a few seconds before checking again
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    txStatus = await client.getTransactionStatus(txHash);
+  }
+
+  const resultOutcome = Object.values(txStatus.outcomes)[0].result.outcome;
+  console.log('resultOutcome:', resultOutcome);
+
+  if (resultOutcome == 'success') {
+    return 'success';
+  } else if (resultOutcome =='reject') {
+    const rejectReason = Object.values(txStatus.outcomes)[0].result.rejectReason;
+    console.log('Reject reason:', rejectReason);
+    return 'fail';
+  }
+
+  return 'fail';
+}
+
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function eToNumber(num) {
     let sign = "";
