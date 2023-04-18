@@ -1431,22 +1431,11 @@ async function concordiumGetGameSessions(motoDexContract, tokenId) {
 
   var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const parameters = {};
-
-  const inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
-
   const result = await client.invokeContract(
       {
           invoker: new concordiumSDK.AccountAddress(accountAddress),
           contract: contractAddress,
-          method: methodName,
-          parameter: inputParams
+          method: methodName
       }
   );
 
