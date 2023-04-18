@@ -1611,7 +1611,7 @@ async function concordiumMinimalFeeInUSD(motoDexContract) {
   let returnValue = "";
   try{
     returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-    returnValue = returnValue.min_fee_usd;
+    returnValue = returnValue.min_fee;
   }
   catch (error) {
     console.log(methodName + error.message);
