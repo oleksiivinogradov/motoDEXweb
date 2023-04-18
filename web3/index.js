@@ -1611,7 +1611,7 @@ async function concordiumMinimalFeeInUSD(motoDexContract) {
   let returnValue = "";
   try{
     returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-    returnValue = returnValue.min_fee;
+    returnValue = returnValue.min_fee * 1e6 / returnValue.price_main_coin_usd;
   }
   catch (error) {
     console.log(methodName + error.message);
@@ -1855,8 +1855,8 @@ async function concordiumAddNft(motoDexContract, tokenId, isMoto) {
   );
 
   const minimal_fee_in_usd = await concordiumMinimalFeeInUSD(motoDexContract);
-  //const amount = { microGtuAmount: BigInt(minimal_fee_in_usd) };
-  const amount = { microGtuAmount:  200000000n };
+  const amount = { microGtuAmount: BigInt(minimal_fee_in_usd) };
+  //const amount = { microGtuAmount:  200000000n };
   
   const txHash = await provider.sendTransaction(
       accountAddress,
