@@ -879,6 +879,10 @@ async function concordiumMethodCall(motoDexContract, method, args, value) {
 async function connectConcordiumWallet(mainnet, routeBackURL) {
     console.log("Connecting to CCD... mainnet " + mainnet);
     const provider = await concordiumHelpers.detectConcordiumProvider();
+    provider.rpcClientConfig = {
+        ...provider.rpcClientConfig,
+        network: 'testnet'
+    };
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
     const client = await provider.getJsonRpcClient();
