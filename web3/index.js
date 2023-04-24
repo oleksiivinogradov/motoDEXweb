@@ -2907,11 +2907,13 @@ async function checkNetwork(mainnet) {
   return mainnet;
 }
 
-async function webGLReload(){
-  try {
-    window.localStorage.clear();
-  } catch (error) {
-    console.log("Removing cookes error: " + error);
+async function webGLReload(clearCookies = "True"){
+  if (clearCookies == "True"){
+    try {
+      window.localStorage.clear();
+    } catch (error) {
+      console.log("Removing cookes error: " + error);
+    }
   }
   
   setTimeout(() => { window.location.reload(); }, 100);
