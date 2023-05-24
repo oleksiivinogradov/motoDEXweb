@@ -480,6 +480,19 @@ async function addNetwork(chainId) {
                     blockExplorerUrls: ['https://rinkeby.etherscan.io/']
                 }]
                 break;
+            case 18 :
+                params = [{
+                    chainId: '0x12',
+                    chainName: 'ThunderCore Test Network',
+                    nativeCurrency: {
+                        name: 'TST',
+                        symbol: 'TST',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://testnet-rpc.thundercore.com'],
+                    blockExplorerUrls: ['https://explorer-testnet.thundercore.com']
+                }]
+                break;
             case 15555 :
                 params = [{
                     chainId: '0x3CC3',
