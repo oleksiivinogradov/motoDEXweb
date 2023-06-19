@@ -584,6 +584,19 @@ async function addNetwork(chainId) {
                     blockExplorerUrls: ['']
                 }]
                 break;
+            case 7001 :
+                params = [{
+                    chainId: '0x1B59',
+                    chainName: 'ZetaChain Athens Testnet',
+                    nativeCurrency: {
+                        name: 'aZETA',
+                        symbol: 'aZETA',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://api.athens2.zetachain.com/evm'],
+                    blockExplorerUrls: ['https://explorer.athens.zetachain.com/']
+                }]
+                break;
             default:
                 alert('Network not supported to adding!');
 
