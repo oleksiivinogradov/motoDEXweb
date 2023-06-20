@@ -597,6 +597,19 @@ async function addNetwork(chainId) {
                     blockExplorerUrls: ['https://explorer.athens.zetachain.com/']
                 }]
                 break;
+            case 5001 :
+                params = [{
+                    chainId: '0x1389',
+                    chainName: 'Mantle Testnet',
+                    nativeCurrency: {
+                        name: 'MNT',
+                        symbol: 'MNT',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://rpc.testnet.mantle.xyz'],
+                    blockExplorerUrls: ['https://explorer.testnet.mantle.xyz']
+                }]
+                break;
             default:
                 alert('Network not supported to adding!');
 
