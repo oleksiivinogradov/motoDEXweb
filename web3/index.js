@@ -610,19 +610,19 @@ async function addNetwork(chainId) {
                     blockExplorerUrls: ['https://explorer.testnet.mantle.xyz']
                 }]
                 break;
-                case 17777 :
-                  params = [{
-                      chainId: '0x4571',
-                      chainName: 'EOS EVM Mainnet',
-                      nativeCurrency: {
-                          name: 'EOS',
-                          symbol: 'EOS',
-                          decimals: 18
-                      },
-                      rpcUrls: ['https://api.evm.eosnetwork.com/'],
-                      blockExplorerUrls: ['https://explorer.evm.eosnetwork.com/']
-                  }]
-                  break;                
+            case 17777 :
+                params = [{
+                    chainId: '0x4571',
+                    chainName: 'EOS EVM Mainnet',
+                    nativeCurrency: {
+                        name: 'EOS',
+                        symbol: 'EOS',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://api.evm.eosnetwork.com/'],
+                    blockExplorerUrls: ['https://explorer.evm.eosnetwork.com/']
+                }]
+                break;                    
             default:
                 alert('Network not supported to adding!');
 
