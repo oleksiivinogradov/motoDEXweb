@@ -115,6 +115,7 @@ async function connect() {
         } else {
             web3gl.connectAccount = walletAddress
             web3gl.networkId =  parseInt(network.chain.id + '')
+            //window.location.reload();
         }
     })
     const account = getAccount()
@@ -760,6 +761,15 @@ async function addNetwork(chainId) {
 
 async function changeChainId(chainIdnew) {
     console.log("changeChainId chainIdnew ", chainIdnew);
+    window.web3ChainId = chainIdnew
+
+    if (parseInt(chainIdnew) == 1456327825 || parseInt(chainIdnew) == 1456327830) {
+        console.log("changeChainId chainIdnew ", chainIdnew);
+        //web3modal.closeModal()
+        return
+    } else {
+
+    }
 
     const account = getAccount()
     console.log('changeChainId account->',account)
@@ -770,10 +780,19 @@ async function changeChainId(chainIdnew) {
     if (network !== undefined && network.chain !== undefined && parseInt(chainIdnew) !== network.chain.id) {
         const chainToChange = parseInt(chainIdnew)
         console.log('changeChainId chainToChange->',chainToChange)
-        web3modal.openModal()
+        //web3modal.openModal()
         //switchNetwork(chainToChange)
-
     }
+    window.chains.forEach(function (chain, i) {
+        if (chain.id === parseInt(chainIdnew)) {
+            web3modal.setDefaultChain(window.chains[i])
+            console.log("changeChainId setDefaultChain ", window.chains[i]);
+            web3gl.networkId = chain.id
+            if (network !== undefined && network.chain !== undefined) switchNetwork({
+                chainId: chain.id,
+            })
+        }
+    })
     //switchNetwork(chainIdnew)
     // window.web3ChainId = network.chain.id
     // chainId = network.chain.id
