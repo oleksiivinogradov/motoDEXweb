@@ -1,183 +1,291 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
-  	<script type="module" crossorigin src="js/google-analytics.js"></script>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>OpenBiSea | MotoDEX</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-   
-    <script type="module" crossorigin src="web3/index.js"></script>
-    <script type="module" crossorigin src="https://cdn.jsdelivr.net/npm/near-api-js@1.1.0/dist/near-api-js.js"></script>
+<head>
+	<script type="module" crossorigin src="js/google-analytics.js"></script>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>OpenBiSea | MotoDEX</title>
+	<link rel="shortcut icon" href="TemplateData/favicon.ico">
+	<link rel="stylesheet" href="TemplateData/style.css">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+	<script type="module" crossorigin src="web3/index.js"></script>
+	<script type="module" crossorigin src="https://cdn.jsdelivr.net/npm/near-api-js@1.1.0/dist/near-api-js.js"></script>
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;800&display=swap" rel="stylesheet">
-  </head>
-  <body>
-  	<div id="custom-logo" hidden></div>
+</head>
+<body>
+<div id="custom-logo" hidden></div>
 
-    <div id="custom-loader" hidden>
-		<div class="fill"></div>
-		<div id="custom-bar">
-			<div class="progressBar"></div>
-		</div>
-		<div class="progressLabel">
-			<tr>0%</tr>
-		</div>		
-    </div>
-
-    <div id="alert-custom-logo" hidden>
-	    <div class="alert-custom-img"></div>
-		<div class="alert-custom-text">
-		  <span>Experience our captivating web game, now available on desktop! Explore a world of adventure, strategy, and endless fun. Don't miss out on the excitement - <br><b>Play Now!</b></span>
-		</div>
-	    <div class="alert-custom-button" id="buyButton">
-	      <span>BUY</span>
-	    </div>		
+<div id="custom-loader" hidden>
+	<div class="fill"></div>
+	<div id="custom-bar">
+		<div class="progressBar"></div>
 	</div>
+	<div class="progressLabel">
+		<tr>0%</tr>
+	</div>
+</div>
 
-	<div class="webgl-content" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden;">
-	    <div id="unity-container" class="unity-desktop">
-	      <canvas id="unity-canvas" width=960 height=600></canvas>
-	      <div id="unity-loading-bar">
-	        <div id="unity-logo"></div>
-	        <div id="unity-progress-bar-empty">
-	          <div id="unity-progress-bar-full"></div>
-	        </div>
-	      </div>
-	      <div id="unity-warning"> </div>
-	      <div id="unity-footer">
-	        <div id="unity-webgl-logo"></div>
-	        <div id="unity-fullscreen-button"></div>
-	      </div>
-	    </div>
-    </div>
-    <script>
-      document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "./network.js" }));
-    </script>
-    
-    <script>
-      var container = document.querySelector("#unity-container");
-      var canvas = document.querySelector("#unity-canvas");
-      var loadingBar = document.querySelector("#custom-loader");
-      var customLogo = document.querySelector("#custom-logo");
-      var mobileLogo = document.querySelector("#alert-custom-logo");
-      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      var warningBanner = document.querySelector("#unity-warning");
+<div id="alert-custom-logo" hidden>
+	<div class="alert-custom-img"></div>
+	<div class="alert-custom-text">
+		<span>Experience our captivating web game, now available on desktop! Explore a world of adventure, strategy, and endless fun. Don't miss out on the excitement - <br><b>Play Now!</b></span>
+	</div>
+	<div class="alert-custom-button" id="buyButton">
+		<span>BUY</span>
+	</div>
+</div>
 
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
-      function unityShowBanner(msg, type) {
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-        }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
-      }
+<div class="webgl-content" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden;">
+	<div id="unity-container" class="unity-desktop">
+		<canvas id="unity-canvas" width=960 height=600></canvas>
+		<div id="unity-loading-bar">
+			<div id="unity-logo"></div>
+			<div id="unity-progress-bar-empty">
+				<div id="unity-progress-bar-full"></div>
+			</div>
+		</div>
+		<div id="unity-warning"> </div>
+		<div id="unity-footer">
+			<div id="unity-webgl-logo"></div>
+			<div id="unity-fullscreen-button"></div>
+		</div>
+	</div>
+</div>
+<script>
+	document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "./network.js" }));
+</script>
+<script type="module">
+	import {
+		EthereumClient,
+		w3mConnectors,
+		w3mProvider,
+		WagmiCore,
+		WagmiCoreChains,
+		WagmiCoreConnectors
+	} from 'https://unpkg.com/@web3modal/ethereum'
 
-      function setLoaderProgressTo(value)
-	  {
+	import { Web3Modal } from 'https://unpkg.com/@web3modal/html'
+
+	// Equivalent to importing from @wagmi/core
+	const { configureChains, createConfig, getAccount, getNetwork, fetchBalance, readContracts, readContract, writeContract, switchNetwork, fetchTransaction, waitForTransaction } = WagmiCore
+
+	// Equivalent to importing from @wagmi/core/chains
+	const { bscTestnet, aurora, auroraTestnet, polygon } = WagmiCoreChains
+
+	// Equivalent to importing from @wagmi/core/providers
+	const eos = {
+		id: 17777,
+		name: "EOS EVM",
+		network: "eos",
+		nativeCurrency: {
+			decimals: 18,
+			name: "EOS",
+			symbol: "EOS"
+		},
+		rpcUrls: {
+			default: {
+				http: ["https://api.evm.eosnetwork.com/"],
+			},
+			public: {
+				http: ["https://api.evm.eosnetwork.com/"]
+			}
+		},
+		blockExplorers: {
+			etherscan: {
+				name: "eos Scan",
+				url: "https://explorer.evm.eosnetwork.com/"
+			},
+			default: {
+				name: "eos Scan",
+				url: "https://explorer.evm.eosnetwork.com/"
+			}
+		}
+
+	};
+
+	const mantleTestnet = {
+		id: 5001,
+		name: "Mantle Testnet",
+		network: "mantleTestnet",
+		nativeCurrency: {
+			decimals: 18,
+			name: "tMNT",
+			symbol: "tMNT"
+		},
+		rpcUrls: {
+			default: {
+				http: ["https://rpc.testnet.mantle.xyz"],
+			},
+			public: {
+				http: ["https://rpc.testnet.mantle.xyz"]
+			}
+		},
+		blockExplorers: {
+			etherscan: {
+				name: "mantle Scan",
+				url: "https://explorer.testnet.mantle.xyz/"
+			},
+			default: {
+				name: "eos Scan",
+				url: "https://explorer.testnet.mantle.xyz/"
+			}
+		}
+
+	};
+
+
+	const chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet]
+
+	const projectId = 'd3d0c489a0d7d980f51628258bf880bd'
+
+	const { publicClient } = configureChains(chains, [w3mProvider({ projectId })])
+	const wagmiConfig = createConfig({
+		autoConnect: true,
+		connectors: w3mConnectors({ projectId, chains }),
+		publicClient
+	})
+	const ethereumClient = new EthereumClient(wagmiConfig, chains)
+	window.web3modal = new Web3Modal({
+		projectId,
+		defaultChain: chains[0],
+		themeMode: 'dark'
+	}, ethereumClient, )
+	window.web3modal.setDefaultChain(chains[0])
+
+	window.waitForTransaction = waitForTransaction
+	window.fetchTransaction = fetchTransaction
+	window.switchNetwork = switchNetwork
+	window.getAccount = getAccount
+	window.getNetwork = getNetwork
+	window.fetchBalance = fetchBalance
+	window.readContracts = readContracts
+	window.readContract = readContract
+	window.writeContract = writeContract
+</script>
+
+<script>
+	var container = document.querySelector("#unity-container");
+	var canvas = document.querySelector("#unity-canvas");
+	var loadingBar = document.querySelector("#custom-loader");
+	var customLogo = document.querySelector("#custom-logo");
+	var mobileLogo = document.querySelector("#alert-custom-logo");
+	var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+	var warningBanner = document.querySelector("#unity-warning");
+
+	// Shows a temporary message banner/ribbon for a few seconds, or
+	// a permanent error message on top of the canvas if type=='error'.
+	// If type=='warning', a yellow highlight color is used.
+	// Modify or remove this function to customize the visually presented
+	// way that non-critical warnings and error messages are presented to the
+	// user.
+	function unityShowBanner(msg, type) {
+		function updateBannerVisibility() {
+			warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+		}
+		var div = document.createElement('div');
+		div.innerHTML = msg;
+		warningBanner.appendChild(div);
+		if (type == 'error') div.style = 'background: red; padding: 10px;';
+		else {
+			if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+			setTimeout(function() {
+				warningBanner.removeChild(div);
+				updateBannerVisibility();
+			}, 5000);
+		}
+		updateBannerVisibility();
+	}
+
+	function setLoaderProgressTo(value)
+	{
 		const fill = loadingBar.getElementsByClassName("progressBar")[0];
 		const fillText = loadingBar.getElementsByClassName("progressLabel")[0];
 
 		fill.animate(
-		  [
-			{ width: (value * 100) + "%" }
-		  ],
-		  {
-			duration: 300,
-			fill: "forwards"
-		  }
+				[
+					{ width: (value * 100) + "%" }
+				],
+				{
+					duration: 300,
+					fill: "forwards"
+				}
 		);
 
 		fillText.textContent = (value * 100).toFixed() + "%";
-	  }
+	}
 
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/motoDEXweb.loader.js";
-      var config = {
-        dataUrl: buildUrl + "/motoDEXweb.data.unityweb",
-        frameworkUrl: buildUrl + "/motoDEXweb.framework.js.unityweb",
-        codeUrl: buildUrl + "/motoDEXweb.wasm.unityweb",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "OpenBiSea Studios",
-        productName: "MotoDEX",
-        productVersion: "1.0.5",
-        showBanner: unityShowBanner,
-      };
+	var buildUrl = "Build";
+	var loaderUrl = buildUrl + "/motoDEXweb.loader.js";
+	var config = {
+		dataUrl: buildUrl + "/motoDEXweb.data.unityweb",
+		frameworkUrl: buildUrl + "/motoDEXweb.framework.js.unityweb",
+		codeUrl: buildUrl + "/motoDEXweb.wasm.unityweb",
+		streamingAssetsUrl: "StreamingAssets",
+		companyName: "OpenBiSea Studios",
+		productName: "MotoDEX",
+		productVersion: "1.0.5",
+		showBanner: unityShowBanner,
+	};
 
-      
-      customLogo.style.display = "block";
-      container.appendChild(customLogo);
-      loadingBar.style.display = "block";
-      container.appendChild(loadingBar);
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-			mobileLogo.style.display = "block";
-			container.appendChild(mobileLogo);
 
-			var buyButton = document.getElementById("buyButton");
-			var myLink = "https://app.openbisea.com/motoDEX";
+	customLogo.style.display = "block";
+	container.appendChild(customLogo);
+	loadingBar.style.display = "block";
+	container.appendChild(loadingBar);
+	if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+		mobileLogo.style.display = "block";
+		container.appendChild(mobileLogo);
 
-			buyButton.addEventListener("click", function() {
-			  window.location.href = myLink;
-			});
+		var buyButton = document.getElementById("buyButton");
+		var myLink = "https://app.openbisea.com/motoDEX";
 
-			// Hide the desktop progress bar
+		buyButton.addEventListener("click", function() {
+			window.location.href = myLink;
+		});
+
+		// Hide the desktop progress bar
+		loadingBar.style.display = "none";
+	}
+
+	var script = document.createElement("script");
+	script.src = loaderUrl;
+	script.onload = () => {
+		createUnityInstance(canvas, config, (progress) => {
+			setLoaderProgressTo(progress);
+		}).then((unityInstance) => {
 			loadingBar.style.display = "none";
-		}
+			if (!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent))
+			{
+				customLogo.style.display = "none";
+			}
+			fullscreenButton.onclick = () => {
+				unityInstance.SetFullscreen(1);
+			};
+		}).catch((message) => {
+			alert(message);
+		});
+	};
+	document.body.appendChild(script);
+</script>
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          setLoaderProgressTo(progress);
-        }).then((unityInstance) => {
-          loadingBar.style.display = "none";
-          if (!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent))
-          {
-          	customLogo.style.display = "none";
-          }
-          fullscreenButton.onclick = () => {
-            unityInstance.SetFullscreen(1);
-          };
-        }).catch((message) => {
-          alert(message);
-        });
-      };
-      document.body.appendChild(script);
-    </script>
 
-	
-    <script type="text/javascript">
-	  var container = document.querySelector("#unity-container");
-	  var canvas = document.querySelector("#unity-canvas");
+<script type="text/javascript">
+	var container = document.querySelector("#unity-container");
+	var canvas = document.querySelector("#unity-canvas");
 
-	  var resize = function() {
-	    canvas.style.width = window.innerWidth + "px";
-        canvas.style.height = window.innerHeight + "px";
-	  };
+	var resize = function() {
+		canvas.style.width = window.innerWidth + "px";
+		canvas.style.height = window.innerHeight + "px";
+	};
 
-	  resize();
-	  window.addEventListener("resize", resize);
-    </script>
+	resize();
+	window.addEventListener("resize", resize);
+</script>
 
-  </body>
+</body>
 </html>

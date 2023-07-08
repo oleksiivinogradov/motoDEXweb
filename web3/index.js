@@ -27,41 +27,41 @@ document.body.appendChild(Object.assign(document.createElement("script"), { type
 
 // load web3gl to connect to unity
 window.web3gl = {
-  networkId: 0,
-  connect,
-  connectAccount: "",
-  signMessage,
-  signMessageResponse: "",
-  sendTransaction,
-  sendTransactionResponse: "",
-  sendContract,
-  sendContractResponse: "",
-  addNetwork,
-  addNetworkResponse: "",
-  changeChainId,
-  getAllErc721,
-  getAllErc721Response: "",
-  getLatestEpoch,
-  getLatestEpochResponse: "",
-  methodCall,
-  methodCallResponse: "",
-  getTxStatus,
-  getTxStatusResponse: "",
-  getBalance,
-  getBalanceResponse: "",
-  connectNearWallet,
-  connectNearWalletAccount: "",
-  nearSendContract,
-  nearSendContractResponse: "",
-  nearMethodCall,
-  nearMethodCallResponse: "",
-  listNearNFTsWeb,
-  listNearNFTsWebResponse: "",
-  nearLatestEpoch,
-  nearLatestEpochResponse: "",
-  webGLReload,
-  googleAnalyticsSendEvent
-  
+    networkId: 0,
+    connect,
+    connectAccount: "",
+    signMessage,
+    signMessageResponse: "",
+    sendTransaction,
+    sendTransactionResponse: "",
+    sendContract,
+    sendContractResponse: "",
+    addNetwork,
+    addNetworkResponse: "",
+    changeChainId,
+    getAllErc721,
+    getAllErc721Response: "",
+    getLatestEpoch,
+    getLatestEpochResponse: "",
+    methodCall,
+    methodCallResponse: "",
+    getTxStatus,
+    getTxStatusResponse: "",
+    getBalance,
+    getBalanceResponse: "",
+    connectNearWallet,
+    connectNearWalletAccount: "",
+    nearSendContract,
+    nearSendContractResponse: "",
+    nearMethodCall,
+    nearMethodCallResponse: "",
+    listNearNFTsWeb,
+    listNearNFTsWebResponse: "",
+    nearLatestEpoch,
+    nearLatestEpochResponse: "",
+    webGLReload,
+    googleAnalyticsSendEvent
+
 };
 
 let bin64;
@@ -78,161 +78,198 @@ let web3;
 paste this in inspector to connect to wallet:
 window.web3gl.connect()
 */
+
+let walletAddress;
+
 async function connect() {
-  if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
-  {
-    if (window.web3ChainId == 1456327830){
-      console.log("CCD Mainnet");
-      bin64 = mainCCDBin64;
-      web3gl.connectAccount = await connectConcordiumWallet(true);
+    if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
+    {
+        if (window.web3ChainId == 1456327830){
+            console.log("CCD Mainnet");
+            bin64 = mainCCDBin64;
+            web3gl.connectAccount = await connectConcordiumWallet(true);
+        }
+        else{
+            console.log("CCD Test");
+            bin64 = testCCDBin64;
+            web3gl.connectAccount = await connectConcordiumWallet(false);
+        }
+        return;
     }
-    else{
-      console.log("CCD Test");
-      bin64 = testCCDBin64;
-      web3gl.connectAccount = await connectConcordiumWallet(false);
-    } 
+
+    if (walletAddress === undefined) web3modal.subscribeModal(newState => {
+        console.log('checkV2 newState->', newState)
+        const account = getAccount()
+        console.log('2 checkV2 account->',account)
+        const network = getNetwork()
+        console.log('checkV2 network->',network)
+        console.log('checkV2 web3gl.networkId->',web3gl.networkId)
+        if (network !== undefined && network.chain !== undefined) console.log('checkV2 network.chain.id->',network.chain.id)
+
+        // if (parseInt(web3gl.networkId) !== parseInt(network.chain.id)) {
+        //     switchNetwork(web3gl.networkId)
+        // }
+        walletAddress = account.address
+        if (walletAddress === undefined) {
+            web3gl.connectAccount = "fail";
+        } else {
+            web3gl.connectAccount = walletAddress
+            web3gl.networkId =  parseInt(network.chain.id + '')
+        }
+    })
+    const account = getAccount()
+    if (account.address !== undefined) {
+        // console.log('2 connectWeb3v2 account->',account)
+        const network = getNetwork()
+        // console.log('checkV2 network->',network)
+        //
+        web3gl.connectAccount = account.address
+        if (network !== undefined && network.chain !== undefined) web3gl.networkId =  parseInt(network.chain.id + '')
+        web3modal.openModal()
+    } else {
+        web3modal.openModal()
+    }
     return;
-  }
-  // uncomment to enable torus and walletconnect
-  const providerOptions = {
-    // torus: {
-    //   package: Torus,
-    // },
-    walletconnect: {
-      package: window.WalletConnectProvider.default,
-      options: {
-        infuraId: "635e974724fe49ca9b3414a63e5ac5d2",
-          rpc: {
-              137: 'https://polygon-rpc.com',
-           },
-           // chainId: "137",
-           network: "matic",
-           qrcode: true,
-           qrcodeModalOptions: {
-               mobileLinks: [
-                   "metamask",
-                   "trust",
-               ]
-           }
-      },
-    },
-    "custom-safepalwallet": {
-         display: {
-         logo: "https://www.safepal.com/assets/img/newlook/SafePal-full-logo.svg",  
-         //logo: "https://drive.google.com/uc?export=view&id=1CfTX6AsRfzMa_1zhmavWXoe6jVmHSzM8",
-         //downloadableLogo: "https://drive.google.com/u/0/uc?id=1CfTX6AsRfzMa_1zhmavWXoe6jVmHSzM8&export=download",
-         name: "SafePal",
-         description: "Connect to your SafePal Wallet"
-       },
-       package: true,
-       connector: async () => {
-         let provider = null;
-         if (typeof window.ethereum !== 'undefined') {
-           provider = window.ethereum;
-           try {
-             await provider.request({ method: 'eth_requestAccounts' })
-           } catch (error) {
-             throw new Error("User Rejected");
-           }
-         } else {
-           throw new Error("No SafePal Wallet found");
-         }
-         return provider;
-       }
-     }
-      // "custom-okx": {
-      //      display: {
-      //      logo: "https://static.coinall.ltd/cdn/zendesk/theme.zdassets.com/theme_assets/2040249/1d1ade3504c300c9020e79e00515247db969b7bc.png",
-      //      name: "OKX",
-      //      description: "Connect to OKX Wallet"
-      //    },
-      //    package: true,
-      //    connector: async () => {
-      //      let provider = null;
-      //      if (typeof window.ethereum !== 'undefined') {
-      //        provider = window.ethereum;
-      //        try {
-      //          await provider.request({ method: 'eth_requestAccounts' })
-      //        } catch (error) {
-      //          throw new Error("User Rejected");
-      //        }
-      //      } else {
-      //        throw new Error("No SafePal Wallet found");
-      //      }
-      //      return provider;
-      //    }
-      //  }
-   //    "custom-polygon": {
-   //     display: {
-   //         logo: "https://polygon.technology/wp-content/uploads/2021/07/polygon-logo.svg",
-   //         name: "WalletConnect Polygon",
-   //         description: "Connect to your Wallet with Wallet connect"
-   //     },
-   //     package: WalletConnectProvider,
-   //     options: {
-   //         // Mikko's test key - don't copy as your mileage may vary
-   //         //infuraId: "bb7b522604e54a2f8ad251e7417b2355",
-   //         rpc: {
-   //             137: 'https://matic-mainnet.chainstacklabs.com'
-   //         },
-   //         chainId: 137,
-   //         network: "polygon",
-   //         qrcode: true,
-   //         qrcodeModalOptions: {
-   //             mobileLinks: [
-   //                 "metamask",
-   //                 "trust",
-   //             ]
-   //         }
-   //     }
-   // },
-  };
+    // uncomment to enable torus and walletconnect
+    const providerOptions = {
+        // torus: {
+        //   package: Torus,
+        // },
+        walletconnect: {
+            package: window.WalletConnectProvider.default,
+            options: {
+                infuraId: "635e974724fe49ca9b3414a63e5ac5d2",
+                rpc: {
+                    137: 'https://polygon-rpc.com',
+                },
+                // chainId: "137",
+                network: "matic",
+                qrcode: true,
+                qrcodeModalOptions: {
+                    mobileLinks: [
+                        "metamask",
+                        "trust",
+                    ]
+                }
+            },
+        },
+        "custom-safepalwallet": {
+            display: {
+                logo: "https://www.safepal.com/assets/img/newlook/SafePal-full-logo.svg",
+                //logo: "https://drive.google.com/uc?export=view&id=1CfTX6AsRfzMa_1zhmavWXoe6jVmHSzM8",
+                //downloadableLogo: "https://drive.google.com/u/0/uc?id=1CfTX6AsRfzMa_1zhmavWXoe6jVmHSzM8&export=download",
+                name: "SafePal",
+                description: "Connect to your SafePal Wallet"
+            },
+            package: true,
+            connector: async () => {
+                let provider = null;
+                if (typeof window.ethereum !== 'undefined') {
+                    provider = window.ethereum;
+                    try {
+                        await provider.request({ method: 'eth_requestAccounts' })
+                    } catch (error) {
+                        throw new Error("User Rejected");
+                    }
+                } else {
+                    throw new Error("No SafePal Wallet found");
+                }
+                return provider;
+            }
+        }
+        // "custom-okx": {
+        //      display: {
+        //      logo: "https://static.coinall.ltd/cdn/zendesk/theme.zdassets.com/theme_assets/2040249/1d1ade3504c300c9020e79e00515247db969b7bc.png",
+        //      name: "OKX",
+        //      description: "Connect to OKX Wallet"
+        //    },
+        //    package: true,
+        //    connector: async () => {
+        //      let provider = null;
+        //      if (typeof window.ethereum !== 'undefined') {
+        //        provider = window.ethereum;
+        //        try {
+        //          await provider.request({ method: 'eth_requestAccounts' })
+        //        } catch (error) {
+        //          throw new Error("User Rejected");
+        //        }
+        //      } else {
+        //        throw new Error("No SafePal Wallet found");
+        //      }
+        //      return provider;
+        //    }
+        //  }
+        //    "custom-polygon": {
+        //     display: {
+        //         logo: "https://polygon.technology/wp-content/uploads/2021/07/polygon-logo.svg",
+        //         name: "WalletConnect Polygon",
+        //         description: "Connect to your Wallet with Wallet connect"
+        //     },
+        //     package: WalletConnectProvider,
+        //     options: {
+        //         // Mikko's test key - don't copy as your mileage may vary
+        //         //infuraId: "bb7b522604e54a2f8ad251e7417b2355",
+        //         rpc: {
+        //             137: 'https://matic-mainnet.chainstacklabs.com'
+        //         },
+        //         chainId: 137,
+        //         network: "polygon",
+        //         qrcode: true,
+        //         qrcodeModalOptions: {
+        //             mobileLinks: [
+        //                 "metamask",
+        //                 "trust",
+        //             ]
+        //         }
+        //     }
+        // },
+    };
 
-  const web3Modal = new window.Web3Modal.default({
-    providerOptions,
-  });
+    const web3Modal = new window.Web3Modal.default({
+        providerOptions,
+    });
 
-  web3Modal.clearCachedProvider();
+    web3Modal.clearCachedProvider();
 
-  // set provider
-  provider = await web3Modal.connect();
-  web3 = new Web3(provider);
+    // set provider
+    provider = await web3Modal.connect();
+    web3 = new Web3(provider);
 
-  // set current network id
-  web3gl.networkId = parseInt(provider.chainId);
+    // set current network id
+    web3gl.networkId = parseInt(provider.chainId);
 
-  // if current network id is not equal to network id, then switch
-  if (web3gl.networkId != window.web3ChainId) {
-    await window.ethereum
-        .request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: `0x${window.web3ChainId.toString(16)}` }], // chainId must be in hexadecimal numbers
-        })
-        .catch(() => {
-          addNetwork(window.web3ChainId);
-          //window.location.reload();
-        });
-  }
+    // if current network id is not equal to network id, then switch
+    if (web3gl.networkId != window.web3ChainId) {
+        await window.ethereum
+            .request({
+                method: "wallet_switchEthereumChain",
+                params: [{ chainId: `0x${window.web3ChainId.toString(16)}` }], // chainId must be in hexadecimal numbers
+            })
+            .catch(() => {
+                addNetwork(window.web3ChainId);
+                //window.location.reload();
+            });
+    }
 
-  // if the current network is still not equal to the network id, then return and stop the connection
-  if (web3gl.networkId != window.web3ChainId) {
-    web3gl.connectAccount = "fail"; 
-    return;
-  }
+    // if the current network is still not equal to the network id, then return and stop the connection
+    if (web3gl.networkId != window.web3ChainId) {
+        web3gl.connectAccount = "fail";
+        return;
+    }
 
-  // set current account
-  if (provider.selectedAddress !== undefined) web3gl.connectAccount = provider.selectedAddress;
-  else web3gl.connectAccount = provider.accounts[0];
+    // set current account
+    if (provider.selectedAddress !== undefined) web3gl.connectAccount = provider.selectedAddress;
+    else web3gl.connectAccount = provider.accounts[0];
 
-  // refresh page if player changes account
-  provider.on("accountsChanged", (accounts) => {
-    window.location.reload();
-  });
+    // refresh page if player changes account
+    provider.on("accountsChanged", (accounts) => {
+        window.location.reload();
+    });
 
-  // update if player changes network
-  provider.on("chainChanged", (chainId) => {
-    web3gl.networkId = parseInt(chainId);
-  });
+    // update if player changes network
+    provider.on("chainChanged", (chainId) => {
+        web3gl.networkId = parseInt(chainId);
+    });
 }
 
 /*
@@ -240,13 +277,13 @@ paste this in inspector to connect to sign message:
 window.web3gl.signMessage("hello")
 */
 async function signMessage(message) {
-  try {
-    const from = (await web3.eth.getAccounts())[0];
-    const signature = await web3.eth.personal.sign(message, from, "");
-    window.web3gl.signMessageResponse = signature;
-  } catch (error) {
-    window.web3gl.signMessageResponse = error.message;
-  }
+    try {
+        const from = (await web3.eth.getAccounts())[0];
+        const signature = await web3.eth.personal.sign(message, from, "");
+        window.web3gl.signMessageResponse = signature;
+    } catch (error) {
+        window.web3gl.signMessageResponse = error.message;
+    }
 }
 
 /*
@@ -258,21 +295,21 @@ const gasPrice = "33333333333"
 window.web3gl.sendTransaction(to, value, gasLimit, gasPrice);
 */
 async function sendTransaction(to, value, gasLimit, gasPrice) {
-  const from = (await web3.eth.getAccounts())[0];
-  web3.eth
-      .sendTransaction({
-        from,
-        to,
-        value,
-        gas: gasLimit ? gasLimit : undefined,
-        gasPrice: gasPrice ? gasPrice : undefined,
-      })
-      .on("transactionHash", (transactionHash) => {
-        window.web3gl.sendTransactionResponse = transactionHash;
-      })
-      .on("error", (error) => {
-        window.web3gl.sendTransactionResponse = error.message;
-      });
+    const from = (await web3.eth.getAccounts())[0];
+    web3.eth
+        .sendTransaction({
+            from,
+            to,
+            value,
+            gas: gasLimit ? gasLimit : undefined,
+            gasPrice: gasPrice ? gasPrice : undefined,
+        })
+        .on("transactionHash", (transactionHash) => {
+            window.web3gl.sendTransactionResponse = transactionHash;
+        })
+        .on("error", (error) => {
+            window.web3gl.sendTransactionResponse = error.message;
+        });
 }
 
 /*
@@ -286,54 +323,107 @@ const gasLimit = "222222" // gas limit
 const gasPrice = "333333333333"
 window.web3gl.sendContract(method, abi, contract, args, value, gasLimit, gasPrice)
 */
+function toJson(data) {
+    if (data !== undefined) {
+        return JSON.stringify(data, (_, v) => typeof v === 'bigint' ? `${v}#bigint` : v)
+            .replace(/"(-?\d+)#bigint"/g, (_, a) => a);
+    }
+}
+
 async function sendContract(method, abi, contract, args, value, gasLimit, gasPrice) {
-  if (method == "purchase")
-  {
-    googleAnalyticsSendEvent("purchase_nft");
-  }
-
-  if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
-  {
-    let concResponse = await concrodiumSendContract(contract, method, args, value);
-    if ( concResponse == "received" ) concResponse = "success";
-    console.log(concResponse);
-    console.log(typeof concResponse);
-    if (typeof concResponse != "string" || concResponse.length == 0)
+    if (method == "purchase")
     {
-      window.web3gl.sendContractResponse = JSON.stringify(concResponse);
+        googleAnalyticsSendEvent("purchase_nft");
     }
-    else
-    {
-      window.web3gl.sendContractResponse = concResponse;
-    }
-    console.log(window.web3gl.sendContractResponse);
-    return;
-  }
 
-  const from = (await web3.eth.getAccounts())[0];
-  try{
-    new web3.eth.Contract(JSON.parse(abi), contract).methods[method](...JSON.parse(args))
-      .send({
-        from,
-        value: value ? value : undefined,
-        gas: gasLimit ? gasLimit : undefined,
-        gasPrice: gasPrice ? gasPrice : undefined,
-      })
-      .on("transactionHash", (transactionHash) => {
-        //window.web3gl.sendContractResponse = transactionHash;
-      })
-      .on('receipt', (receipt) => {
-         console.log('create NFT RECEIPT');
-         console.log(receipt);
-         window.web3gl.sendContractResponse = JSON.stringify(receipt);
-     })
-      .on("error", (error) => {
+    if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
+    {
+        let concResponse = await concrodiumSendContract(contract, method, args, value);
+        if ( concResponse == "received" ) concResponse = "success";
+        console.log(concResponse);
+        console.log(typeof concResponse);
+        if (typeof concResponse != "string" || concResponse.length == 0)
+        {
+            window.web3gl.sendContractResponse = JSON.stringify(concResponse);
+        }
+        else
+        {
+            window.web3gl.sendContractResponse = concResponse;
+        }
+        console.log(window.web3gl.sendContractResponse);
+        return;
+    }
+    const account = getAccount()
+    const from = account.address
+
+    // const from = (await web3.eth.getAccounts())[0];
+    try{
+        const { hash } = await writeContract({
+            address: contract,
+            abi: JSON.parse(abi),
+            functionName: method,
+            args: JSON.parse(args),
+            value:value
+        })
+        const data = await waitForTransaction({
+            hash: hash,
+        })
+        console.log("sendContract data - " + data);
+        // window.web3gl.sendContractResponse = toJson(data)
+
+        // const transaction = await fetchTransaction({
+        //     hash: hash,
+        // })
+        // console.log("sendContract transaction - " + transaction);
+        if (method === "purchase") {
+            const tokenIdHex = data.logs[0].topics[3]
+            console.log("sendContract tokenIdHex - " + tokenIdHex);
+            const tokenIdBigInt = BigInt(tokenIdHex)
+            console.log("sendContract tokenIdBigInt - " + tokenIdBigInt);
+            const tokenIdString = tokenIdBigInt.toString()
+            console.log("sendContract tokenIdString - " + tokenIdString);
+
+            window.web3gl.sendContractResponse = JSON.stringify(
+                {
+                    transactionHash:hash,
+                    events: {
+                        Transfer: {
+                            returnValues : {
+                                tokenId: tokenIdString
+                            }
+                        }
+                    }
+                })
+
+        } else {
+            window.web3gl.sendContractResponse = JSON.stringify(
+                {
+                    transactionHash:hash,
+                })
+        }
+
+        // new web3.eth.Contract(JSON.parse(abi), contract).methods[method](...JSON.parse(args))
+        //     .send({
+        //         from,
+        //         value: value ? value : undefined,
+        //         gas: gasLimit ? gasLimit : undefined,
+        //         gasPrice: gasPrice ? gasPrice : undefined,
+        //     })
+        //     .on("transactionHash", (transactionHash) => {
+        //         //window.web3gl.sendContractResponse = transactionHash;
+        //     })
+        //     .on('receipt', (receipt) => {
+        //         console.log('create NFT RECEIPT');
+        //         console.log(receipt);
+        //         window.web3gl.sendContractResponse = JSON.stringify(receipt);
+        //     })
+        //     .on("error", (error) => {
+        //         window.web3gl.sendContractResponse = error.message;
+        //     });
+    } catch (error) {
+        console.log(method + " - " + error.message);
         window.web3gl.sendContractResponse = error.message;
-      });
-  } catch (error) {
-    console.log(method + " - " + error.message);
-    window.web3gl.sendContractResponse = error.message;
-  }
+    }
 }
 
 async function addNetwork(chainId) {
@@ -356,13 +446,13 @@ async function addNetwork(chainId) {
         // network = await web3.eth.getChainId();
         // // network = await web3.eth.getChainId();
         // let netID = network.toString();   // if (netID === chainId.toString()) {
-                                                  //     alert("Network has already been added to Metamask.");
-                                                  //     return;
-                                                  // } else {
+        //     alert("Network has already been added to Metamask.");
+        //     return;
+        // } else {
         let params;
 
         console.log('addNetwork chainId ' + chainId);
-    switch (chainId) {
+        switch (chainId) {
             case 56 :
                 params = [{
                     chainId: '0x38',
@@ -622,208 +712,386 @@ async function addNetwork(chainId) {
                     rpcUrls: ['https://api.evm.eosnetwork.com/'],
                     blockExplorerUrls: ['https://explorer.evm.eosnetwork.com/']
                 }]
-                break;                    
+                break;
             default:
                 alert('Network not supported to adding!');
 
         }
         if (chainId == 4)
         {
-          window.ethereum
-              .request({
-                method: "wallet_switchEthereumChain",
-                params: [{ chainId: `0x${window.web3ChainId.toString(16)}` }], // chainId must be in hexadecimal numbers
-              });
-              return;
+            window.ethereum
+                .request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: `0x${window.web3ChainId.toString(16)}` }], // chainId must be in hexadecimal numbers
+                });
+            return;
         }
         else if (chainId == 1456327825 || chainId == 1456327830)
         {
-          return;
+            return;
         }
         console.log('addNetwork params' + JSON.stringify(params));
         window.ethereum.request({ method: 'wallet_addEthereumChain', params })
             .then(() => {
-              window.ethereum
-              .request({
-                method: "wallet_switchEthereumChain",
-                params: [{ chainId: `0x${window.web3ChainId.toString(16)}` }], // chainId must be in hexadecimal numbers
-              }).then(() => {
-                console.log('Add Success');
-                console.log('Switch Success');
-                window.web3gl.addNetworkResponse = "Success";
-              })
-              .catch(() => {
-                window.web3gl.addNetworkResponse = "Error";
-                  //window.location.reload();
-              });
+                window.ethereum
+                    .request({
+                        method: "wallet_switchEthereumChain",
+                        params: [{ chainId: `0x${window.web3ChainId.toString(16)}` }], // chainId must be in hexadecimal numbers
+                    }).then(() => {
+                    console.log('Add Success');
+                    console.log('Switch Success');
+                    window.web3gl.addNetworkResponse = "Success";
+                })
+                    .catch(() => {
+                        window.web3gl.addNetworkResponse = "Error";
+                        //window.location.reload();
+                    });
             })
             .catch((error) => {
-              console.log("Error", error.message);
-              alert('Network switching may not work, try switching manually in MetaMask.');
-              window.web3gl.addNetworkResponse = "Error";
+                console.log("Error", error.message);
+                alert('Network switching may not work, try switching manually in MetaMask.');
+                window.web3gl.addNetworkResponse = "Error";
             });
     } else {
         alert('Unable to locate a compatible web3 browser!');
         window.web3gl.addNetworkResponse = "Error";
-    }     
+    }
 }
 
-async function changeChainId(chainId) {
-  chainId = parseInt(chainId, 10);
-    window.web3ChainId = chainId;
-    addNetwork(window.web3ChainId);
+async function changeChainId(chainIdnew) {
+    console.log("changeChainId chainIdnew ", chainIdnew);
+
+    const account = getAccount()
+    console.log('changeChainId account->',account)
+    const network = getNetwork()
+    console.log('changeChainId network->',network)
+    console.log('changeChainId web3gl.networkId->',web3gl.networkId)
+    if (network !== undefined && network.chain !== undefined) console.log('changeChainId network.chain.id->',network.chain.id)
+    if (network !== undefined && network.chain !== undefined && parseInt(chainIdnew) !== network.chain.id) {
+        const chainToChange = parseInt(chainIdnew)
+        console.log('changeChainId chainToChange->',chainToChange)
+        web3modal.openModal()
+        //switchNetwork(chainToChange)
+
+    }
+    //switchNetwork(chainIdnew)
+    // window.web3ChainId = network.chain.id
+    // chainId = network.chain.id
+    // chainId = parseInt(chainId, 10);
+    //   window.web3ChainId = chainId;
+    //   addNetwork(window.web3ChainId);
 }
 
 async function getLatestEpoch(abi, nftUniV3ContractAddress) {
-  console.log("latestEpochUpdate");
-  if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
-  {
-    let concResponse = JSON.stringify(await concordiumLatestEpochUpdate(nftUniV3ContractAddress));
-    console.log(concResponse);
-    window.web3gl.getLatestEpochResponse = concResponse;
-    return;
-  }
-  try {
-    const from = (await web3.eth.getAccounts())[0];
-    const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
-    let response = await nftContract.methods.latestEpochUpdate().call();
-    console.log(response);
-    console.log(typeof response);
-    
-    if (typeof response != "string")  
+    console.log("latestEpochUpdate");
+    if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
     {
-      window.web3gl.getLatestEpochResponse = JSON.stringify(response);
+        let concResponse = JSON.stringify(await concordiumLatestEpochUpdate(nftUniV3ContractAddress));
+        console.log(concResponse);
+        window.web3gl.getLatestEpochResponse = concResponse;
+        return;
     }
-    else
-    {
-      window.web3gl.getLatestEpochResponse = response;
+
+    try {
+        let response = await readContract({
+            address: nftUniV3ContractAddress,
+            abi: JSON.parse(abi),
+            functionName: 'latestEpochUpdate'
+        })
+        window.web3gl.getLatestEpochResponse = toJson(response)
+        // const from = (await web3.eth.getAccounts())[0];
+        // const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
+        // let response = await nftContract.methods.latestEpochUpdate().call();
+        // console.log(response);
+        // console.log(typeof response);
+        //
+        // if (typeof response != "string")
+        // {
+        //     window.web3gl.getLatestEpochResponse = JSON.stringify(response);
+        // }
+        // else
+        // {
+        //     window.web3gl.getLatestEpochResponse = response;
+        // }
+        console.log(window.web3gl.getLatestEpochResponse);
+    } catch (error) {
+        console.log("getLatestEpoch - " + error.message);
+        window.web3gl.getLatestEpochResponse = "fail";
     }
-    console.log(window.web3gl.getLatestEpochResponse);
-  } catch (error) {
-      console.log("getLatestEpoch - " + error.message);
-      window.web3gl.getLatestEpochResponse = "fail";
-  }
 }
 
 
 async function getAllErc721(abi, nftUniV3ContractAddress) {
-  if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
-  {
-    let concResponse = JSON.stringify(await concordiumNftTokensForOwners(nftUniV3ContractAddress));
-    console.log(concResponse);
-    window.web3gl.getAllErc721Response = concResponse;
-    return;
-  }
-  try {
-    const from = (await web3.eth.getAccounts())[0];
-    const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
-    let balance = parseInt(await nftContract.methods.balanceOf(from).call());
-    let data = [];
-    while (balance > 0) {
-        balance = balance -1;
-        const tokenID = await nftContract.methods.tokenOfOwnerByIndex(from,balance+'').call();
-      const tokenURI = await nftContract.methods.tokenURI(tokenID).call();
-      data.push({"contract": nftUniV3ContractAddress, "tokenId": tokenID, "uri": tokenURI, "balance":"1"});
+    if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
+    {
+        let concResponse = JSON.stringify(await concordiumNftTokensForOwners(nftUniV3ContractAddress));
+        console.log(concResponse);
+        window.web3gl.getAllErc721Response = concResponse;
+        return;
     }
-    window.web3gl.getAllErc721Response = JSON.stringify(data);
-  } catch (error) {
-      console.log("getAllErc721 - " + error.message);
-      window.web3gl.getAllErc721Response = "fail";
-  }
+
+    try {
+        const account = getAccount()
+        const from = account.address
+        let balance = await readContract({
+            address: nftUniV3ContractAddress,
+            abi: JSON.parse(abi),
+            functionName: 'balanceOf',
+            args: [from],
+        })
+
+
+        // const from = (await web3.eth.getAccounts())[0];
+        // const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
+        // let balance = parseInt(await nftContract.methods.balanceOf(from).call());
+        let data = [];
+        while (balance > 0) {
+            balance = balance -1n;
+            const tokenID = await readContract({
+                address: nftUniV3ContractAddress,
+                abi: JSON.parse(abi),
+                functionName: 'tokenOfOwnerByIndex',
+                args: [from,balance+''],
+            })
+            const tokenURI = await readContract({
+                address: nftUniV3ContractAddress,
+                abi: JSON.parse(abi),
+                functionName: 'tokenURI',
+                args: [tokenID.toString()],
+            })
+            //   const tokenID = await nftContract.methods.tokenOfOwnerByIndex(from,balance+'').call();
+            // const tokenURI = await nftContract.methods.tokenURI(tokenID).call();
+            data.push({"contract": nftUniV3ContractAddress, "tokenId": tokenID.toString(), "uri": tokenURI, "balance":"1"});
+        }
+        window.web3gl.getAllErc721Response = JSON.stringify(data);
+    } catch (error) {
+        console.log("getAllErc721 - " + error.message);
+        window.web3gl.getAllErc721Response = "fail";
+    }
 }
 
 async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
-  console.log(method);
-  if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
-  {
-    let concResponse = await concordiumMethodCall(nftUniV3ContractAddress, method, args, value);
-    console.log(concResponse);
-
-    if (typeof concResponse != "string")
+    console.log('methodCall method->',method);
+    console.log('methodCall nftUniV3ContractAddress->',nftUniV3ContractAddress);
+    if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
     {
-      window.web3gl.methodCallResponse = JSON.stringify(concResponse);
-    } 
+        let concResponse = await concordiumMethodCall(nftUniV3ContractAddress, method, args, value);
+        console.log(concResponse);
+
+        if (typeof concResponse != "string")
+        {
+            window.web3gl.methodCallResponse = JSON.stringify(concResponse);
+        }
+        else
+        {
+            window.web3gl.methodCallResponse = concResponse;
+        }
+        console.log(window.web3gl.methodCallResponse);
+        return;
+    }
+    console.log('methodCall args->',args);
+    console.log('args->',args);
+
+    const responseV2 = await readContract({
+        address: nftUniV3ContractAddress,
+        abi: JSON.parse(abi),
+        functionName: method,
+        args: JSON.parse(args),
+    })
+
+    // const final = JSON.parse(JSON.stringify(this, (key, value) =>
+    //     typeof value === 'bigint'
+    //         ? value.toString()
+    //         : value // return everything else unchanged
+    // ))
+    // console.log('responseV2->',responseV2);
+    // console.log('typeof responseV2->',typeof responseV2);
+    // function toJson(data) {
+    //     if (data !== undefined) {
+    //         let intCount = 0, repCount = 0;
+    //         const json = JSON.stringify(data, (_, v) => {
+    //             if (typeof v === 'bigint') {
+    //                 intCount++;
+    //                 return `${v}#bigint`;
+    //             }
+    //             return v;
+    //         });
+    //         const res = json.replace(/"(-?\d+)#bigint"/g, (_, a) => {
+    //             repCount++;
+    //             return a;
+    //         });
+    //         if (repCount > intCount) {
+    //             // You have a string somewhere that looks like "123#bigint";
+    //             throw new Error(`BigInt serialization conflict with a string value.`);
+    //         }
+    //         return res;
+    //     }
+    // }
+    // console.log('result toJson->',toJson(responseV2));
+    // const back = JSON.parse(toJson(responseV2))
+    // console.log('back toJson->',back);
+    if (method === 'getLatestPrice') {
+        const r0 = responseV2[0];
+        const r1 = responseV2[1];
+        let response = {0:r0.toString(),1:r1.toString()}
+        console.log('response->',response);
+        window.web3gl.methodCallResponse = JSON.stringify(response);
+    } else if (method === 'getAllGameBids') {
+        const r0 = responseV2[0];
+        const r1 = responseV2[1];
+        let list = []
+        r0.forEach(function (obj) {
+            const o = [
+                obj.amount.toString(),
+                obj.trackId.toString(),
+                obj.motoId.toString(),
+                obj.timestamp.toString(),
+                obj.bidder.toString()
+            ]
+            list.push(o)
+        })
+        let response = {0:list,1:r1.toString()}
+        console.log('response->',response);
+        window.web3gl.methodCallResponse = JSON.stringify(response);
+
+    } else if (method === 'getGameSessions') {
+        const r0 = responseV2[0];
+        const r1 = responseV2[1];
+        let list = []
+        r0.forEach(function (obj) {
+            const o = [
+                obj.trackId.toString(),
+                obj.trackType.toString(),
+                obj.trackHealth.toString(),
+                obj.motoId.toString(),
+                obj.motoType.toString(),
+                obj.motoHealth.toString(),
+                obj.latestUpdateTime.toString(),
+                obj.latestTrackTimeResult.toString(),
+                obj.attempts.toString(),
+                obj.gameBidsSumTrack.toString()
+            ]
+            list.push(o)
+        })
+        let response = {0:list,1:r1.toString()}
+
+        console.log('response->',response);
+        window.web3gl.methodCallResponse = JSON.stringify(response);
+    } else if (method === 'tokenIdsAndOwners') {
+        let list = []
+        const r0 = responseV2[0];
+        const r1 = responseV2[1];
+        r0.forEach(function (obj) {
+            const o = [obj.trackTokenId.toString(),obj.trackType.toString(),obj.motoTokenId.toString(),obj.motoType.toString(),obj.owner.toString()]
+            //     motoTokenId : obj.motoTokenId.toString(),
+            //     motoType : obj.motoType.toString(),
+            //     owner : obj.owner.toString(),
+            //     trackTokenId : obj.trackTokenId.toString(),
+            //     trackType : obj.trackType.toString()
+            // }
+
+            list.push(o)
+        })
+        let response = {0:list,1:r1.toString()}
+        console.log('response->',response);
+        window.web3gl.methodCallResponse = JSON.stringify(response);
+    } else {
+        console.log('response->' + toJson(responseV2)  + ' method ' + method);
+        window.web3gl.methodCallResponse = toJson(responseV2);
+    }
+
+    return
+    const from = (await web3.eth.getAccounts())[0];
+    const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
+    let response;
+
+    try {
+        response = await nftContract.methods[method](...JSON.parse(args))
+            .call({
+                from,
+                value: value ? value : undefined
+            });
+    }catch (error) {
+        console.log(method + " - " + error.message);
+        response = "fail";
+    }
+    console.log(response);
+    console.log(typeof response);
+    if (typeof response != "string")
+    {
+        window.web3gl.methodCallResponse = JSON.stringify(response);
+    }
     else
     {
-      window.web3gl.methodCallResponse = concResponse;
+        window.web3gl.methodCallResponse = response;
     }
-    console.log(window.web3gl.methodCallResponse);   
-    return;
-  }
-  const from = (await web3.eth.getAccounts())[0];
-  const nftContract = new web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
-  let response;
-
-  try {
-      response = await nftContract.methods[method](...JSON.parse(args))
-        .call({
-              from,
-              value: value ? value : undefined
-        }); 
-  }catch (error) {
-      console.log(method + " - " + error.message);
-      response = "fail";
-  }
-  console.log(response);
-  console.log(typeof response);
-  if (typeof response != "string")
-  {
-    window.web3gl.methodCallResponse = JSON.stringify(response);
-  }
-  else
-  {
-    window.web3gl.methodCallResponse = response;
-  }
-  console.log(window.web3gl.methodCallResponse);
+    console.log(window.web3gl.methodCallResponse);
 }
 
 async function getTxStatus(transactionHash) {
-  let response;
-  try {
-    const from = (await web3.eth.getAccounts())[0];
-    response = await web3.eth.getTransactionReceipt(transactionHash);
-  } catch (error) {
-      console.log("getTxStatus - " + error.message);
-      response = "fail";
-  }
-  console.log(response);
-  if (response.status == true)
-  {
-    response = "success"
-  }
-  else if (response.status == false)
-  {
-    response = "fail"
-  }
-  console.log(response);
-  if (typeof response != "string")
-  {
-    window.web3gl.getTxStatusResponse = JSON.stringify(response);
-  }
-  else
-  {
-    window.web3gl.getTxStatusResponse = response;
-  }
+    const transaction = await fetchTransaction({
+        hash: transactionHash,
+    })
+    console.log("getTxStatus transaction - " + toJson(transaction));
+    window.web3gl.getTxStatusResponse = "success"
+
+    return
+    let response;
+    try {
+        const from = (await web3.eth.getAccounts())[0];
+        response = await web3.eth.getTransactionReceipt(transactionHash);
+    } catch (error) {
+        console.log("getTxStatus - " + error.message);
+        response = "fail";
+    }
+    console.log(response);
+    if (response.status == true)
+    {
+        response = "success"
+    }
+    else if (response.status == false)
+    {
+        response = "fail"
+    }
+    console.log(response);
+    if (typeof response != "string")
+    {
+        window.web3gl.getTxStatusResponse = JSON.stringify(response);
+    }
+    else
+    {
+        window.web3gl.getTxStatusResponse = response;
+    }
 }
 
 async function getBalance() {
-  let response;
-  try {
-    const from = (await web3.eth.getAccounts())[0];
-    response = parseInt(await web3.eth.getBalance(from));
-    //response = response * Math.pow(10, -18);
-  } catch (error) {
-    console.log("getBalance - " + error.message);
-    response = "fail";
-  }
-  if (typeof response != "string")
-  {
-    window.web3gl.getBalanceResponse = JSON.stringify(response);
-  }
-  else
-  {
-    window.web3gl.getBalanceResponse = response;
-  }
+    const balance = await fetchBalance({
+        address: walletAddress,
+        formatUnits: 'ether',
+    })
+    const balanceInt = parseFloat(balance.formatted) * 10e18
+    console.log("getBalance - " + balanceInt);
+
+    window.web3gl.getBalanceResponse = balanceInt + ''
+    return
+
+    let response;
+    try {
+        const from = (await web3.eth.getAccounts())[0];
+        response = parseInt(await web3.eth.getBalance(from));
+        //response = response * Math.pow(10, -18);
+    } catch (error) {
+        console.log("getBalance - " + error.message);
+        response = "fail";
+    }
+    if (typeof response != "string")
+    {
+        window.web3gl.getBalanceResponse = JSON.stringify(response);
+    }
+    else
+    {
+        window.web3gl.getBalanceResponse = response;
+    }
 }
 
 async function concrodiumSendContract(motoDexContract, method, args, value) {
@@ -832,7 +1100,7 @@ async function concrodiumSendContract(motoDexContract, method, args, value) {
     console.log(args[0]);
     let response;
     try {
-      switch (method) {
+        switch (method) {
             case "purchase" :
                 response = await concordiumPurchase(motoDexContract, parseInt(args[0]));
                 break;
@@ -857,23 +1125,23 @@ async function concrodiumSendContract(motoDexContract, method, args, value) {
             case "bidFor" :
                 response = await concordiumBidFor(motoDexContract, String(args[0]),  String(args[1]), value);
                 break;
-        default:
+            default:
                 alert('Method is not added');
-      } 
+        }
     }catch (error) {
-      console.log(method + " - " + error.message);
-      response = "fail";
+        console.log(method + " - " + error.message);
+        response = "fail";
     }
     return response;
 }
 
 async function concordiumMethodCall(motoDexContract, method, args, value) {
-  args = JSON.parse(args);
-  console.log(args);
-  console.log(args[0]);
-  let response;
-  try {
-    switch (method) {
+    args = JSON.parse(args);
+    console.log(args);
+    console.log(args[0]);
+    let response;
+    try {
+        switch (method) {
             case "tokenIdsAndOwners" :
                 response = await concordiumTokenIdsAndOwners(motoDexContract);
                 break;
@@ -884,11 +1152,11 @@ async function concordiumMethodCall(motoDexContract, method, args, value) {
             case "valueInMainCoin" :
                 response = await concordiumValueInMainCoin(motoDexContract, parseInt(args[0]));
                 response = JSON.parse(response);
-                break; 
+                break;
             case "getTokenType" :
                 response = await concordiumGetTokenTypeId(motoDexContract, args[0]);
                 response = JSON.parse(response);
-                break;     
+                break;
             case "getHealthForId" :
                 response = await concordiumGetTokenHealth(motoDexContract, args[0]);
                 response =  JSON.parse(response);
@@ -916,16 +1184,16 @@ async function concordiumMethodCall(motoDexContract, method, args, value) {
                 break;
             case "syncEpochResultsMotosFinal" :
                 response = await concordiumSyncEpochResultsMotosFinal(motoDexContract);
-                break;    
-      default:
-                alert('Method is not added'); 
-      }
-  }catch (error) {
-      console.log(method + " - " + error.message);
-      response = "fail";
-  }
+                break;
+            default:
+                alert('Method is not added');
+        }
+    }catch (error) {
+        console.log(method + " - " + error.message);
+        response = "fail";
+    }
 
-  return response;
+    return response;
 }
 
 async function connectConcordiumWallet(mainnet, routeBackURL) {
@@ -951,1032 +1219,1032 @@ async function connectConcordiumWallet(mainnet, routeBackURL) {
 }
 
 async function concordiumTokenIdsAndOwners(motoDexContract) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const contractName = motoDexContract.split(":")[0];
-  const receiveFunctionName = 'tokenIdsAndOwners';
-  const methodName = contractName + '.' + receiveFunctionName;
+    const contractName = motoDexContract.split(":")[0];
+    const receiveFunctionName = 'tokenIdsAndOwners';
+    const methodName = contractName + '.' + receiveFunctionName;
 
-  var moduleFileBuffer = new Buffer(bin64, 'base64');
+    var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const parameters = {
-      "from_index":{"None":[]},  
-      "limit":{"None":[]}
-  };
+    const parameters = {
+        "from_index":{"None":[]},
+        "limit":{"None":[]}
+    };
 
-  const inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
+    const inputParams = concordiumSDK.serializeUpdateContractParameters(
+        contractName,
+        receiveFunctionName,
+        parameters,
+        moduleFileBuffer,
+        0
+    );
 
-  const result = await client.invokeContract(
-      {
-          invoker: new concordiumSDK.AccountAddress(accountAddress),
-          contract: contractAddress,
-          method: methodName,
-          parameter: inputParams
-      }
-  );
+    const result = await client.invokeContract(
+        {
+            invoker: new concordiumSDK.AccountAddress(accountAddress),
+            contract: contractAddress,
+            method: methodName,
+            parameter: inputParams
+        }
+    );
 
-  console.log(result);
-  if (result.returnValue == undefined) result.returnValue = "";
+    console.log(result);
+    if (result.returnValue == undefined) result.returnValue = "";
 
-  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
-  console.log(rawReturnValue);
-  const schema = moduleFileBuffer; // Load schema from file
-  const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  let returnValue = "";
-  try{
-    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-  }
-  catch (error) {
-    console.log(methodName + error.message);
-  }
-  console.log(returnValue);
-  if (returnValue.length == 0) returnValue = "";
-  if (returnValue == ""){
+    const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+    console.log(rawReturnValue);
+    const schema = moduleFileBuffer; // Load schema from file
+    const schemaVersion = concordiumSDK.SchemaVersion.V1;
+    let returnValue = "";
+    try{
+        returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+    }
+    catch (error) {
+        console.log(methodName + error.message);
+    }
     console.log(returnValue);
-    return returnValue;
-  }
-  let structData = [];
-  for (let i = 0; i < returnValue.length; i++) {
-    const trackTokenID = returnValue[i].track_token_id.Some ? returnValue[i].track_token_id.Some[0] : "115792089237316195423570985008687907853269984665640564039457584007913129639935";
-    const trackType = returnValue[i].track_type.Some ? returnValue[i].track_type.Some[0] : "255";
-    const motoTokenID = returnValue[i].moto_token_id.Some ? returnValue[i].moto_token_id.Some[0] : "115792089237316195423570985008687907853269984665640564039457584007913129639935";
-    const motoType = returnValue[i].moto_type.Some ? returnValue[i].moto_type.Some[0] : "255";
-    const owner = returnValue[i].owner_id.Account[0];
-    structData.splice(i, 0, [trackTokenID, trackType, motoTokenID, motoType, owner]);
-  }
-  let fullStructData = {"0":structData, "1":String(returnValue.length)};
-  console.log(fullStructData);
-  return fullStructData;
+    if (returnValue.length == 0) returnValue = "";
+    if (returnValue == ""){
+        console.log(returnValue);
+        return returnValue;
+    }
+    let structData = [];
+    for (let i = 0; i < returnValue.length; i++) {
+        const trackTokenID = returnValue[i].track_token_id.Some ? returnValue[i].track_token_id.Some[0] : "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+        const trackType = returnValue[i].track_type.Some ? returnValue[i].track_type.Some[0] : "255";
+        const motoTokenID = returnValue[i].moto_token_id.Some ? returnValue[i].moto_token_id.Some[0] : "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+        const motoType = returnValue[i].moto_type.Some ? returnValue[i].moto_type.Some[0] : "255";
+        const owner = returnValue[i].owner_id.Account[0];
+        structData.splice(i, 0, [trackTokenID, trackType, motoTokenID, motoType, owner]);
+    }
+    let fullStructData = {"0":structData, "1":String(returnValue.length)};
+    console.log(fullStructData);
+    return fullStructData;
 }
 
 async function concordiumNftTokensForOwners(motoDexContract) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const contractName = motoDexContract.split(":")[0];
-  const receiveFunctionName = 'nftTokensForOwners';
-  const methodName = contractName + '.' + receiveFunctionName;
+    const contractName = motoDexContract.split(":")[0];
+    const receiveFunctionName = 'nftTokensForOwners';
+    const methodName = contractName + '.' + receiveFunctionName;
 
-  var moduleFileBuffer = new Buffer(bin64, 'base64');
+    var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const parameters = {
-      "address":{"Account":[accountAddress]},
-      "from_index": {"None":[]},
-      "limit": {"None":[]}
-  };
+    const parameters = {
+        "address":{"Account":[accountAddress]},
+        "from_index": {"None":[]},
+        "limit": {"None":[]}
+    };
 
-  const inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
+    const inputParams = concordiumSDK.serializeUpdateContractParameters(
+        contractName,
+        receiveFunctionName,
+        parameters,
+        moduleFileBuffer,
+        0
+    );
 
-  const result = await client.invokeContract(
-      {
-          invoker: new concordiumSDK.AccountAddress(accountAddress),
-          contract: contractAddress,
-          method: methodName,
-          parameter: inputParams
-      }
-  );
+    const result = await client.invokeContract(
+        {
+            invoker: new concordiumSDK.AccountAddress(accountAddress),
+            contract: contractAddress,
+            method: methodName,
+            parameter: inputParams
+        }
+    );
 
-  console.log(result);
-  if (result.returnValue == undefined) result.returnValue = "";
+    console.log(result);
+    if (result.returnValue == undefined) result.returnValue = "";
 
-  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
-  console.log(rawReturnValue);
-  const schema = moduleFileBuffer; // Load schema from file
-  const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  let returnValue = "";
-  try{
-    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-  }
-  catch (error) {
-    console.log(methodName + error.message);
-  }
-  console.log(returnValue);
-  if (returnValue == ""){
-    return returnValue;
-  }
-  let structData = [];
-  for (let i = 0; i < returnValue.length; i++) {
-    const tokenID = returnValue[i].token_id;
-    const tokenURI = returnValue[i].metadata.uri;
-    const name = returnValue[i].metadata.name;
-    const typeNft = returnValue[i].metadata.type_nft;
-    structData.push({"contract": motoDexContract, "tokenId": tokenID, "uri": tokenURI, "balance":"1", "ItemData": {"name": name, "type": typeNft}});
-  }
-  console.log(structData);
-  return structData;
+    const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+    console.log(rawReturnValue);
+    const schema = moduleFileBuffer; // Load schema from file
+    const schemaVersion = concordiumSDK.SchemaVersion.V1;
+    let returnValue = "";
+    try{
+        returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+    }
+    catch (error) {
+        console.log(methodName + error.message);
+    }
+    console.log(returnValue);
+    if (returnValue == ""){
+        return returnValue;
+    }
+    let structData = [];
+    for (let i = 0; i < returnValue.length; i++) {
+        const tokenID = returnValue[i].token_id;
+        const tokenURI = returnValue[i].metadata.uri;
+        const name = returnValue[i].metadata.name;
+        const typeNft = returnValue[i].metadata.type_nft;
+        structData.push({"contract": motoDexContract, "tokenId": tokenID, "uri": tokenURI, "balance":"1", "ItemData": {"name": name, "type": typeNft}});
+    }
+    console.log(structData);
+    return structData;
 }
 
 async function concordiumLatestEpochUpdate(motoDexContract) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const contractName = motoDexContract.split(":")[0];
-  const receiveFunctionName = 'view'; // Temporary
-  const methodName = contractName + '.' + receiveFunctionName;
+    const contractName = motoDexContract.split(":")[0];
+    const receiveFunctionName = 'view'; // Temporary
+    const methodName = contractName + '.' + receiveFunctionName;
 
-  var moduleFileBuffer = new Buffer(bin64, 'base64');
+    var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const result = await client.invokeContract(
-      {
-          invoker: new concordiumSDK.AccountAddress(accountAddress),
-          contract: contractAddress,
-          method: methodName
-      }
-  );
+    const result = await client.invokeContract(
+        {
+            invoker: new concordiumSDK.AccountAddress(accountAddress),
+            contract: contractAddress,
+            method: methodName
+        }
+    );
 
-  console.log(result);
-  if (result.returnValue == undefined) result.returnValue = "";
+    console.log(result);
+    if (result.returnValue == undefined) result.returnValue = "";
 
-  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
-  console.log(rawReturnValue);
-  const schema = moduleFileBuffer; // Load schema from file
-  const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  let returnValue = 0;
-  try{
-    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-    returnValue = returnValue.latest_epoch_update;
-  }
-  catch (error) {
-    console.log(methodName + error.message);
-  }
-  console.log(returnValue);
-  if (returnValue == 0){
+    const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+    console.log(rawReturnValue);
+    const schema = moduleFileBuffer; // Load schema from file
+    const schemaVersion = concordiumSDK.SchemaVersion.V1;
+    let returnValue = 0;
+    try{
+        returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+        returnValue = returnValue.latest_epoch_update;
+    }
+    catch (error) {
+        console.log(methodName + error.message);
+    }
+    console.log(returnValue);
+    if (returnValue == 0){
+        return returnValue;
+    }
     return returnValue;
-  }
-  return returnValue;
 }
 
 async function concordiumGetLatestPrice(motoDexContract) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const contractName = motoDexContract.split(":")[0];
-  const receiveFunctionName = 'getLatestPrice';
-  const methodName = contractName + '.' + receiveFunctionName;
+    const contractName = motoDexContract.split(":")[0];
+    const receiveFunctionName = 'getLatestPrice';
+    const methodName = contractName + '.' + receiveFunctionName;
 
-  var moduleFileBuffer = new Buffer(bin64, 'base64');
+    var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const result = await client.invokeContract(
-      {
-          invoker: new concordiumSDK.AccountAddress(accountAddress),
-          contract: contractAddress,
-          method: methodName
-      }
-  );
+    const result = await client.invokeContract(
+        {
+            invoker: new concordiumSDK.AccountAddress(accountAddress),
+            contract: contractAddress,
+            method: methodName
+        }
+    );
 
-  console.log(result);
-  if (result.returnValue == undefined) result.returnValue = "";
+    console.log(result);
+    if (result.returnValue == undefined) result.returnValue = "";
 
-  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
-  console.log(rawReturnValue);
-  const schema = moduleFileBuffer; // Load schema from file
-  const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  let returnValue = "[]";
-  try{
-    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-    returnValue = '{"0":"' + returnValue + '","1":"1"}'
-  }
-  catch (error) {
-    console.log(methodName + error.message);
-  }
-  console.log(returnValue);
-  if (returnValue == "[]"){
+    const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+    console.log(rawReturnValue);
+    const schema = moduleFileBuffer; // Load schema from file
+    const schemaVersion = concordiumSDK.SchemaVersion.V1;
+    let returnValue = "[]";
+    try{
+        returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+        returnValue = '{"0":"' + returnValue + '","1":"1"}'
+    }
+    catch (error) {
+        console.log(methodName + error.message);
+    }
+    console.log(returnValue);
+    if (returnValue == "[]"){
+        return returnValue;
+    }
+
     return returnValue;
-  }
-
-  return returnValue;
 }
 
 async function concordiumSyncEpochResultsBidsFinal(motoDexContract) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const contractName = motoDexContract.split(":")[0];
-  const receiveFunctionName = 'syncEpochResultsBidsFinal';
-  const methodName = contractName + '.' + receiveFunctionName;
+    const contractName = motoDexContract.split(":")[0];
+    const receiveFunctionName = 'syncEpochResultsBidsFinal';
+    const methodName = contractName + '.' + receiveFunctionName;
 
-  var moduleFileBuffer = new Buffer(bin64, 'base64');
+    var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const result = await client.invokeContract(
-      {
-          invoker: new concordiumSDK.AccountAddress(accountAddress),
-          contract: contractAddress,
-          method: methodName
-      }
-  );
+    const result = await client.invokeContract(
+        {
+            invoker: new concordiumSDK.AccountAddress(accountAddress),
+            contract: contractAddress,
+            method: methodName
+        }
+    );
 
-  console.log(result);
-  if (result.returnValue == undefined) result.returnValue = "";
+    console.log(result);
+    if (result.returnValue == undefined) result.returnValue = "";
 
-  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
-  console.log(rawReturnValue);
-  const schema = moduleFileBuffer; // Load schema from file
-  const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  let returnValue = "[]";
-  try{
-    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-  }
-  catch (error) {
-    console.log(methodName + error.message);
-  }
-  console.log(returnValue);
-  if (returnValue == "[]"){
-    return returnValue;
-  }
-  // let structData = {"0":[],"1":String(returnValue.length)};
-  // for (let i = 0; i < returnValue.length; i++) {
-  //   const amount = returnValue[i].amount;
-  //   const trackId = returnValue[i].track_token_id;
-  //   const motoId = returnValue[i].moto_token_id;
-  //   const timestamp = returnValue[i].timestamp;
-  //   const bidder = returnValue[i].bidder.Account[0];
-  //   structData["0"].push([amount, trackId, motoId, timestamp, bidder]);
-  // }
-  // console.log(structData);
-  return returnValue; // structData;
+    const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+    console.log(rawReturnValue);
+    const schema = moduleFileBuffer; // Load schema from file
+    const schemaVersion = concordiumSDK.SchemaVersion.V1;
+    let returnValue = "[]";
+    try{
+        returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+    }
+    catch (error) {
+        console.log(methodName + error.message);
+    }
+    console.log(returnValue);
+    if (returnValue == "[]"){
+        return returnValue;
+    }
+    // let structData = {"0":[],"1":String(returnValue.length)};
+    // for (let i = 0; i < returnValue.length; i++) {
+    //   const amount = returnValue[i].amount;
+    //   const trackId = returnValue[i].track_token_id;
+    //   const motoId = returnValue[i].moto_token_id;
+    //   const timestamp = returnValue[i].timestamp;
+    //   const bidder = returnValue[i].bidder.Account[0];
+    //   structData["0"].push([amount, trackId, motoId, timestamp, bidder]);
+    // }
+    // console.log(structData);
+    return returnValue; // structData;
 }
 
 async function concordiumSyncEpochResultsMotosFinal(motoDexContract) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const contractName = motoDexContract.split(":")[0];
-  const receiveFunctionName = 'syncEpochResultsMotosFinal';
-  const methodName = contractName + '.' + receiveFunctionName;
+    const contractName = motoDexContract.split(":")[0];
+    const receiveFunctionName = 'syncEpochResultsMotosFinal';
+    const methodName = contractName + '.' + receiveFunctionName;
 
-  var moduleFileBuffer = new Buffer(bin64, 'base64');
+    var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const result = await client.invokeContract(
-      {
-          invoker: new concordiumSDK.AccountAddress(accountAddress),
-          contract: contractAddress,
-          method: methodName
-      }
-  );
+    const result = await client.invokeContract(
+        {
+            invoker: new concordiumSDK.AccountAddress(accountAddress),
+            contract: contractAddress,
+            method: methodName
+        }
+    );
 
-  console.log(result);
-  if (result.returnValue == undefined) result.returnValue = "";
+    console.log(result);
+    if (result.returnValue == undefined) result.returnValue = "";
 
-  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
-  console.log(rawReturnValue);
-  const schema = moduleFileBuffer; // Load schema from file
-  const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  let returnValue = "[]";
-  try{
-    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-  }
-  catch (error) {
-    console.log(methodName + error.message);
-  }
-  console.log(returnValue);
-  if (returnValue == "[]"){
-    return returnValue;
-  }
-  // let structData = {"0":[],"1":String(returnValue.length)};
-  // for (let i = 0; i < returnValue.length; i++) {
-  //   const amount = returnValue[i].amount;
-  //   const trackId = returnValue[i].track_token_id;
-  //   const motoId = returnValue[i].moto_token_id;
-  //   const timestamp = returnValue[i].timestamp;
-  //   const bidder = returnValue[i].bidder.Account[0];
-  //   structData["0"].push([amount, trackId, motoId, timestamp, bidder]);
-  // }
-  // console.log(structData);
-  return returnValue; // structData;
+    const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+    console.log(rawReturnValue);
+    const schema = moduleFileBuffer; // Load schema from file
+    const schemaVersion = concordiumSDK.SchemaVersion.V1;
+    let returnValue = "[]";
+    try{
+        returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+    }
+    catch (error) {
+        console.log(methodName + error.message);
+    }
+    console.log(returnValue);
+    if (returnValue == "[]"){
+        return returnValue;
+    }
+    // let structData = {"0":[],"1":String(returnValue.length)};
+    // for (let i = 0; i < returnValue.length; i++) {
+    //   const amount = returnValue[i].amount;
+    //   const trackId = returnValue[i].track_token_id;
+    //   const motoId = returnValue[i].moto_token_id;
+    //   const timestamp = returnValue[i].timestamp;
+    //   const bidder = returnValue[i].bidder.Account[0];
+    //   structData["0"].push([amount, trackId, motoId, timestamp, bidder]);
+    // }
+    // console.log(structData);
+    return returnValue; // structData;
 }
 
 async function concordiumGetTokenHealth(motoDexContract, tokenId) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const contractName = motoDexContract.split(":")[0];
-  const receiveFunctionName = 'getTokenHealth';
-  const methodName = contractName + '.' + receiveFunctionName;
+    const contractName = motoDexContract.split(":")[0];
+    const receiveFunctionName = 'getTokenHealth';
+    const methodName = contractName + '.' + receiveFunctionName;
 
-  var moduleFileBuffer = new Buffer(bin64, 'base64');
+    var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const parameters = {
-      "token_id":tokenId // String
-  };
+    const parameters = {
+        "token_id":tokenId // String
+    };
 
-  const inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
+    const inputParams = concordiumSDK.serializeUpdateContractParameters(
+        contractName,
+        receiveFunctionName,
+        parameters,
+        moduleFileBuffer,
+        0
+    );
 
-  const result = await client.invokeContract(
-      {
-          invoker: new concordiumSDK.AccountAddress(accountAddress),
-          contract: contractAddress,
-          method: methodName,
-          parameter: inputParams
-      }
-  );
+    const result = await client.invokeContract(
+        {
+            invoker: new concordiumSDK.AccountAddress(accountAddress),
+            contract: contractAddress,
+            method: methodName,
+            parameter: inputParams
+        }
+    );
 
-  console.log(result);
-  if (result.returnValue == undefined) result.returnValue = "";
+    console.log(result);
+    if (result.returnValue == undefined) result.returnValue = "";
 
-  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
-  console.log(rawReturnValue);
-  const schema = moduleFileBuffer; // Load schema from file
-  const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  let returnValue = "";
-  try{
-    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-  }
-  catch (error) {
-    console.log(methodName + error.message);
-  }
-  console.log(returnValue);
-  if (returnValue == ""){
+    const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+    console.log(rawReturnValue);
+    const schema = moduleFileBuffer; // Load schema from file
+    const schemaVersion = concordiumSDK.SchemaVersion.V1;
+    let returnValue = "";
+    try{
+        returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+    }
+    catch (error) {
+        console.log(methodName + error.message);
+    }
+    console.log(returnValue);
+    if (returnValue == ""){
+        return returnValue;
+    }
+    console.log(returnValue);
     return returnValue;
-  }
-  console.log(returnValue);
-  return returnValue;
 }
 
 async function concordiumValueInMainCoin(motoDexContract, typeNft) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const contractName = motoDexContract.split(":")[0];
-  const receiveFunctionName = 'valueInMainCoin';
-  const methodName = contractName + '.' + receiveFunctionName;
+    const contractName = motoDexContract.split(":")[0];
+    const receiveFunctionName = 'valueInMainCoin';
+    const methodName = contractName + '.' + receiveFunctionName;
 
-  var moduleFileBuffer = new Buffer(bin64, 'base64');
+    var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const parameters = {
-      "type_nft":typeNft // Int
-  };
+    const parameters = {
+        "type_nft":typeNft // Int
+    };
 
-  const inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
+    const inputParams = concordiumSDK.serializeUpdateContractParameters(
+        contractName,
+        receiveFunctionName,
+        parameters,
+        moduleFileBuffer,
+        0
+    );
 
-  const result = await client.invokeContract(
-      {
-          invoker: new concordiumSDK.AccountAddress(accountAddress),
-          contract: contractAddress,
-          method: methodName,
-          parameter: inputParams
-      }
-  );
+    const result = await client.invokeContract(
+        {
+            invoker: new concordiumSDK.AccountAddress(accountAddress),
+            contract: contractAddress,
+            method: methodName,
+            parameter: inputParams
+        }
+    );
 
-  console.log(result);
-  if (result.returnValue == undefined) result.returnValue = "";
+    console.log(result);
+    if (result.returnValue == undefined) result.returnValue = "";
 
-  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
-  console.log(rawReturnValue);
-  const schema = moduleFileBuffer; // Load schema from file
-  const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  let returnValue = "";
-  try{
-    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-  }
-  catch (error) {
-    console.log(methodName + error.message);
-  }
-  console.log(returnValue);
-  if (returnValue == ""){
+    const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+    console.log(rawReturnValue);
+    const schema = moduleFileBuffer; // Load schema from file
+    const schemaVersion = concordiumSDK.SchemaVersion.V1;
+    let returnValue = "";
+    try{
+        returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+    }
+    catch (error) {
+        console.log(methodName + error.message);
+    }
+    console.log(returnValue);
+    if (returnValue == ""){
+        return returnValue;
+    }
+    console.log(returnValue);
     return returnValue;
-  }
-  console.log(returnValue);
-  return returnValue;
 }
 
 async function concordiumGetPercentForTrack(motoDexContract, tokenId) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const contractName = motoDexContract.split(":")[0];
-  const receiveFunctionName = 'getPercentForTrack';
-  const methodName = contractName + '.' + receiveFunctionName;
+    const contractName = motoDexContract.split(":")[0];
+    const receiveFunctionName = 'getPercentForTrack';
+    const methodName = contractName + '.' + receiveFunctionName;
 
-  var moduleFileBuffer = new Buffer(bin64, 'base64');
+    var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const parameters = {
-      "token_id":tokenId // String
-  };
+    const parameters = {
+        "token_id":tokenId // String
+    };
 
-  const inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
+    const inputParams = concordiumSDK.serializeUpdateContractParameters(
+        contractName,
+        receiveFunctionName,
+        parameters,
+        moduleFileBuffer,
+        0
+    );
 
-  const result = await client.invokeContract(
-      {
-          invoker: new concordiumSDK.AccountAddress(accountAddress),
-          contract: contractAddress,
-          method: methodName,
-          parameter: inputParams
-      }
-  );
+    const result = await client.invokeContract(
+        {
+            invoker: new concordiumSDK.AccountAddress(accountAddress),
+            contract: contractAddress,
+            method: methodName,
+            parameter: inputParams
+        }
+    );
 
-  console.log(result);
-  if (result.returnValue == undefined) result.returnValue = "";
+    console.log(result);
+    if (result.returnValue == undefined) result.returnValue = "";
 
-  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
-  console.log(rawReturnValue);
-  const schema = moduleFileBuffer; // Load schema from file
-  const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  let returnValue = "";
-  try{
-    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-  }
-  catch (error) {
-    console.log(methodName + error.message);
-  }
-  console.log(returnValue);
-  if (returnValue == ""){
+    const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+    console.log(rawReturnValue);
+    const schema = moduleFileBuffer; // Load schema from file
+    const schemaVersion = concordiumSDK.SchemaVersion.V1;
+    let returnValue = "";
+    try{
+        returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+    }
+    catch (error) {
+        console.log(methodName + error.message);
+    }
+    console.log(returnValue);
+    if (returnValue == ""){
+        return returnValue;
+    }
+    console.log(returnValue);
     return returnValue;
-  }
-  console.log(returnValue);
-  return returnValue;
 }
 
 async function concordiumGetGameSessions(motoDexContract, tokenId) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const contractName = motoDexContract.split(":")[0];
-  const receiveFunctionName = 'getSessions';
-  const methodName = contractName + '.' + receiveFunctionName;
+    const contractName = motoDexContract.split(":")[0];
+    const receiveFunctionName = 'getSessions';
+    const methodName = contractName + '.' + receiveFunctionName;
 
-  var moduleFileBuffer = new Buffer(bin64, 'base64');
+    var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const result = await client.invokeContract(
-      {
-          invoker: new concordiumSDK.AccountAddress(accountAddress),
-          contract: contractAddress,
-          method: methodName
-      }
-  );
+    const result = await client.invokeContract(
+        {
+            invoker: new concordiumSDK.AccountAddress(accountAddress),
+            contract: contractAddress,
+            method: methodName
+        }
+    );
 
-  console.log(result);
-  if (result.returnValue == undefined) result.returnValue = "";
+    console.log(result);
+    if (result.returnValue == undefined) result.returnValue = "";
 
-  console.log(result);  
-  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
-  console.log(rawReturnValue);
-  const schema = moduleFileBuffer; // Load schema from file
-  const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  let returnValue = "[]";
-  try{
-    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-  }
-  catch (error) {
-    console.log(methodName + error.message);
-  }
-  console.log(returnValue);
-  if (returnValue == "[]"){
+    console.log(result);
+    const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+    console.log(rawReturnValue);
+    const schema = moduleFileBuffer; // Load schema from file
+    const schemaVersion = concordiumSDK.SchemaVersion.V1;
+    let returnValue = "[]";
+    try{
+        returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+    }
+    catch (error) {
+        console.log(methodName + error.message);
+    }
+    console.log(returnValue);
+    if (returnValue == "[]"){
+        return returnValue;
+    }
+    console.log(returnValue);
     return returnValue;
-  }
-  console.log(returnValue);
-  return returnValue;
 }
 
 async function concordiumGetAllGameBids(motoDexContract, tokenId) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const contractName = motoDexContract.split(":")[0];
-  const receiveFunctionName = 'getBids';
-  const methodName = contractName + '.' + receiveFunctionName;
+    const contractName = motoDexContract.split(":")[0];
+    const receiveFunctionName = 'getBids';
+    const methodName = contractName + '.' + receiveFunctionName;
 
-  var moduleFileBuffer = new Buffer(bin64, 'base64');
+    var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const result = await client.invokeContract(
-      {
-          invoker: new concordiumSDK.AccountAddress(accountAddress),
-          contract: contractAddress,
-          method: methodName
-      }
-  );
+    const result = await client.invokeContract(
+        {
+            invoker: new concordiumSDK.AccountAddress(accountAddress),
+            contract: contractAddress,
+            method: methodName
+        }
+    );
 
-  console.log(result);
-  if (result.returnValue == undefined) result.returnValue = "";
+    console.log(result);
+    if (result.returnValue == undefined) result.returnValue = "";
 
-  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
-  console.log(rawReturnValue);
-  const schema = moduleFileBuffer; // Load schema from file
-  const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  let returnValue = "[]";
-  try{
-    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-  }
-  catch (error) {
-    console.log(methodName + error.message);
-  }
-  console.log(returnValue);
-  if (returnValue == "[]"){
-    return returnValue;
-  }
-  let structData = {"0":[],"1":String(returnValue.length)};
-  for (let i = 0; i < returnValue.length; i++) {
-    const amount = returnValue[i].amount;
-    const trackId = returnValue[i].track_token_id;
-    const motoId = returnValue[i].moto_token_id;
-    const timestamp = returnValue[i].timestamp;
-    const bidder = returnValue[i].bidder.Account[0];
-    structData["0"].push([amount, trackId, motoId, timestamp, bidder]);
-  }
-  console.log(structData);
-  return structData;
+    const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+    console.log(rawReturnValue);
+    const schema = moduleFileBuffer; // Load schema from file
+    const schemaVersion = concordiumSDK.SchemaVersion.V1;
+    let returnValue = "[]";
+    try{
+        returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+    }
+    catch (error) {
+        console.log(methodName + error.message);
+    }
+    console.log(returnValue);
+    if (returnValue == "[]"){
+        return returnValue;
+    }
+    let structData = {"0":[],"1":String(returnValue.length)};
+    for (let i = 0; i < returnValue.length; i++) {
+        const amount = returnValue[i].amount;
+        const trackId = returnValue[i].track_token_id;
+        const motoId = returnValue[i].moto_token_id;
+        const timestamp = returnValue[i].timestamp;
+        const bidder = returnValue[i].bidder.Account[0];
+        structData["0"].push([amount, trackId, motoId, timestamp, bidder]);
+    }
+    console.log(structData);
+    return structData;
 }
 
 async function concordiumGetTokenTypeId(motoDexContract, tokenId) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const contractName = motoDexContract.split(":")[0];
-  const receiveFunctionName = 'getTokenTypeId';
-  const methodName = contractName + '.' + receiveFunctionName;
+    const contractName = motoDexContract.split(":")[0];
+    const receiveFunctionName = 'getTokenTypeId';
+    const methodName = contractName + '.' + receiveFunctionName;
 
-  var moduleFileBuffer = new Buffer(bin64, 'base64');
+    var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  console.log(typeof(tokenId) + " " + tokenId)
-  const parameters = {
-      "token_id":tokenId // String
-  };
+    console.log(typeof(tokenId) + " " + tokenId)
+    const parameters = {
+        "token_id":tokenId // String
+    };
 
-  const inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
+    const inputParams = concordiumSDK.serializeUpdateContractParameters(
+        contractName,
+        receiveFunctionName,
+        parameters,
+        moduleFileBuffer,
+        0
+    );
 
-  const result = await client.invokeContract(
-      {
-          invoker: new concordiumSDK.AccountAddress(accountAddress),
-          contract: contractAddress,
-          method: methodName,
-          parameter: inputParams
-      }
-  );
+    const result = await client.invokeContract(
+        {
+            invoker: new concordiumSDK.AccountAddress(accountAddress),
+            contract: contractAddress,
+            method: methodName,
+            parameter: inputParams
+        }
+    );
 
-  console.log(result);
-  if (result.returnValue == undefined) result.returnValue = "";
+    console.log(result);
+    if (result.returnValue == undefined) result.returnValue = "";
 
-  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
-  console.log(rawReturnValue);
-  const schema = moduleFileBuffer; // Load schema from file
-  const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  let returnValue = "";
-  try{
-    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-  }
-  catch (error) {
-    console.log(methodName + error.message);
-  }
-  console.log(returnValue);
-  if (returnValue == ""){
+    const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+    console.log(rawReturnValue);
+    const schema = moduleFileBuffer; // Load schema from file
+    const schemaVersion = concordiumSDK.SchemaVersion.V1;
+    let returnValue = "";
+    try{
+        returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+    }
+    catch (error) {
+        console.log(methodName + error.message);
+    }
+    console.log(returnValue);
+    if (returnValue == ""){
+        return returnValue;
+    }
+    console.log(returnValue);
     return returnValue;
-  }
-  console.log(returnValue);
-  return returnValue;
 }
 
 async function concordiumMinimalFeeInUSD(motoDexContract) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const contractName = motoDexContract.split(":")[0];
-  const receiveFunctionName = 'view';
-  const methodName = contractName + '.' + receiveFunctionName;
+    const contractName = motoDexContract.split(":")[0];
+    const receiveFunctionName = 'view';
+    const methodName = contractName + '.' + receiveFunctionName;
 
-  var moduleFileBuffer = new Buffer(bin64, 'base64');
+    var moduleFileBuffer = new Buffer(bin64, 'base64');
 
-  const result = await client.invokeContract(
-      {
-          invoker: new concordiumSDK.AccountAddress(accountAddress),
-          contract: contractAddress,
-          method: methodName
-      }
-  );
+    const result = await client.invokeContract(
+        {
+            invoker: new concordiumSDK.AccountAddress(accountAddress),
+            contract: contractAddress,
+            method: methodName
+        }
+    );
 
-  console.log(result);
-  if (result.returnValue == undefined) result.returnValue = "";
+    console.log(result);
+    if (result.returnValue == undefined) result.returnValue = "";
 
-  const rawReturnValue = Buffer.from(result.returnValue, 'hex');
-  console.log(rawReturnValue);
-  const schema = moduleFileBuffer; // Load schema from file
-  const schemaVersion = concordiumSDK.SchemaVersion.V1;
-  let returnValue = "";
-  try{
-    returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
-    returnValue = returnValue.min_fee * 1e6 / returnValue.price_main_coin_usd;
-  }
-  catch (error) {
-    console.log(methodName + error.message);
-  }
-  console.log(returnValue);
-  return returnValue;
+    const rawReturnValue = Buffer.from(result.returnValue, 'hex');
+    console.log(rawReturnValue);
+    const schema = moduleFileBuffer; // Load schema from file
+    const schemaVersion = concordiumSDK.SchemaVersion.V1;
+    let returnValue = "";
+    try{
+        returnValue = concordiumSDK.deserializeReceiveReturnValue(rawReturnValue, schema, contractName, receiveFunctionName, schemaVersion);
+        returnValue = returnValue.min_fee * 1e6 / returnValue.price_main_coin_usd;
+    }
+    catch (error) {
+        console.log(methodName + error.message);
+    }
+    console.log(returnValue);
+    return returnValue;
 }
 
 
 async function concordiumPurchase(motoDexContract, typeNft) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const instanceInfo = await client.getInstanceInfo(
-      contractAddress);
+    const instanceInfo = await client.getInstanceInfo(
+        contractAddress);
 
-  const contractName = motoDexContract.split(":")[0];
-  let receiveFunctionName = 'purchase';
-  let methodName = contractName + '.' + receiveFunctionName;
-  const moduleFileBuffer = new Buffer(bin64, 'base64');
-  const parameters = {
-      "referral":{"None":[]},
-      "type_nft": typeNft // Int
-  };
-  let inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
+    const contractName = motoDexContract.split(":")[0];
+    let receiveFunctionName = 'purchase';
+    let methodName = contractName + '.' + receiveFunctionName;
+    const moduleFileBuffer = new Buffer(bin64, 'base64');
+    const parameters = {
+        "referral":{"None":[]},
+        "type_nft": typeNft // Int
+    };
+    let inputParams = concordiumSDK.serializeUpdateContractParameters(
+        contractName,
+        receiveFunctionName,
+        parameters,
+        moduleFileBuffer,
+        0
+    );
 
-  const value_in_main_coin = await concordiumValueInMainCoin(motoDexContract, typeNft);
-  console.log("value_in_main_coin - " + value_in_main_coin)
-  const amount = { microGtuAmount: BigInt(value_in_main_coin) };
+    const value_in_main_coin = await concordiumValueInMainCoin(motoDexContract, typeNft);
+    console.log("value_in_main_coin - " + value_in_main_coin)
+    const amount = { microGtuAmount: BigInt(value_in_main_coin) };
 
-  const txHash = await provider.sendTransaction(
-      accountAddress,
-      concordiumSDK.AccountTransactionType.Update,
-      {
-          amount: amount,
-          contractAddress: contractAddress,
-          receiveName: methodName,
-          maxContractExecutionEnergy: 30000n,
-          parameters: inputParams,
-      },
-      parameters,
-      bin64
-  );
-  const txStatus = await concordiumCheckTransactionStatus(txHash, client)
-  if ( txStatus == "success" ){
-    await sleep(5000);
-    window.location.reload();
-  }  
-  return txStatus;
+    const txHash = await provider.sendTransaction(
+        accountAddress,
+        concordiumSDK.AccountTransactionType.Update,
+        {
+            amount: amount,
+            contractAddress: contractAddress,
+            receiveName: methodName,
+            maxContractExecutionEnergy: 30000n,
+            parameters: inputParams,
+        },
+        parameters,
+        bin64
+    );
+    const txStatus = await concordiumCheckTransactionStatus(txHash, client)
+    if ( txStatus == "success" ){
+        await sleep(5000);
+        window.location.reload();
+    }
+    return txStatus;
 }
 
 async function concordiumAddHealthMoney(motoDexContract, tokenId) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const instanceInfo = await client.getInstanceInfo(
-      contractAddress);
+    const instanceInfo = await client.getInstanceInfo(
+        contractAddress);
 
-  const contractName = motoDexContract.split(":")[0];
-  let receiveFunctionName = 'addHealthMoney';
-  let methodName = contractName + '.' + receiveFunctionName;
-  const moduleFileBuffer = new Buffer(bin64, 'base64');
-  const parameters = {
-      "token_id":tokenId // String
-  };
-  let inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
+    const contractName = motoDexContract.split(":")[0];
+    let receiveFunctionName = 'addHealthMoney';
+    let methodName = contractName + '.' + receiveFunctionName;
+    const moduleFileBuffer = new Buffer(bin64, 'base64');
+    const parameters = {
+        "token_id":tokenId // String
+    };
+    let inputParams = concordiumSDK.serializeUpdateContractParameters(
+        contractName,
+        receiveFunctionName,
+        parameters,
+        moduleFileBuffer,
+        0
+    );
 
-  const typeNft = await concordiumGetTokenTypeId(motoDexContract, tokenId);
-  const value_in_main_coin = await concordiumValueInMainCoin(motoDexContract, typeNft);
-  const amount = { microGtuAmount: BigInt(value_in_main_coin) };
+    const typeNft = await concordiumGetTokenTypeId(motoDexContract, tokenId);
+    const value_in_main_coin = await concordiumValueInMainCoin(motoDexContract, typeNft);
+    const amount = { microGtuAmount: BigInt(value_in_main_coin) };
 
-  const txHash = await provider.sendTransaction(
-      accountAddress,
-      concordiumSDK.AccountTransactionType.Update,
-      {
-          amount: amount,
-          contractAddress: contractAddress,
-          receiveName: methodName,
-          maxContractExecutionEnergy: 30000n,
-          parameters: inputParams,
-      },
-      parameters,
-      bin64
-  );
-  const txStatus = await concordiumCheckTransactionStatus(txHash, client)
-  return txStatus;
+    const txHash = await provider.sendTransaction(
+        accountAddress,
+        concordiumSDK.AccountTransactionType.Update,
+        {
+            amount: amount,
+            contractAddress: contractAddress,
+            receiveName: methodName,
+            maxContractExecutionEnergy: 30000n,
+            parameters: inputParams,
+        },
+        parameters,
+        bin64
+    );
+    const txStatus = await concordiumCheckTransactionStatus(txHash, client)
+    return txStatus;
 }
 
 async function concordiumBidFor(motoDexContract, trackTokenId, motoTokenId, value) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const instanceInfo = await client.getInstanceInfo(
-      contractAddress);
+    const instanceInfo = await client.getInstanceInfo(
+        contractAddress);
 
-  const contractName = motoDexContract.split(":")[0];
-  let receiveFunctionName = 'bidFor';
-  let methodName = contractName + '.' + receiveFunctionName;
-  const moduleFileBuffer = new Buffer(bin64, 'base64');
-  const parameters = {
-      "track_token_id": trackTokenId, // String
-      "moto_token_id": motoTokenId // String
-  };
-  let inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
+    const contractName = motoDexContract.split(":")[0];
+    let receiveFunctionName = 'bidFor';
+    let methodName = contractName + '.' + receiveFunctionName;
+    const moduleFileBuffer = new Buffer(bin64, 'base64');
+    const parameters = {
+        "track_token_id": trackTokenId, // String
+        "moto_token_id": motoTokenId // String
+    };
+    let inputParams = concordiumSDK.serializeUpdateContractParameters(
+        contractName,
+        receiveFunctionName,
+        parameters,
+        moduleFileBuffer,
+        0
+    );
 
-  if (value == null || value == "0") value = "1";
-  //const value_in_main_coin = await concordiumValueInMainCoin(motoDexContract, typeNft);
-  const amount = { microGtuAmount: BigInt(value) };
+    if (value == null || value == "0") value = "1";
+    //const value_in_main_coin = await concordiumValueInMainCoin(motoDexContract, typeNft);
+    const amount = { microGtuAmount: BigInt(value) };
 
-  const txHash = await provider.sendTransaction(
-      accountAddress,
-      concordiumSDK.AccountTransactionType.Update,
-      {
-          amount: amount,
-          contractAddress: contractAddress,
-          receiveName: methodName,
-          maxContractExecutionEnergy: 30000n,
-          parameters: inputParams,
-      },
-      parameters,
-      bin64
-  );
-  const txStatus = await concordiumCheckTransactionStatus(txHash, client)
-  return txStatus;
+    const txHash = await provider.sendTransaction(
+        accountAddress,
+        concordiumSDK.AccountTransactionType.Update,
+        {
+            amount: amount,
+            contractAddress: contractAddress,
+            receiveName: methodName,
+            maxContractExecutionEnergy: 30000n,
+            parameters: inputParams,
+        },
+        parameters,
+        bin64
+    );
+    const txStatus = await concordiumCheckTransactionStatus(txHash, client)
+    return txStatus;
 }
 
 async function concordiumAddHealthNftParams(motoDexContract, tokenId, healthPillTokenId) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const instanceInfo = await client.getInstanceInfo(
-      contractAddress);
+    const instanceInfo = await client.getInstanceInfo(
+        contractAddress);
 
-  const contractName = motoDexContract.split(":")[0];
-  let receiveFunctionName = 'addHealthNft';
-  let methodName = contractName + '.' + receiveFunctionName;
-  const moduleFileBuffer = new Buffer(bin64, 'base64');
-  const parameters = {
-      "token_id": tokenId, // String
-      "health_pill_token_id": healthPillTokenId, // String
-      "amount": "1",
-      "owner":{"Account":[accountAddress]},
-  };
-  let inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
+    const contractName = motoDexContract.split(":")[0];
+    let receiveFunctionName = 'addHealthNft';
+    let methodName = contractName + '.' + receiveFunctionName;
+    const moduleFileBuffer = new Buffer(bin64, 'base64');
+    const parameters = {
+        "token_id": tokenId, // String
+        "health_pill_token_id": healthPillTokenId, // String
+        "amount": "1",
+        "owner":{"Account":[accountAddress]},
+    };
+    let inputParams = concordiumSDK.serializeUpdateContractParameters(
+        contractName,
+        receiveFunctionName,
+        parameters,
+        moduleFileBuffer,
+        0
+    );
 
-  //const value_in_main_coin = await concordiumValueInMainCoin(motoDexContract, typeNft);
-  const amount = { microGtuAmount: BigInt(1) };
+    //const value_in_main_coin = await concordiumValueInMainCoin(motoDexContract, typeNft);
+    const amount = { microGtuAmount: BigInt(1) };
 
-  const txHash = await provider.sendTransaction(
-      accountAddress,
-      concordiumSDK.AccountTransactionType.Update,
-      {
-          amount: amount,
-          contractAddress: contractAddress,
-          receiveName: methodName,
-          maxContractExecutionEnergy: 30000n,
-          parameters: inputParams,
-      },
-      parameters,
-      bin64
-  );
-  const txStatus = await concordiumCheckTransactionStatus(txHash, client)
-  return txStatus;
+    const txHash = await provider.sendTransaction(
+        accountAddress,
+        concordiumSDK.AccountTransactionType.Update,
+        {
+            amount: amount,
+            contractAddress: contractAddress,
+            receiveName: methodName,
+            maxContractExecutionEnergy: 30000n,
+            parameters: inputParams,
+        },
+        parameters,
+        bin64
+    );
+    const txStatus = await concordiumCheckTransactionStatus(txHash, client)
+    return txStatus;
 }
 
 async function concordiumAddNft(motoDexContract, tokenId, isMoto) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();  
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const instanceInfo = await client.getInstanceInfo(
-      contractAddress);
+    const instanceInfo = await client.getInstanceInfo(
+        contractAddress);
 
-  const contractName = motoDexContract.split(":")[0];
-  let receiveFunctionName = isMoto ? 'addMoto' : "addTrack";
-  let methodName = contractName + '.' + receiveFunctionName;
-  const moduleFileBuffer = new Buffer(bin64, 'base64');
-  const parameters = {
-      "token_id":tokenId, // String
-      "previous_owner":{"Account":[accountAddress]},
-  };
-  let inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
+    const contractName = motoDexContract.split(":")[0];
+    let receiveFunctionName = isMoto ? 'addMoto' : "addTrack";
+    let methodName = contractName + '.' + receiveFunctionName;
+    const moduleFileBuffer = new Buffer(bin64, 'base64');
+    const parameters = {
+        "token_id":tokenId, // String
+        "previous_owner":{"Account":[accountAddress]},
+    };
+    let inputParams = concordiumSDK.serializeUpdateContractParameters(
+        contractName,
+        receiveFunctionName,
+        parameters,
+        moduleFileBuffer,
+        0
+    );
 
-  const minimal_fee_in_usd = await concordiumMinimalFeeInUSD(motoDexContract);
-  const amount = { microGtuAmount: BigInt(minimal_fee_in_usd) };
-  //const amount = { microGtuAmount:  200000000n };
-  
-  const txHash = await provider.sendTransaction(
-      accountAddress,
-      concordiumSDK.AccountTransactionType.Update,
-      {
-          amount: amount,
-          contractAddress: contractAddress,
-          receiveName: methodName,
-          maxContractExecutionEnergy: 30000n,
-          parameters: inputParams,
-      },
-      parameters,
-      bin64
-  );
-  const txStatus = await concordiumCheckTransactionStatus(txHash, client)
-  return txStatus;
+    const minimal_fee_in_usd = await concordiumMinimalFeeInUSD(motoDexContract);
+    const amount = { microGtuAmount: BigInt(minimal_fee_in_usd) };
+    //const amount = { microGtuAmount:  200000000n };
+
+    const txHash = await provider.sendTransaction(
+        accountAddress,
+        concordiumSDK.AccountTransactionType.Update,
+        {
+            amount: amount,
+            contractAddress: contractAddress,
+            receiveName: methodName,
+            maxContractExecutionEnergy: 30000n,
+            parameters: inputParams,
+        },
+        parameters,
+        bin64
+    );
+    const txStatus = await concordiumCheckTransactionStatus(txHash, client)
+    return txStatus;
 }
 
 async function concordiumReturnNft(motoDexContract, tokenId, isMoto) {
-  const provider = await concordiumHelpers.detectConcordiumProvider();
-  const accountAddress = await provider.connect();
-  console.log("Connecting to CCD... accountAddress " + accountAddress);
-  const client = await provider.getJsonRpcClient();
-  const contractAddress = {
-    subindex: 0n,
-    index: BigInt(motoDexContract.split(":")[1]),
-  };
+    const provider = await concordiumHelpers.detectConcordiumProvider();
+    const accountAddress = await provider.connect();
+    console.log("Connecting to CCD... accountAddress " + accountAddress);
+    const client = await provider.getJsonRpcClient();
+    const contractAddress = {
+        subindex: 0n,
+        index: BigInt(motoDexContract.split(":")[1]),
+    };
 
-  const instanceInfo = await client.getInstanceInfo(
-      contractAddress);
+    const instanceInfo = await client.getInstanceInfo(
+        contractAddress);
 
-  const contractName = motoDexContract.split(":")[0];
-  let receiveFunctionName = isMoto ? 'returnMoto' : "returnTrack";
-  let methodName = contractName + '.' + receiveFunctionName;
-  const moduleFileBuffer = new Buffer(bin64, 'base64');
-  const parameters = {
-      "token_id":tokenId, // String
-      "new_owner":{"Account":[accountAddress]},
-  };
-  let inputParams = concordiumSDK.serializeUpdateContractParameters(
-      contractName,
-      receiveFunctionName,
-      parameters,
-      moduleFileBuffer,
-      0
-  );
+    const contractName = motoDexContract.split(":")[0];
+    let receiveFunctionName = isMoto ? 'returnMoto' : "returnTrack";
+    let methodName = contractName + '.' + receiveFunctionName;
+    const moduleFileBuffer = new Buffer(bin64, 'base64');
+    const parameters = {
+        "token_id":tokenId, // String
+        "new_owner":{"Account":[accountAddress]},
+    };
+    let inputParams = concordiumSDK.serializeUpdateContractParameters(
+        contractName,
+        receiveFunctionName,
+        parameters,
+        moduleFileBuffer,
+        0
+    );
 
-  const amount = { microGtuAmount: BigInt(0) };
+    const amount = { microGtuAmount: BigInt(0) };
 
-  const txHash = await provider.sendTransaction(
-      accountAddress,
-      concordiumSDK.AccountTransactionType.Update,
-      {
-          amount: amount,
-          contractAddress: contractAddress,
-          receiveName: methodName,
-          maxContractExecutionEnergy: 30000n,
-          parameters: inputParams,
-      },
-      parameters,
-      bin64
-  );
-  const txStatus = await concordiumCheckTransactionStatus(txHash, client)
-  return txStatus;
+    const txHash = await provider.sendTransaction(
+        accountAddress,
+        concordiumSDK.AccountTransactionType.Update,
+        {
+            amount: amount,
+            contractAddress: contractAddress,
+            receiveName: methodName,
+            maxContractExecutionEnergy: 30000n,
+            parameters: inputParams,
+        },
+        parameters,
+        bin64
+    );
+    const txStatus = await concordiumCheckTransactionStatus(txHash, client)
+    return txStatus;
 }
 
 
@@ -2057,7 +2325,7 @@ async function nearMinimalFeeInUSD(mainnet, motoDexContract) {
     );
     // console.log("contract " + contract);
 
-   console.log("nearMinimalFeeInUSD motoDexContract: " + motoDexContract);
+    console.log("nearMinimalFeeInUSD motoDexContract: " + motoDexContract);
     let minimal_fee_in_usd = await contract.get_minimal_fee();
     console.log(minimal_fee_in_usd);
 
@@ -2089,7 +2357,7 @@ async function nearMinimalFeeRate(mainnet, motoDexContract) {
         }
     );
 
-   console.log("nearMinimalFeeRate motoDexContract: " + motoDexContract);
+    console.log("nearMinimalFeeRate motoDexContract: " + motoDexContract);
     let minimal_fee_rate = await contract.get_minimal_fee_rate();
     console.log(minimal_fee_rate);
 
@@ -2111,12 +2379,12 @@ async function nearLatestEpoch(mainnet, motoDexContract) {
         account, // the account object that is connecting
         motoDexContract,// name of contract you're connecting to
         {
-            viewMethods: ["get_latest_epoch_update"], 
+            viewMethods: ["get_latest_epoch_update"],
             sender: account, // account object to initialize and sign transactions.
         }
     );
 
-   console.log("nearLatestEpochUpdate motoDexContract: " + motoDexContract);
+    console.log("nearLatestEpochUpdate motoDexContract: " + motoDexContract);
     const latest_epoch_update = await contract.get_latest_epoch_update();
     console.log("latest_epoch_update = " + latest_epoch_update);
 
@@ -2148,13 +2416,13 @@ async function nearGetLatestPrice(mainnet, motoDexContract) {
     console.log("nearGetLatestPrice motoDexContract: " + motoDexContract);
     let get_latest_price;
     try {
-      get_latest_price = await contract.get_latest_price();
-      get_latest_price = '{"0":"' + get_latest_price + '","1":"1"}'
+        get_latest_price = await contract.get_latest_price();
+        get_latest_price = '{"0":"' + get_latest_price + '","1":"1"}'
     } catch (error) {
-      console.log(error.message);
-      get_latest_price = [];
+        console.log(error.message);
+        get_latest_price = [];
     }
-    
+
     console.log("get_latest_price = " + get_latest_price);
     return get_latest_price;
 }
@@ -2182,12 +2450,12 @@ async function nearSyncEpochResultsBidsFinal(mainnet, motoDexContract) {
     console.log("nearSyncEpochResultsBidsFinal motoDexContract: " + motoDexContract);
     let sync_epoch_results_bids_final;
     try {
-      sync_epoch_results_bids_final = await contract.sync_epoch_results_bids_final();
+        sync_epoch_results_bids_final = await contract.sync_epoch_results_bids_final();
     } catch (error) {
-      console.log(error.message);
-      sync_epoch_results_bids_final = [];
+        console.log(error.message);
+        sync_epoch_results_bids_final = [];
     }
-    
+
     console.log("sync_epoch_results_bids_final = " + sync_epoch_results_bids_final);
     return JSON.stringify(sync_epoch_results_bids_final);
 }
@@ -2215,12 +2483,12 @@ async function nearSyncEpochResultsMotosFinal(mainnet, motoDexContract) {
     console.log("nearSyncEpochResultsMotosFinal motoDexContract: " + motoDexContract);
     let sync_epoch_results_motos_final;
     try {
-      sync_epoch_results_motos_final = await contract.sync_epoch_results_motos_final();
+        sync_epoch_results_motos_final = await contract.sync_epoch_results_motos_final();
     } catch (error) {
-      console.log(error.message);
-      sync_epoch_results_motos_final = [];
+        console.log(error.message);
+        sync_epoch_results_motos_final = [];
     }
-    
+
     console.log("sync_epoch_results_motos_final = " + sync_epoch_results_motos_final);
     return JSON.stringify(sync_epoch_results_motos_final);
 }
@@ -2402,7 +2670,7 @@ async function nearAddHealthNFT(mainnet, motoDexContract, tokenId, healthPillTok
         token_id:tokenId,
         health_pill_token_id:healthPillTokenId
     };
-    
+
 
     const addHealthMoneyResponse = await contract.add_health_nft(parameters, "300000000000000", yoctoNear);
     return JSON.stringify(addHealthMoneyResponse);
@@ -2425,13 +2693,13 @@ async function nearAddHealthMoney(mainnet, motoDexContract, tokenId, value) {
     let parameters = {token_id:tokenId};
     let value_in_main_coin;
     if (value != ""){
-      value_in_main_coin = value;
+        value_in_main_coin = value;
     }
     else{
-      const typeNft = await nearGetTokenTypeNft(mainnet, motoDexContract[0], tokenId);
-      const prices = await nearGetPriceForType(mainnet, motoDexContract[0], typeNft);
-      const pricesJSON = JSON.parse(prices);
-      value_in_main_coin = pricesJSON.value_in_main_coin;
+        const typeNft = await nearGetTokenTypeNft(mainnet, motoDexContract[0], tokenId);
+        const prices = await nearGetPriceForType(mainnet, motoDexContract[0], typeNft);
+        const pricesJSON = JSON.parse(prices);
+        value_in_main_coin = pricesJSON.value_in_main_coin;
     }
 
     const addHealthMoneyResponse = await contract.add_health_money(parameters, "300000000000000", value_in_main_coin);
@@ -2498,7 +2766,7 @@ async function nearAddMoto(mainnet, motoDexContract, tokenId) {
     // const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
     // return JSON.stringify(addResponse);
 
-    const transactions = await nearAddTransactions(accountId, motoDexContract, tokenId, minimal_fee_in_usd, true, mainnet); 
+    const transactions = await nearAddTransactions(accountId, motoDexContract, tokenId, minimal_fee_in_usd, true, mainnet);
     return wallet.requestSignTransactions({ transactions });
 }
 
@@ -2524,7 +2792,7 @@ async function nearAddTrack(mainnet, motoDexContract, tokenId) {
     );
     const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
     const accountId = JSON.parse(account.connection.signer.keyStore.localStorage.OpenBiSea_wallet_auth_key).accountId;
-    
+
     // // const amountString = eToNumber(amountInt);
     // let parameters = {token_id:tokenId};
     const prices = await nearMinimalFeeInUSD(mainnet, motoDexContract[1]);
@@ -2533,7 +2801,7 @@ async function nearAddTrack(mainnet, motoDexContract, tokenId) {
     // const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
     // return JSON.stringify(addResponse);
 
-    const transactions = await nearAddTransactions(accountId, motoDexContract, tokenId, minimal_fee_in_usd, false, mainnet); 
+    const transactions = await nearAddTransactions(accountId, motoDexContract, tokenId, minimal_fee_in_usd, false, mainnet);
     return wallet.requestSignTransactions({ transactions });
 }
 
@@ -2560,14 +2828,14 @@ async function nearReturnMoto(mainnet, motoDexContract, tokenId) {
     const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
     const accountId = JSON.parse(account.connection.signer.keyStore.localStorage.OpenBiSea_wallet_auth_key).accountId;
     console.log("accountId: " + accountId);
-    
+
     // // const amountString = eToNumber(amountInt);
     // let parameters = {token_id:tokenId};
     const yoctoNear = "1";
     // const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
     // return JSON.stringify(addResponse);
 
-    const transactions = await nearReturnTransactions(accountId, motoDexContract, tokenId, yoctoNear, true, mainnet); 
+    const transactions = await nearReturnTransactions(accountId, motoDexContract, tokenId, yoctoNear, true, mainnet);
     return wallet.requestSignTransactions({ transactions });
 }
 
@@ -2594,7 +2862,7 @@ async function nearReturnTrack(mainnet, motoDexContract, tokenId) {
     const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
     const accountId = JSON.parse(account.connection.signer.keyStore.localStorage.OpenBiSea_wallet_auth_key).accountId;
     console.log("accountId: " + accountId);
-    
+
     // // const amountString = eToNumber(amountInt);
     // let parameters = {token_id:tokenId};
     const yoctoNear = "1";
@@ -2602,93 +2870,93 @@ async function nearReturnTrack(mainnet, motoDexContract, tokenId) {
     // const addResponse = await contract.add_moto(parameters, "300000000000000", minimal_fee_in_usd);
     // return JSON.stringify(addResponse);
 
-    const transactions = await nearReturnTransactions(accountId, motoDexContract, tokenId, yoctoNear, false, mainnet); 
+    const transactions = await nearReturnTransactions(accountId, motoDexContract, tokenId, yoctoNear, false, mainnet);
     return wallet.requestSignTransactions({ transactions });
 }
 
 
 async function nearAddTransactions(accountId, motoDexContract, tokenId, minimalFee, addMoto = true, mainnet) {
-  const transactions = [];
+    const transactions = [];
 
-  // Create transfer transaction
-  // "receiver_id": "'$MOTODEX_CONTRACT'", "token_id": "1", "msg": "{\"action\":{\"type\":\"AddTrack\"}}"
-  // const transferAction = {
-  //     args: {
-  //         receiver_id: motoDexContract[1], // NFT CONTRACT
-  //         token_id: tokenId,
-  //         msg: JSON.stringify({ action: { type: addMoto ? "AddMoto" : "AddTrack" } }),
-  //     },
-  //     gas: '50000000000000',
-  //     deposit: "1",
-  //     methodName: "nft_transfer_call",
-  // };
-  // const transferTransaction = await actionsToTransaction(
-  //     accountId,
-  //     motoDexContract[0],
-  //     [transferAction]
-  // );
+    // Create transfer transaction
+    // "receiver_id": "'$MOTODEX_CONTRACT'", "token_id": "1", "msg": "{\"action\":{\"type\":\"AddTrack\"}}"
+    // const transferAction = {
+    //     args: {
+    //         receiver_id: motoDexContract[1], // NFT CONTRACT
+    //         token_id: tokenId,
+    //         msg: JSON.stringify({ action: { type: addMoto ? "AddMoto" : "AddTrack" } }),
+    //     },
+    //     gas: '50000000000000',
+    //     deposit: "1",
+    //     methodName: "nft_transfer_call",
+    // };
+    // const transferTransaction = await actionsToTransaction(
+    //     accountId,
+    //     motoDexContract[0],
+    //     [transferAction]
+    // );
 
-  // transactions.push(transferTransaction);
+    // transactions.push(transferTransaction);
 
-  const addNFTAction = {
-      args: {
-          token_id: tokenId,
-      },
-      gas: '50000000000000',
-      deposit: minimalFee, //nearApi.utils.format.parseNearAmount("0.1"),
-      methodName: addMoto ? "add_moto" : "add_track",
-  };
-  const addNFTTransaction = await actionsToTransaction(
-      accountId,
-      motoDexContract[1],
-      [addNFTAction],
-      mainnet
-  );
+    const addNFTAction = {
+        args: {
+            token_id: tokenId,
+        },
+        gas: '50000000000000',
+        deposit: minimalFee, //nearApi.utils.format.parseNearAmount("0.1"),
+        methodName: addMoto ? "add_moto" : "add_track",
+    };
+    const addNFTTransaction = await actionsToTransaction(
+        accountId,
+        motoDexContract[1],
+        [addNFTAction],
+        mainnet
+    );
 
-  transactions.push(addNFTTransaction);
+    transactions.push(addNFTTransaction);
 
-  // return transactions
-  return transactions;
+    // return transactions
+    return transactions;
 }
 
 async function nearReturnTransactions(accountId, motoDexContract, tokenId, minimalFee, returnMoto = true, mainnet) {
-  const transactions = [];
+    const transactions = [];
 
-  const returnNFTAction = {
-      args: {
-          token_id: tokenId,
-      },
-      gas: '50000000000000',
-      deposit: minimalFee,
-      methodName: returnMoto ? "return_moto" : "return_track",
-  };
-  const returnNFTTransaction = await actionsToTransaction(
-      accountId,
-      motoDexContract[1],
-      [returnNFTAction],
-      mainnet
-  );
+    const returnNFTAction = {
+        args: {
+            token_id: tokenId,
+        },
+        gas: '50000000000000',
+        deposit: minimalFee,
+        methodName: returnMoto ? "return_moto" : "return_track",
+    };
+    const returnNFTTransaction = await actionsToTransaction(
+        accountId,
+        motoDexContract[1],
+        [returnNFTAction],
+        mainnet
+    );
 
-  transactions.push(returnNFTTransaction);
+    transactions.push(returnNFTTransaction);
 
-  // return transactions
-  return transactions;
+    // return transactions
+    return transactions;
 }
 
 async function actionsToTransaction(accountId, receiverId, actions, mainnet) {
-  return await createTx(
-      accountId,
-      receiverId,
-      actions.map((action) =>
-          nearApi.transactions.functionCall(
-              action.methodName,
-              action.args,
-              action.gas,
-              action.deposit,
-          )
-      ),
-      mainnet
-  );
+    return await createTx(
+        accountId,
+        receiverId,
+        actions.map((action) =>
+            nearApi.transactions.functionCall(
+                action.methodName,
+                action.args,
+                action.gas,
+                action.deposit,
+            )
+        ),
+        mainnet
+    );
 }
 
 async function createTx(
@@ -2747,7 +3015,7 @@ async function createTx(
 async function listNearNFTsWeb(mainnet, contractAddress, selectedAccount) {
     console.log("listNearNFTsWeb network " + mainnet + "; motoDexContract " + contractAddress + "; selectedAccount " + selectedAccount);
     mainnet = await checkNetwork(mainnet);
-    
+
     let wallet = await connectNearWallet(mainnet)
     const contract = new nearApi.Contract(
         wallet.account(), // the account object that is connecting
@@ -2772,45 +3040,45 @@ async function nearSendContract(mainnet, motoDexContract, method, args, value) {
     let response;
     mainnet = await checkNetwork(mainnet);
     switch (method) {
-            case "purchase" :
-                response = await nearBuyNFTFor(mainnet, motoDexContract[0], parseInt(args[0]), args[1]);
-                break;
-            case "addMoto" :
-                response = await nearAddMoto(mainnet, motoDexContract,  String(args[0]));
-                break;
-            case "addTrack" :
-                response = await nearAddTrack(mainnet, motoDexContract, String(args[0]));
-                break;
-            case "returnMoto" :
-                response = await nearReturnMoto(mainnet, motoDexContract, String(args[0]));
-                break;
-            case "returnTrack" :
-                response = await nearReturnTrack(mainnet, motoDexContract, String(args[0]));
-                break;
-            case "addHealthNFT" :
-                response = await nearAddHealthNFT(mainnet, motoDexContract, String(args[0]),  String(args[1]));
-                break;
-            case "addHealthMoney" :
-                response = await nearAddHealthMoney(mainnet, motoDexContract, String(args[0]), value);
-                break;
-            case "bidFor" :
-                response = await nearBidFor(mainnet, motoDexContract, String(args[0]),  String(args[1]), value);
-                break;
+        case "purchase" :
+            response = await nearBuyNFTFor(mainnet, motoDexContract[0], parseInt(args[0]), args[1]);
+            break;
+        case "addMoto" :
+            response = await nearAddMoto(mainnet, motoDexContract,  String(args[0]));
+            break;
+        case "addTrack" :
+            response = await nearAddTrack(mainnet, motoDexContract, String(args[0]));
+            break;
+        case "returnMoto" :
+            response = await nearReturnMoto(mainnet, motoDexContract, String(args[0]));
+            break;
+        case "returnTrack" :
+            response = await nearReturnTrack(mainnet, motoDexContract, String(args[0]));
+            break;
+        case "addHealthNFT" :
+            response = await nearAddHealthNFT(mainnet, motoDexContract, String(args[0]),  String(args[1]));
+            break;
+        case "addHealthMoney" :
+            response = await nearAddHealthMoney(mainnet, motoDexContract, String(args[0]), value);
+            break;
+        case "bidFor" :
+            response = await nearBidFor(mainnet, motoDexContract, String(args[0]),  String(args[1]), value);
+            break;
         default:
-                alert('Method is not added'); 
+            alert('Method is not added');
     }
     if (typeof response != "string")
     {
-      window.web3gl.nearSendContractResponse = JSON.stringify(response);
+        window.web3gl.nearSendContractResponse = JSON.stringify(response);
     }
     else
     {
-      window.web3gl.nearSendContractResponse = response;
+        window.web3gl.nearSendContractResponse = response;
     }
 }
 
 async function nearMethodCall(mainnet, motoDexContract, method, args, value) {
-  args = JSON.parse(args);
+    args = JSON.parse(args);
     motoDexContract = JSON.parse(motoDexContract);
     console.log(args);
     console.log(args[0]);
@@ -2818,113 +3086,113 @@ async function nearMethodCall(mainnet, motoDexContract, method, args, value) {
     console.log(method);
     mainnet = await checkNetwork(mainnet);
     switch (method) {
-            case "tokenIdsAndOwners" :
-                response = await nearTokenIdsAndOwners(mainnet, motoDexContract[1]);
-                break;
-            case "getPriceForType" :
-                response = await nearGetPriceForType(mainnet, motoDexContract[1], parseInt(args[0]));
-                response = JSON.parse(response).get_price_for_type;
-                break;
-            case "getMinimalFeeRate" :
-                response = await nearMinimalFeeRate(mainnet, motoDexContract[1]);
-                break;
-            case "valueInMainCoin" :
-                response = await nearGetPriceForType(mainnet, motoDexContract[1], parseInt(args[0]));
-                response = JSON.parse(response).value_in_main_coinFull;
-                break;
-            case "valueInMainCoinCorrect" :
-                response = await nearGetPriceForType(mainnet, motoDexContract[1], parseInt(args[0]));
-                response = JSON.parse(response).value_in_main_coin_correct;
-                break;      
-            case "getHealthForId" :
-                response = await nearHealthInWei(mainnet, motoDexContract[1], args[0]);
-                response =  JSON.parse(response).health_in_wei;
-                break;
-            case "getPercentForTrack" :
-                response = await nearGetPercentForTrack(mainnet, motoDexContract[1], args[0]);
-                break;
-            case "getGameSessions" :
-                response = await nearGetGameSessions(mainnet, motoDexContract[1]);
-                break;
-            case "getAllGameBids" :
-                response = await nearGetAllGameBids(mainnet, motoDexContract[1]);
-                break;
-            case "latestEpochUpdate" :
-                response = await nearLatestEpochUpdate(mainnet, motoDexContract[1]);
-                response =  JSON.parse(response).epoch_min_interval;
-                break;
-            case "getLatestPrice" :
-                response = await nearGetLatestPrice(mainnet, motoDexContract[1]);
-                break;
-            case "syncEpochResultsBidsFinal" :
-                response = await nearSyncEpochResultsBidsFinal(mainnet, motoDexContract[1]);
-                break;
-            case "syncEpochResultsMotosFinal" :
-                response = await nearSyncEpochResultsMotosFinal(mainnet, motoDexContract[1]);
-                break;
+        case "tokenIdsAndOwners" :
+            response = await nearTokenIdsAndOwners(mainnet, motoDexContract[1]);
+            break;
+        case "getPriceForType" :
+            response = await nearGetPriceForType(mainnet, motoDexContract[1], parseInt(args[0]));
+            response = JSON.parse(response).get_price_for_type;
+            break;
+        case "getMinimalFeeRate" :
+            response = await nearMinimalFeeRate(mainnet, motoDexContract[1]);
+            break;
+        case "valueInMainCoin" :
+            response = await nearGetPriceForType(mainnet, motoDexContract[1], parseInt(args[0]));
+            response = JSON.parse(response).value_in_main_coinFull;
+            break;
+        case "valueInMainCoinCorrect" :
+            response = await nearGetPriceForType(mainnet, motoDexContract[1], parseInt(args[0]));
+            response = JSON.parse(response).value_in_main_coin_correct;
+            break;
+        case "getHealthForId" :
+            response = await nearHealthInWei(mainnet, motoDexContract[1], args[0]);
+            response =  JSON.parse(response).health_in_wei;
+            break;
+        case "getPercentForTrack" :
+            response = await nearGetPercentForTrack(mainnet, motoDexContract[1], args[0]);
+            break;
+        case "getGameSessions" :
+            response = await nearGetGameSessions(mainnet, motoDexContract[1]);
+            break;
+        case "getAllGameBids" :
+            response = await nearGetAllGameBids(mainnet, motoDexContract[1]);
+            break;
+        case "latestEpochUpdate" :
+            response = await nearLatestEpochUpdate(mainnet, motoDexContract[1]);
+            response =  JSON.parse(response).epoch_min_interval;
+            break;
+        case "getLatestPrice" :
+            response = await nearGetLatestPrice(mainnet, motoDexContract[1]);
+            break;
+        case "syncEpochResultsBidsFinal" :
+            response = await nearSyncEpochResultsBidsFinal(mainnet, motoDexContract[1]);
+            break;
+        case "syncEpochResultsMotosFinal" :
+            response = await nearSyncEpochResultsMotosFinal(mainnet, motoDexContract[1]);
+            break;
         default:
-                alert('Method is not added'); 
-  }
-  if (typeof response != "string")
+            alert('Method is not added');
+    }
+    if (typeof response != "string")
     {
-      window.web3gl.nearMethodCallResponse = JSON.stringify(response);
+        window.web3gl.nearMethodCallResponse = JSON.stringify(response);
     }
     else
     {
-      window.web3gl.nearMethodCallResponse = response;
+        window.web3gl.nearMethodCallResponse = response;
     }
 }
 async function nearTokenIdsAndOwners(mainnet, motoDexContract) {
-  mainnet = await checkNetwork(mainnet);
-  const near = new nearApi.Near({
-      keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
-      networkId: mainnet ? 'default' : 'testnet',
-      nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
-      walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
-  });
-  const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
+    mainnet = await checkNetwork(mainnet);
+    const near = new nearApi.Near({
+        keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+        networkId: mainnet ? 'default' : 'testnet',
+        nodeUrl: mainnet ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org',
+        walletUrl: mainnet ? 'https://wallet.near.org' : 'https://wallet.testnet.near.org'
+    });
+    const account = await near.account(mainnet ? "openbisea.near" : "openbisea1.testnet");
 
-  const contract = new nearApi.Contract(
-      account, // the account object that is connecting
-      motoDexContract,// name of contract you're connecting to
-      {
-          viewMethods: ["token_ids_and_owners"], // view methods do not change state but usually return a value
-          sender: account, // account object to initialize and sign transactions.
-      }
-  );
+    const contract = new nearApi.Contract(
+        account, // the account object that is connecting
+        motoDexContract,// name of contract you're connecting to
+        {
+            viewMethods: ["token_ids_and_owners"], // view methods do not change state but usually return a value
+            sender: account, // account object to initialize and sign transactions.
+        }
+    );
 
-  console.log("nearTokenIdsAndOwners motoDexContract: " + motoDexContract);
-  const token_ids_and_owners = await contract.token_ids_and_owners();
-  console.log("nearTokenIdsAndOwners");
-  console.log(token_ids_and_owners);
-  return JSON.stringify(token_ids_and_owners);
+    console.log("nearTokenIdsAndOwners motoDexContract: " + motoDexContract);
+    const token_ids_and_owners = await contract.token_ids_and_owners();
+    console.log("nearTokenIdsAndOwners");
+    console.log(token_ids_and_owners);
+    return JSON.stringify(token_ids_and_owners);
 }
 
 async function concordiumCheckTransactionStatus(txHash, client) {
-  let txStatus = await client.getTransactionStatus(txHash);
+    let txStatus = await client.getTransactionStatus(txHash);
 
-  while (txStatus.status == 'received') {
-    // Wait for a few seconds before checking again
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    txStatus = await client.getTransactionStatus(txHash);
-  }
+    while (txStatus.status == 'received') {
+        // Wait for a few seconds before checking again
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        txStatus = await client.getTransactionStatus(txHash);
+    }
 
-  const resultOutcome = Object.values(txStatus.outcomes)[0].result.outcome;
-  console.log('resultOutcome:', resultOutcome);
+    const resultOutcome = Object.values(txStatus.outcomes)[0].result.outcome;
+    console.log('resultOutcome:', resultOutcome);
 
-  if (resultOutcome == 'success') {
-    return 'success';
-  } else if (resultOutcome =='reject') {
-    const rejectReason = Object.values(txStatus.outcomes)[0].result.rejectReason;
-    console.log('Reject reason:', rejectReason);
+    if (resultOutcome == 'success') {
+        return 'success';
+    } else if (resultOutcome =='reject') {
+        const rejectReason = Object.values(txStatus.outcomes)[0].result.rejectReason;
+        console.log('Reject reason:', rejectReason);
+        return 'fail';
+    }
+
     return 'fail';
-  }
-
-  return 'fail';
 }
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function eToNumber(num) {
@@ -2943,37 +3211,37 @@ function eToNumber(num) {
 }
 
 async function checkNetwork(mainnet) {
-  switch (mainnet) {
+    switch (mainnet) {
         case "testnet" :
-          mainnet = false;
-          break;
+            mainnet = false;
+            break;
         case "mainnet" :
-          mainnet = true;
-          break;
+            mainnet = true;
+            break;
         case true :
-          mainnet = true;
-          break;
+            mainnet = true;
+            break;
         default:
-          mainnet = false; 
-  }
-  return mainnet;
+            mainnet = false;
+    }
+    return mainnet;
 }
 
 async function webGLReload(clearCookies = "True"){
-  if (clearCookies == "True"){
-    try {
-      window.localStorage.clear();
-    } catch (error) {
-      console.log("Removing cookes error: " + error);
+    if (clearCookies == "True"){
+        try {
+            window.localStorage.clear();
+        } catch (error) {
+            console.log("Removing cookes error: " + error);
+        }
     }
-  }
-  
-  setTimeout(() => { window.location.reload(); }, 100);
+
+    setTimeout(() => { window.location.reload(); }, 100);
 }
 
 async function googleAnalyticsSendEvent(eventName) {
-  console.log("googleAnalyticsSendEvent: " + eventName);
-  gtag('event', eventName, { eventName: true });
+    console.log("googleAnalyticsSendEvent: " + eventName);
+    gtag('event', eventName, { eventName: true });
 }
 
 // View methods
