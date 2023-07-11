@@ -98,20 +98,20 @@ async function connect() {
     }
 
     if (walletAddress === undefined) web3modal.subscribeModal(newState => {
-        console.log('checkV2 newState->', newState)
+        console.log('connect newState->', newState)
         const account = getAccount()
-        console.log('2 checkV2 account->',account)
+        console.log('2 connect account->',account)
         const network = getNetwork()
-        console.log('checkV2 network->',network)
-        console.log('checkV2 web3gl.networkId->',web3gl.networkId)
-        if (network !== undefined && network.chain !== undefined) console.log('checkV2 network.chain.id->',network.chain.id)
+        console.log('connect network->',network)
+        console.log('connect web3gl.networkId->',web3gl.networkId)
+        if (network !== undefined && network.chain !== undefined) console.log('connect network.chain.id->',network.chain.id)
 
         // if (parseInt(web3gl.networkId) !== parseInt(network.chain.id)) {
         //     switchNetwork(web3gl.networkId)
         // }
         walletAddress = account.address
         if (walletAddress === undefined) {
-            web3gl.connectAccount = "fail";
+            //web3gl.connectAccount = "fail";
         } else {
             web3gl.connectAccount = walletAddress
             web3gl.networkId =  parseInt(network.chain.id + '')
@@ -120,13 +120,23 @@ async function connect() {
     })
     const account = getAccount()
     if (account.address !== undefined) {
-        // console.log('2 connectWeb3v2 account->',account)
+        console.log('2 connect account->',account)
         const network = getNetwork()
-        // console.log('checkV2 network->',network)
-        //
-        web3gl.connectAccount = account.address
-        if (network !== undefined && network.chain !== undefined) web3gl.networkId =  parseInt(network.chain.id + '')
-        web3modal.openModal()
+        console.log('2 connect network->',network)
+
+
+        if (network !== undefined && network.chain !== undefined) {
+            console.log('3 connect network->',network)
+
+            setTimeout(function() {
+                console.log('4 connect network->',network)
+                web3gl.networkId =  parseInt(network.chain.id + '')
+                walletAddress = account.address
+                web3gl.connectAccount = walletAddress
+            }, 1000);
+
+        }
+        //web3modal.openModal()
     } else {
         web3modal.openModal()
     }
