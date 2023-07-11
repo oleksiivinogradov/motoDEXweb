@@ -138,8 +138,38 @@
 
 	};
 
+	const mantle = {
+		id: 5000,
+		name: "Mantle",
+		network: "mantle",
+		nativeCurrency: {
+			decimals: 18,
+			name: "MNT",
+			symbol: "MNT"
+		},
+		rpcUrls: {
+			default: {
+				http: ["https://rpc.mantle.xyz"],
+			},
+			public: {
+				http: ["https://rpc.mantle.xyz"]
+			}
+		},
+		blockExplorers: {
+			etherscan: {
+				name: "mantle Scan",
+				url: "http://explorer.mantle.xyz/"
+			},
+			default: {
+				name: "eos Scan",
+				url: "https://explorer.mantle.xyz/"
+			}
+		}
 
-	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet]
+	};
+
+
+	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle]
 
 	const projectId = 'd3d0c489a0d7d980f51628258bf880bd'
 

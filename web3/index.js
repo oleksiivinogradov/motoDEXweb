@@ -724,6 +724,19 @@ async function addNetwork(chainId) {
                     blockExplorerUrls: ['https://explorer.evm.eosnetwork.com/']
                 }]
                 break;
+            case 5000 :
+                params = [{
+                    chainId: '0x1388',
+                    chainName: 'Mantle Mainnet',
+                    nativeCurrency: {
+                        name: 'MNT',
+                        symbol: 'MNT',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://rpc.mantle.xyz'],
+                    blockExplorerUrls: ['https://explorer.testnet.mantle.xyz/']
+                }]
+                break;                
             default:
                 alert('Network not supported to adding!');
 
