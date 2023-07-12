@@ -60,6 +60,10 @@
 	document.body.appendChild(Object.assign(document.createElement("script"), { type: "text/javascript", src: "./network.js" }));
 </script>
 <script type="module">
+	window.process = {}
+	window.process.env= {}
+	window.process.env.NODE_ENV= 'production'
+	
 	import {
 		EthereumClient,
 		w3mConnectors,
