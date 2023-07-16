@@ -736,7 +736,7 @@ async function addNetwork(chainId) {
                     rpcUrls: ['https://rpc.mantle.xyz'],
                     blockExplorerUrls: ['https://explorer.testnet.mantle.xyz/']
                 }]
-                break;                
+                break;
             default:
                 alert('Network not supported to adding!');
 
@@ -934,12 +934,12 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
     console.log('methodCall args->',args);
     console.log('args->',args);
 
-    const responseV2 = await readContract({
-        address: nftUniV3ContractAddress,
-        abi: JSON.parse(abi),
-        functionName: method,
-        args: JSON.parse(args),
-    })
+    // const responseV2 = await readContract({
+    //     address: nftUniV3ContractAddress,
+    //     abi: JSON.parse(abi),
+    //     functionName: method,
+    //     args: JSON.parse(args),
+    // })
 
     // const final = JSON.parse(JSON.stringify(this, (key, value) =>
     //     typeof value === 'bigint'
@@ -972,75 +972,127 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
     // console.log('result toJson->',toJson(responseV2));
     // const back = JSON.parse(toJson(responseV2))
     // console.log('back toJson->',back);
-    if (method === 'getLatestPrice') {
-        const r0 = responseV2[0];
-        const r1 = responseV2[1];
-        let response = {0:r0.toString(),1:r1.toString()}
-        console.log('response->',response);
-        window.web3gl.methodCallResponse = JSON.stringify(response);
-    } else if (method === 'getAllGameBids') {
-        const r0 = responseV2[0];
-        const r1 = responseV2[1];
-        let list = []
-        r0.forEach(function (obj) {
-            const o = [
-                obj.amount.toString(),
-                obj.trackId.toString(),
-                obj.motoId.toString(),
-                obj.timestamp.toString(),
-                obj.bidder.toString()
-            ]
-            list.push(o)
-        })
-        let response = {0:list,1:r1.toString()}
-        console.log('response->',response);
-        window.web3gl.methodCallResponse = JSON.stringify(response);
 
-    } else if (method === 'getGameSessions') {
-        const r0 = responseV2[0];
-        const r1 = responseV2[1];
-        let list = []
-        r0.forEach(function (obj) {
-            const o = [
-                obj.trackId.toString(),
-                obj.trackType.toString(),
-                obj.trackHealth.toString(),
-                obj.motoId.toString(),
-                obj.motoType.toString(),
-                obj.motoHealth.toString(),
-                obj.latestUpdateTime.toString(),
-                obj.latestTrackTimeResult.toString(),
-                obj.attempts.toString(),
-                obj.gameBidsSumTrack.toString()
-            ]
-            list.push(o)
-        })
-        let response = {0:list,1:r1.toString()}
+    const account = getAccount()
+    console.log('methodCall account->',account)
+    const network = getNetwork()
+    console.log('methodCall network->',network)
+    console.log('methodCall web3gl.networkId->',web3gl.networkId)
+    console.log('methodCall window.web3ChainId->',window.web3ChainId)
+    if (network !== undefined && network.chain !== undefined && network.chain.id !== parseInt(web3gl.networkId) ) {
+        console.log('methodCall switch network to ',window.web3ChainId)
 
-        console.log('response->',response);
-        window.web3gl.methodCallResponse = JSON.stringify(response);
-    } else if (method === 'tokenIdsAndOwners') {
-        let list = []
-        const r0 = responseV2[0];
-        const r1 = responseV2[1];
-        r0.forEach(function (obj) {
-            const o = [obj.trackTokenId.toString(),obj.trackType.toString(),obj.motoTokenId.toString(),obj.motoType.toString(),obj.owner.toString()]
-            //     motoTokenId : obj.motoTokenId.toString(),
-            //     motoType : obj.motoType.toString(),
-            //     owner : obj.owner.toString(),
-            //     trackTokenId : obj.trackTokenId.toString(),
-            //     trackType : obj.trackType.toString()
-            // }
-
-            list.push(o)
+        await switchNetwork({
+            chainId: window.web3ChainId,
         })
-        let response = {0:list,1:r1.toString()}
-        console.log('response->',response);
-        window.web3gl.methodCallResponse = JSON.stringify(response);
-    } else {
-        console.log('response->' + toJson(responseV2)  + ' method ' + method);
-        window.web3gl.methodCallResponse = toJson(responseV2);
+        const network = getNetwork()
+        console.log('methodCall 2 network->',network)
     }
+
+    try {
+        const responseV2 = await readContract({
+            address: nftUniV3ContractAddress,
+            abi: JSON.parse(abi),
+            functionName: method,
+            args: JSON.parse(args),
+        })
+        if (method === 'getLatestPrice') {
+            const r0 = responseV2[0];
+            const r1 = responseV2[1];
+            let response = {0:r0.toString(),1:r1.toString()}
+            console.log('response->',response);
+            window.web3gl.methodCallResponse = JSON.stringify(response);
+        } else if (method === 'syncEpochResultsBidsFinal') {
+            const r0 = responseV2[0];
+            const r1 = responseV2[1];
+            let list = []
+            r0.forEach(function (obj) {
+                const o = [
+                    obj.amount.toString(),
+                    obj.to.toString(),
+                    obj.trackTokenId.toString(),
+                    obj.motoTokenId.toString(),
+                    obj.indexForDelete.toString(),
+                    obj.receiverType.toString(),
+                    obj.amountPlatform.toString()
+                ]
+                list.push(o)
+            })
+            let response = {0:list,1:r1.toString()}
+            console.log('response->',response);
+            window.web3gl.methodCallResponse = JSON.stringify(response);
+
+        } else if (method === 'getAllGameBids') {
+            const r0 = responseV2[0];
+            const r1 = responseV2[1];
+            let list = []
+            r0.forEach(function (obj) {
+                const o = [
+                    obj.amount.toString(),
+                    obj.trackId.toString(),
+                    obj.motoId.toString(),
+                    obj.timestamp.toString(),
+                    obj.bidder.toString()
+                ]
+                list.push(o)
+            })
+            let response = {0:list,1:r1.toString()}
+            console.log('response->',response);
+            window.web3gl.methodCallResponse = JSON.stringify(response);
+
+        } else if (method === 'getGameSessions') {
+            const r0 = responseV2[0];
+            const r1 = responseV2[1];
+            let list = []
+            r0.forEach(function (obj) {
+                const o = [
+                    obj.trackId.toString(),
+                    obj.trackType.toString(),
+                    obj.trackHealth.toString(),
+                    obj.motoId.toString(),
+                    obj.motoType.toString(),
+                    obj.motoHealth.toString(),
+                    obj.latestUpdateTime.toString(),
+                    obj.latestTrackTimeResult.toString(),
+                    obj.attempts.toString(),
+                    obj.gameBidsSumTrack.toString()
+                ]
+                list.push(o)
+            })
+            let response = {0:list,1:r1.toString()}
+
+            console.log('response->',response);
+            window.web3gl.methodCallResponse = JSON.stringify(response);
+        } else if (method === 'tokenIdsAndOwners') {
+            let list = []
+            const r0 = responseV2[0];
+            const r1 = responseV2[1];
+            r0.forEach(function (obj) {
+                const o = [obj.trackTokenId.toString(),obj.trackType.toString(),obj.motoTokenId.toString(),obj.motoType.toString(),obj.owner.toString()]
+                //     motoTokenId : obj.motoTokenId.toString(),
+                //     motoType : obj.motoType.toString(),
+                //     owner : obj.owner.toString(),
+                //     trackTokenId : obj.trackTokenId.toString(),
+                //     trackType : obj.trackType.toString()
+                // }
+
+                list.push(o)
+            })
+            let response = {0:list,1:r1.toString()}
+            console.log('response->',response);
+            window.web3gl.methodCallResponse = JSON.stringify(response);
+        } else {
+
+            console.log('response->' + toJson(responseV2)  + ' method ' + method);
+            window.web3gl.methodCallResponse = toJson(responseV2);
+        }
+    } catch (e) {
+
+
+        console.log('methodCall e->',JSON.stringify(e));
+        window.web3gl.methodCallResponse = "fail"
+    }
+
 
     return
     const from = (await web3.eth.getAccounts())[0];
