@@ -111,10 +111,14 @@ async function connect() {
         // }
         walletAddress = account.address
         if (walletAddress === undefined) {
-            //web3gl.connectAccount = "fail";
+            if (newState.open == false) {
+                web3gl.connectAccount = "fail";
+                return
+            }
         } else {
-            web3gl.connectAccount = walletAddress
             web3gl.networkId =  parseInt(network.chain.id + '')
+            web3gl.connectAccount = walletAddress
+            return
             //window.location.reload();
         }
     })
