@@ -172,6 +172,36 @@
 
 	};
 
+	const zetachainTestnet = {
+		id: 7001,
+		name: "Zetachain Testnet",
+		network: "zetachainTestnet",
+		nativeCurrency: {
+			decimals: 18,
+			name: "aZETA",
+			symbol: "aZETA"
+		},
+		rpcUrls: {
+			default: {
+				http: ["https://api.athens2.zetachain.com/evm"],
+			},
+			public: {
+				http: ["https://api.athens2.zetachain.com/evm"]
+			}
+		},
+		blockExplorers: {
+			etherscan: {
+				name: "eos Scan",
+				url: "https://explorer.athens.zetachain.com/"
+			},
+			default: {
+				name: "eos Scan",
+				url: "https://explorer.athens.zetachain.com/"
+			}
+		}
+
+	};
+
 
 	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle]
 
