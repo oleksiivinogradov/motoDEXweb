@@ -238,9 +238,39 @@
 
 	};
 
+	const klaytnTestnet = {
+		id: 1001,
+		name: "Klaytn Testnet Baobab",
+		network: "klaytnTestnet",
+		nativeCurrency: {
+			decimals: 18,
+			name: "KLAY",
+			symbol: "KLAY"
+		},
+		rpcUrls: {
+			default: {
+				http: ["https://api.baobab.klaytn.net:8651"],
+			},
+			public: {
+				http: ["https://api.baobab.klaytn.net:8651"]
+			}
+		},
+		blockExplorers: {
+			etherscan: {
+				name: "eos Scan",
+				url: "https://baobab.scope.klaytn.com/"
+			},
+			default: {
+				name: "eos Scan",
+				url: "https://baobab.scope.klaytn.com/"
+			}
+		}
+
+	};
 
 
-	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet]
+
+	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet, klaytnTestnet]
 
 	const projectId = 'd3d0c489a0d7d980f51628258bf880bd'
 
