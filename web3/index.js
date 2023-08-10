@@ -345,7 +345,11 @@ function toJson(data) {
     }
 }
 
+let busdABI = '[{"inputs":[{"internalType":"uint256","name":"_initialAmount","type":"uint256"},{"internalType":"string","name":"_tokenName","type":"string"},{"internalType":"uint8","name":"_decimalUnits","type":"uint8"},{"internalType":"string","name":"_tokenSymbol","type":"string"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"constant":false,"inputs":[{"internalType":"address","name":"_owner","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"allocateTo","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"_spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"dst","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"src","type":"address"},{"internalType":"address","name":"dst","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]'
+let usdcABI = '[{"type":"event","name":"Approval","inputs":[{"type":"address","name":"owner","internalType":"address","indexed":true},{"type":"address","name":"spender","internalType":"address","indexed":true},{"type":"uint256","name":"value","internalType":"uint256","indexed":false}],"anonymous":false},{"type":"event","name":"RoleAdminChanged","inputs":[{"type":"bytes32","name":"role","internalType":"bytes32","indexed":true},{"type":"bytes32","name":"previousAdminRole","internalType":"bytes32","indexed":true},{"type":"bytes32","name":"newAdminRole","internalType":"bytes32","indexed":true}],"anonymous":false},{"type":"event","name":"RoleGranted","inputs":[{"type":"bytes32","name":"role","internalType":"bytes32","indexed":true},{"type":"address","name":"account","internalType":"address","indexed":true},{"type":"address","name":"sender","internalType":"address","indexed":true}],"anonymous":false},{"type":"event","name":"RoleRevoked","inputs":[{"type":"bytes32","name":"role","internalType":"bytes32","indexed":true},{"type":"address","name":"account","internalType":"address","indexed":true},{"type":"address","name":"sender","internalType":"address","indexed":true}],"anonymous":false},{"type":"event","name":"Transfer","inputs":[{"type":"address","name":"from","internalType":"address","indexed":true},{"type":"address","name":"to","internalType":"address","indexed":true},{"type":"uint256","name":"value","internalType":"uint256","indexed":false}],"anonymous":false},{"type":"function","stateMutability":"view","outputs":[{"type":"bytes32","name":"","internalType":"bytes32"}],"name":"BURNER_ROLE","inputs":[]},{"type":"function","stateMutability":"view","outputs":[{"type":"bytes32","name":"","internalType":"bytes32"}],"name":"DEFAULT_ADMIN_ROLE","inputs":[]},{"type":"function","stateMutability":"view","outputs":[{"type":"bytes32","name":"","internalType":"bytes32"}],"name":"MINTER_ROLE","inputs":[]},{"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"allowance","inputs":[{"type":"address","name":"owner","internalType":"address"},{"type":"address","name":"spender","internalType":"address"}]},{"type":"function","stateMutability":"nonpayable","outputs":[{"type":"bool","name":"","internalType":"bool"}],"name":"approve","inputs":[{"type":"address","name":"spender","internalType":"address"},{"type":"uint256","name":"amount","internalType":"uint256"}]},{"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"balanceOf","inputs":[{"type":"address","name":"account","internalType":"address"}]},{"type":"function","stateMutability":"nonpayable","outputs":[],"name":"burn","inputs":[{"type":"uint256","name":"amount","internalType":"uint256"}]},{"type":"function","stateMutability":"view","outputs":[{"type":"uint8","name":"","internalType":"uint8"}],"name":"decimals","inputs":[]},{"type":"function","stateMutability":"nonpayable","outputs":[{"type":"bool","name":"","internalType":"bool"}],"name":"decreaseAllowance","inputs":[{"type":"address","name":"spender","internalType":"address"},{"type":"uint256","name":"subtractedValue","internalType":"uint256"}]},{"type":"function","stateMutability":"view","outputs":[{"type":"bytes32","name":"","internalType":"bytes32"}],"name":"getRoleAdmin","inputs":[{"type":"bytes32","name":"role","internalType":"bytes32"}]},{"type":"function","stateMutability":"nonpayable","outputs":[],"name":"grantRole","inputs":[{"type":"bytes32","name":"role","internalType":"bytes32"},{"type":"address","name":"account","internalType":"address"}]},{"type":"function","stateMutability":"view","outputs":[{"type":"bool","name":"","internalType":"bool"}],"name":"hasRole","inputs":[{"type":"bytes32","name":"role","internalType":"bytes32"},{"type":"address","name":"account","internalType":"address"}]},{"type":"function","stateMutability":"nonpayable","outputs":[{"type":"bool","name":"","internalType":"bool"}],"name":"increaseAllowance","inputs":[{"type":"address","name":"spender","internalType":"address"},{"type":"uint256","name":"addedValue","internalType":"uint256"}]},{"type":"function","stateMutability":"nonpayable","outputs":[],"name":"mint","inputs":[{"type":"address","name":"to","internalType":"address"},{"type":"uint256","name":"amount","internalType":"uint256"}]},{"type":"function","stateMutability":"view","outputs":[{"type":"string","name":"","internalType":"string"}],"name":"name","inputs":[]},{"type":"function","stateMutability":"nonpayable","outputs":[],"name":"renounceRole","inputs":[{"type":"bytes32","name":"role","internalType":"bytes32"},{"type":"address","name":"account","internalType":"address"}]},{"type":"function","stateMutability":"nonpayable","outputs":[],"name":"revokeRole","inputs":[{"type":"bytes32","name":"role","internalType":"bytes32"},{"type":"address","name":"account","internalType":"address"}]},{"type":"function","stateMutability":"view","outputs":[{"type":"bool","name":"","internalType":"bool"}],"name":"supportsInterface","inputs":[{"type":"bytes4","name":"interfaceId","internalType":"bytes4"}]},{"type":"function","stateMutability":"view","outputs":[{"type":"string","name":"","internalType":"string"}],"name":"symbol","inputs":[]},{"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"totalSupply","inputs":[]},{"type":"function","stateMutability":"nonpayable","outputs":[{"type":"bool","name":"","internalType":"bool"}],"name":"transfer","inputs":[{"type":"address","name":"to","internalType":"address"},{"type":"uint256","name":"amount","internalType":"uint256"}]},{"type":"function","stateMutability":"nonpayable","outputs":[{"type":"bool","name":"","internalType":"bool"}],"name":"transferFrom","inputs":[{"type":"address","name":"from","internalType":"address"},{"type":"address","name":"to","internalType":"address"},{"type":"uint256","name":"amount","internalType":"uint256"}]}]'
 async function sendContract(method, abi, contract, args, value, gasLimit, gasPrice) {
+    console.log("sendContract method - " + method);
+
     if (method == "purchase")
     {
         googleAnalyticsSendEvent("purchase_nft");
@@ -370,9 +374,79 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
     }
     const account = getAccount()
     const from = account.address
-
+    console.log("sendContract 1 method - " + method);
+    console.log("sendContract 1 args - " + JSON.stringify(args));
     // const from = (await web3.eth.getAccounts())[0];
     try{
+        if (parseInt(window.web3ChainId) === 503129905 && method === 'addMoto') {
+            const usdc = new window.web3.eth.Contract(JSON.parse(usdcABI), "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796");
+            const core = new window.web3.eth.Contract(JSON.parse(abi), contract);
+            let getMinimalFee = await core.methods.getMinimalFee().call();
+
+            const allowance = await usdc.methods.allowance(from,contract).call();
+            if (parseInt(allowance) < parseInt(getMinimalFee)) {
+                let approve = await usdc.methods.approve(contract,getMinimalFee).send({
+                    from: from
+                });
+                console.log('USDC approval ' + approve.transactionHash);
+            }
+            const pastArgs = JSON.parse(args);
+
+            let addMotoToken = await core.methods.addMotoToken(pastArgs[0],'0x717d43399ab3a8aada669CDC9560a6BAfdeA9796').send({
+                from: from
+            });
+            console.log('addMotoToken ' + addMotoToken.transactionHash);
+            // const tokenIdString = addMotoToken.events.Transfer.tokenId
+            window.web3gl.sendContractResponse = JSON.stringify(
+                {
+                    transactionHash:addMotoToken.transactionHash
+                })
+            return;
+        }
+        if (parseInt(window.web3ChainId) === 503129905 && method === 'purchase') {
+
+            if (window.ethereum) {
+                await window.ethereum.request({method: 'eth_requestAccounts'});
+                window.web3 = new Web3(window.ethereum);
+            }
+            const usdc = new window.web3.eth.Contract(JSON.parse(usdcABI), "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796");
+            const allowance = await usdc.methods.allowance(from,contract).call();
+            if (parseInt(allowance) < parseInt(value)) {
+                let approve = await usdc.methods.approve(contract,value).send({
+                    from: from
+                });
+                console.log('USDC approval ' + approve.transactionHash);
+            }
+
+            const nft = new window.web3.eth.Contract(JSON.parse(abi), contract);
+            const pastArgs = JSON.parse(args);
+
+            let purchaseToken = await nft.methods.purchaseToken(pastArgs[0],pastArgs[1], '0x717d43399ab3a8aada669CDC9560a6BAfdeA9796').send({
+                from: from
+            });
+            console.log('purchaseToken ' + purchaseToken.transactionHash);
+            const tokenIdString = purchaseToken.events.Transfer.returnValues.tokenId
+            window.web3gl.sendContractResponse = JSON.stringify(
+                {
+                    transactionHash:purchaseToken.transactionHash,
+                    events: {
+                        Transfer: {
+                            returnValues : {
+                                tokenId: tokenIdString
+                            }
+                        }
+                    }
+                })
+            return;
+            // value = undefined;
+            // method = 'purchaseToken'
+            // args = JSON.stringify([pastArgs[0],pastArgs[1], '0x717d43399ab3a8aada669CDC9560a6BAfdeA9796'])
+        } else {
+
+        }
+        console.log("sendContract 2 method - " + method);
+        console.log("sendContract 2 args - " + JSON.stringify(args));
+
         const { hash } = await writeContract({
             address: contract,
             abi: JSON.parse(abi),
@@ -741,6 +815,19 @@ async function addNetwork(chainId) {
                     blockExplorerUrls: ['https://explorer.testnet.mantle.xyz/']
                 }]
                 break;
+            case 503129905 :
+                params = [{
+                    chainId: '0x1dfd2731',
+                    chainName: 'Skale Testnet',
+                    nativeCurrency: {
+                        name: 'sFUEL',
+                        symbol: 'sFUEL',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://staging-v3.skalenodes.com/v1/staging-faint-slimy-achird'],
+                    blockExplorerUrls: ['https://staging-faint-slimy-achird.explorer.staging-v3.skalenodes.com/']
+                }]
+                break;
             default:
                 alert('Network not supported to adding!');
 
@@ -875,6 +962,30 @@ async function getAllErc721(abi, nftUniV3ContractAddress) {
         window.web3gl.getAllErc721Response = concResponse;
         return;
     }
+    if (parseInt(window.web3ChainId) === 503129905) {
+        try {
+            if (window.ethereum) {
+                await window.ethereum.request({method: 'eth_requestAccounts'});
+                window.web3 = new Web3(window.ethereum);
+            }
+            const from = (await window.web3.eth.getAccounts())[0];
+            const nftContract = new window.web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
+            let balance = parseInt(await nftContract.methods.balanceOf(from).call());
+            let data = [];
+            while (balance > 0) {
+                balance = balance -1;
+
+                const tokenID = await nftContract.methods.tokenOfOwnerByIndex(from,balance+'').call();
+                const tokenURI = await nftContract.methods.tokenURI(tokenID).call();
+                data.push({"contract": nftUniV3ContractAddress, "tokenId": tokenID.toString(), "uri": tokenURI, "balance":"1"});
+            }
+            window.web3gl.getAllErc721Response = JSON.stringify(data);
+        } catch (error) {
+            console.log("getAllErc721 - " + error.message);
+            window.web3gl.getAllErc721Response = "fail";
+        }
+        return
+    }
 
     try {
         const account = getAccount()
@@ -994,12 +1105,38 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
     }
 
     try {
-        const responseV2 = await readContract({
-            address: nftUniV3ContractAddress,
-            abi: JSON.parse(abi),
-            functionName: method,
-            args: JSON.parse(args),
-        })
+        let responseV2
+        if (parseInt(window.web3ChainId) === 503129905) {
+            // let ws = getWebSocketPublicClient;
+            if (method === "valueInMainCoin") {
+                const nft = new window.web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
+
+                const type = await nft.methods.getTypeForId(args[0]).call()
+                responseV2 = await nft.methods.getPriceForType(type).call()
+                // responseV2 = await getWebSocketPublicClient().readContract({
+                //     address: nftUniV3ContractAddress,
+                //     abi: JSON.parse(abi),
+                //     functionName: "getPriceForType",
+                //     args: JSON.parse(args),
+                // })
+            } else {
+                responseV2 = await getWebSocketPublicClient().readContract({
+                    address: nftUniV3ContractAddress,
+                    abi: JSON.parse(abi),
+                    functionName: method,
+                    args: JSON.parse(args),
+                })
+            }
+
+        } else {
+            responseV2 = await readContract({
+                address: nftUniV3ContractAddress,
+                abi: JSON.parse(abi),
+                functionName: method,
+                args: JSON.parse(args),
+            })
+        }
+
         if (method === 'getLatestPrice') {
             const r0 = responseV2[0];
             const r1 = responseV2[1];
@@ -1127,6 +1264,35 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
 }
 
 async function getTxStatus(transactionHash) {
+    if (parseInt(window.web3ChainId) === 503129905) {
+        let response;
+        try {
+            const from = (await window.web3.eth.getAccounts())[0];
+            response = await window.web3.eth.getTransactionReceipt(transactionHash);
+        } catch (error) {
+            console.log("getTxStatus - " + error.message);
+            response = "fail";
+        }
+        console.log(response);
+        if (response.status == true)
+        {
+            response = "success"
+        }
+        else if (response.status == false)
+        {
+            response = "fail"
+        }
+        console.log(response);
+        if (typeof response != "string")
+        {
+            window.web3gl.getTxStatusResponse = JSON.stringify(response);
+        }
+        else
+        {
+            window.web3gl.getTxStatusResponse = response;
+        }
+        return;
+    }
     const transaction = await fetchTransaction({
         hash: transactionHash,
     })
@@ -1163,14 +1329,31 @@ async function getTxStatus(transactionHash) {
 }
 
 async function getBalance() {
-    const balance = await fetchBalance({
-        address: walletAddress,
-        formatUnits: 'ether',
-    })
-    const balanceInt = parseFloat(balance.formatted) * 10e18
-    console.log("getBalance - " + balanceInt);
+    try {
+        if (parseInt(window.web3ChainId) === 503129905) {
+            const balance = {formatted : "0.001"}
+            //     await getWebSocketPublicClient().fetchBalance({
+            //     address: walletAddress,
+            //     formatUnits: 'ether',
+            // })
+            const balanceInt = parseFloat(balance.formatted) * 10e18
+            console.log("getBalance - " + balanceInt);
 
-    window.web3gl.getBalanceResponse = balanceInt + ''
+            window.web3gl.getBalanceResponse = balanceInt + ''
+        } else {
+            const balance = await fetchBalance({
+                address: walletAddress,
+                formatUnits: 'ether',
+            })
+            const balanceInt = parseFloat(balance.formatted) * 10e18
+            console.log("getBalance - " + balanceInt);
+
+            window.web3gl.getBalanceResponse = balanceInt + ''
+        }
+    } catch (error) {
+        console.log("getBalance - " + error.message);
+        response = "fail";
+    }
     return
 
     let response;
@@ -3267,6 +3450,7 @@ async function nearTokenIdsAndOwners(mainnet, motoDexContract) {
 }
 
 async function concordiumCheckTransactionStatus(txHash, client) {
+
     let txStatus = await client.getTransactionStatus(txHash);
 
     while (txStatus.status == 'received') {
@@ -3334,7 +3518,7 @@ async function webGLReload(clearCookies = "True"){
         }
     }
 
-    setTimeout(() => { window.location.reload(); }, 100);
+    //setTimeout(() => { window.location.reload(); }, 100);
 }
 
 async function googleAnalyticsSendEvent(eventName) {

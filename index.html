@@ -63,7 +63,11 @@
 	window.process = {}
 	window.process.env= {}
 	window.process.env.NODE_ENV= 'production'
-	
+
+	// import {
+	// 	writeContract
+	// } from "https://unpkg.com/viem";
+
 	import {
 		EthereumClient,
 		w3mConnectors,
@@ -76,7 +80,7 @@
 	import { Web3Modal } from 'https://unpkg.com/@web3modal/html'
 
 	// Equivalent to importing from @wagmi/core
-	const { configureChains, createConfig, getAccount, getNetwork, fetchBalance, readContracts, readContract, writeContract, switchNetwork, fetchTransaction, waitForTransaction } = WagmiCore
+	const { configureChains, createConfig, getAccount, getNetwork, fetchBalance, readContracts, readContract, writeContract, switchNetwork, fetchTransaction, waitForTransaction, getWebSocketPublicClient } = WagmiCore
 
 	// Equivalent to importing from @wagmi/core/chains
 	const { bscTestnet, aurora, auroraTestnet, polygon } = WagmiCoreChains
@@ -202,16 +206,50 @@
 
 	};
 
+	const skaleTestnet = {
+		id: 503129905,
+		name: "Skale Testnet",
+		network: "skaleTestnet",
+		nativeCurrency: {
+			decimals: 18,
+			name: "sFuel",
+			symbol: "sFuel"
+		},
+		rpcUrls: {
+			default: {
+				http: ["https://staging-v3.skalenodes.com/v1/staging-faint-slimy-achird"],
+				webSocket: ['wss://staging-v3.skalenodes.com/v1/ws/staging-faint-slimy-achird'],
+			},
+			public: {
+				http: ["https://staging-v3.skalenodes.com/v1/staging-faint-slimy-achird"],
+				webSocket: ['wss://staging-v3.skalenodes.com/v1/ws/staging-faint-slimy-achird']
+			}
+		},
+		blockExplorers: {
+			etherscan: {
+				name: "Skale Scan",
+				url: "https://staging-faint-slimy-achird.explorer.staging-v3.skalenodes.com/"
+			},
+			default: {
+				name: "Skale Scan",
+				url: "https://staging-faint-slimy-achird.explorer.staging-v3.skalenodes.com/"
+			}
+		}
 
-	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet]
+	};
+
+
+
+	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet]
 
 	const projectId = 'd3d0c489a0d7d980f51628258bf880bd'
 
-	const { publicClient } = configureChains(chains, [w3mProvider({ projectId })])
+	const { publicClient, webSocketPublicClient } = configureChains(chains, [w3mProvider({ projectId })])
 	const wagmiConfig = createConfig({
 		autoConnect: true,
 		connectors: w3mConnectors({ projectId, chains }),
-		publicClient
+		publicClient,
+		webSocketPublicClient
 	})
 	const ethereumClient = new EthereumClient(wagmiConfig, chains)
 	window.web3modal = new Web3Modal({
@@ -229,7 +267,9 @@
 	window.fetchBalance = fetchBalance
 	window.readContracts = readContracts
 	window.readContract = readContract
+	window.getWebSocketPublicClient = getWebSocketPublicClient
 	window.writeContract = writeContract
+
 </script>
 
 <script>
