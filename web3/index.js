@@ -1118,8 +1118,8 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
                     window.web3 = new Web3(window.ethereum);
                 }
                 const nft = new window.web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
-
-                const type = await nft.methods.getTypeForId(args[0]).call()
+                const arsJson = JSON.parse(args)
+                const type = await nft.methods.getTypeForId(arsJson[0]).call()
                 responseV2 = await nft.methods.getPriceForType(type).call()
                 // responseV2 = await getWebSocketPublicClient().readContract({
                 //     address: nftUniV3ContractAddress,
