@@ -379,6 +379,10 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
     // const from = (await web3.eth.getAccounts())[0];
     try{
         if (parseInt(window.web3ChainId) === 503129905 && method === 'addMoto') {
+            if (window.ethereum) {
+                await window.ethereum.request({method: 'eth_requestAccounts'});
+                window.web3 = new Web3(window.ethereum);
+            }
             const usdc = new window.web3.eth.Contract(JSON.parse(usdcABI), "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796");
             const core = new window.web3.eth.Contract(JSON.parse(abi), contract);
             let getMinimalFee = await core.methods.getMinimalFee().call();
@@ -1109,6 +1113,10 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
         if (parseInt(window.web3ChainId) === 503129905) {
             // let ws = getWebSocketPublicClient;
             if (method === "valueInMainCoin") {
+                if (window.ethereum) {
+                    await window.ethereum.request({method: 'eth_requestAccounts'});
+                    window.web3 = new Web3(window.ethereum);
+                }
                 const nft = new window.web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
 
                 const type = await nft.methods.getTypeForId(args[0]).call()
@@ -1267,6 +1275,10 @@ async function getTxStatus(transactionHash) {
     if (parseInt(window.web3ChainId) === 503129905) {
         let response;
         try {
+            if (window.ethereum) {
+                await window.ethereum.request({method: 'eth_requestAccounts'});
+                window.web3 = new Web3(window.ethereum);
+            }
             const from = (await window.web3.eth.getAccounts())[0];
             response = await window.web3.eth.getTransactionReceipt(transactionHash);
         } catch (error) {
