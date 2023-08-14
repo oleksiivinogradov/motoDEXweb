@@ -941,6 +941,27 @@ async function getLatestEpoch(abi, nftUniV3ContractAddress) {
         window.web3gl.getLatestEpochResponse = concResponse;
         return;
     }
+    if (parseInt(window.web3ChainId) === 503129905) {
+        if (window.ethereum) {
+            await window.ethereum.request({method: 'eth_requestAccounts'});
+            window.web3 = new Web3(window.ethereum);
+        }
+        const from = (await window.web3.eth.getAccounts())[0];
+        const nftContract = new window.web3.eth.Contract(JSON.parse(abi), nftUniV3ContractAddress);
+        let response = await nftContract.methods.latestEpochUpdate().call();
+        console.log(response);
+        console.log(typeof response);
+
+        if (typeof response != "string")
+        {
+            window.web3gl.getLatestEpochResponse = JSON.stringify(response);
+        }
+        else
+        {
+            window.web3gl.getLatestEpochResponse = response;
+        }
+        return;
+    }
 
     try {
         let response = await readContract({
@@ -1356,12 +1377,19 @@ async function getTxStatus(transactionHash) {
 async function getBalance() {
     try {
         if (parseInt(window.web3ChainId) === 503129905) {
-            const balance = {formatted : "0.001"}
+            if (window.ethereum) {
+                await window.ethereum.request({method: 'eth_requestAccounts'});
+                window.web3 = new Web3(window.ethereum);
+            }
+            const usdc = new window.web3.eth.Contract(JSON.parse(usdcABI), "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796");
+            const balanceOf = await usdc.methods.balanceOf(walletAddress).call();
+
+            // const balance = {formatted : "0.001"}
             //     await getWebSocketPublicClient().fetchBalance({
             //     address: walletAddress,
             //     formatUnits: 'ether',
             // })
-            const balanceInt = parseFloat(balance.formatted) * 10e18
+            const balanceInt = balanceOf
             console.log("getBalance - " + balanceInt);
 
             window.web3gl.getBalanceResponse = balanceInt + ''
@@ -1370,7 +1398,8 @@ async function getBalance() {
                 address: walletAddress,
                 formatUnits: 'ether',
             })
-            const balanceInt = parseFloat(balance.formatted) * 10e18
+            const balanceInt = Math.round(Number(balance.formatted) * 10 ** 18);
+            //const balanceInt = parseFloat(balance.formatted) * 10e18
             console.log("getBalance - " + balanceInt);
 
             window.web3gl.getBalanceResponse = balanceInt + ''
