@@ -268,9 +268,39 @@
 
 	};
 
+	const baseMainnet = {
+		id: 8453,
+		name: "Base Mainnet",
+		network: "baseMainnet",
+		nativeCurrency: {
+			decimals: 18,
+			name: "ETH",
+			symbol: "ETH"
+		},
+		rpcUrls: {
+			default: {
+				http: ["https://mainnet.base.org"],
+			},
+			public: {
+				http: ["https://mainnet.base.org"]
+			}
+		},
+		blockExplorers: {
+			etherscan: {
+				name: "eos Scan",
+				url: "https://basescan.org"
+			},
+			default: {
+				name: "eos Scan",
+				url: "https://basescan.org"
+			}
+		}
+
+	};
 
 
-	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet, klaytnTestnet]
+
+	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet, klaytnTestnet, baseMainnet]
 
 	const projectId = 'd3d0c489a0d7d980f51628258bf880bd'
 

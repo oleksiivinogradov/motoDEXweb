@@ -832,6 +832,19 @@ async function addNetwork(chainId) {
                     blockExplorerUrls: ['https://staging-faint-slimy-achird.explorer.staging-v3.skalenodes.com/']
                 }]
                 break;
+            case 8453 :
+                params = [{
+                    chainId: '0x2105',
+                    chainName: 'Base Mainnet',
+                    nativeCurrency: {
+                        name: 'ETH',
+                        symbol: 'ETH',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://mainnet.base.org'],
+                    blockExplorerUrls: ['https://basescan.org']
+                }]
+                break;
             default:
                 alert('Network not supported to adding!');
 
