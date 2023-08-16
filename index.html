@@ -238,6 +238,38 @@
 
 	};
 
+	const skaleMainnet = {
+		id: 1482601649,
+		name: "Skale Mainnet",
+		network: "skaleMainnet",
+		nativeCurrency: {
+			decimals: 18,
+			name: "sFuel",
+			symbol: "sFuel"
+		},
+		rpcUrls: {
+			default: {
+				http: ["https://mainnet.skalenodes.com/v1/green-giddy-denebola"],
+				webSocket: ['wss://mainnet.skalenodes.com/v1/green-giddy-denebola'],
+			},
+			public: {
+				http: ["https://mainnet.skalenodes.com/v1/green-giddy-denebola"],
+				webSocket: ['wss://mainnet.skalenodes.com/v1/green-giddy-denebola']
+			}
+		},
+		blockExplorers: {
+			etherscan: {
+				name: "Skale Scan",
+				url: "https://staging-faint-slimy-achird.explorer.staging-v3.skalenodes.com/"
+			},
+			default: {
+				name: "Skale Scan",
+				url: "https://staging-faint-slimy-achird.explorer.staging-v3.skalenodes.com/"
+			}
+		}
+
+	};
+
 	const klaytnTestnet = {
 		id: 1001,
 		name: "Klaytn Testnet Baobab",
@@ -300,7 +332,7 @@
 
 
 
-	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet, klaytnTestnet, baseMainnet]
+	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet, skaleMainnet, klaytnTestnet, baseMainnet]
 
 	const projectId = 'd3d0c489a0d7d980f51628258bf880bd'
 

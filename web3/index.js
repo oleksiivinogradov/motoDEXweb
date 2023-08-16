@@ -832,6 +832,19 @@ async function addNetwork(chainId) {
                     blockExplorerUrls: ['https://staging-faint-slimy-achird.explorer.staging-v3.skalenodes.com/']
                 }]
                 break;
+            case 1482601649 :
+                params = [{
+                    chainId: '0x585eb4b1',
+                    chainName: 'Skale Mainnet',
+                    nativeCurrency: {
+                        name: 'sFUEL',
+                        symbol: 'sFUEL',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://mainnet.skalenodes.com/v1/green-giddy-denebola'],
+                    blockExplorerUrls: ['https://staging-faint-slimy-achird.explorer.staging-v3.skalenodes.com/']
+                }]
+                break;
             case 8453 :
                 params = [{
                     chainId: '0x2105',
