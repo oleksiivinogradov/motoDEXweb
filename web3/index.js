@@ -470,7 +470,7 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
             console.log('bidForToken ' + bidForToken.transactionHash);
             window.web3gl.sendContractResponse = JSON.stringify(
                 {
-                    transactionHash:purchaseToken.transactionHash,
+                    transactionHash:bidForToken.transactionHash,
                 })
             return;
             // value = undefined;
