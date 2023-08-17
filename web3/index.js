@@ -378,12 +378,12 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
     console.log("sendContract 1 args - " + JSON.stringify(args));
     // const from = (await web3.eth.getAccounts())[0];
     try{
-        if (parseInt(window.web3ChainId) === 503129905 && method === 'addMoto') {
+        if ((parseInt(window.web3ChainId) === 503129905 || parseInt(window.web3ChainId) === 1482601649) && method === 'addMoto') {
             if (window.ethereum) {
                 await window.ethereum.request({method: 'eth_requestAccounts'});
                 window.web3 = new Web3(window.ethereum);
             }
-            const usdc = new window.web3.eth.Contract(JSON.parse(usdcABI), "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796");
+            const usdc = new window.web3.eth.Contract(JSON.parse(usdcABI), parseInt(window.web3ChainId) === 503129905 ? "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796" : "0xCC205196288B7A26f6D43bBD68AaA98dde97276d");
             const core = new window.web3.eth.Contract(JSON.parse(abi), contract);
             let getMinimalFee = await core.methods.getMinimalFee().call();
 
@@ -396,7 +396,7 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
             }
             const pastArgs = JSON.parse(args);
 
-            let addMotoToken = await core.methods.addMotoToken(pastArgs[0],'0x717d43399ab3a8aada669CDC9560a6BAfdeA9796').send({
+            let addMotoToken = await core.methods.addMotoToken(pastArgs[0],parseInt(window.web3ChainId) === 503129905 ? "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796" : "0xCC205196288B7A26f6D43bBD68AaA98dde97276d").send({
                 from: from
             });
             console.log('addMotoToken ' + addMotoToken.transactionHash);
@@ -407,13 +407,13 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
                 })
             return;
         }
-        if (parseInt(window.web3ChainId) === 503129905 && method === 'purchase') {
+        if ((parseInt(window.web3ChainId) === 503129905 || parseInt(window.web3ChainId) === 1482601649) && method === 'purchase') {
 
             if (window.ethereum) {
                 await window.ethereum.request({method: 'eth_requestAccounts'});
                 window.web3 = new Web3(window.ethereum);
             }
-            const usdc = new window.web3.eth.Contract(JSON.parse(usdcABI), "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796");
+            const usdc = new window.web3.eth.Contract(JSON.parse(usdcABI), parseInt(window.web3ChainId) === 503129905 ? "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796" : "0xCC205196288B7A26f6D43bBD68AaA98dde97276d");
             const allowance = await usdc.methods.allowance(from,contract).call();
             if (parseInt(allowance) < parseInt(value)) {
                 let approve = await usdc.methods.approve(contract,value).send({
@@ -425,7 +425,7 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
             const nft = new window.web3.eth.Contract(JSON.parse(abi), contract);
             const pastArgs = JSON.parse(args);
 
-            let purchaseToken = await nft.methods.purchaseToken(pastArgs[0],pastArgs[1], '0x717d43399ab3a8aada669CDC9560a6BAfdeA9796').send({
+            let purchaseToken = await nft.methods.purchaseToken(pastArgs[0],pastArgs[1], parseInt(window.web3ChainId) === 503129905 ? "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796" : "0xCC205196288B7A26f6D43bBD68AaA98dde97276d").send({
                 from: from
             });
             console.log('purchaseToken ' + purchaseToken.transactionHash);
@@ -445,7 +445,39 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
             // value = undefined;
             // method = 'purchaseToken'
             // args = JSON.stringify([pastArgs[0],pastArgs[1], '0x717d43399ab3a8aada669CDC9560a6BAfdeA9796'])
+        } else
+        if ((parseInt(window.web3ChainId) === 503129905 || parseInt(window.web3ChainId) === 1482601649) && method === 'bidFor') {
+
+            if (window.ethereum) {
+                await window.ethereum.request({method: 'eth_requestAccounts'});
+                window.web3 = new Web3(window.ethereum);
+            }
+            const usdc = new window.web3.eth.Contract(JSON.parse(usdcABI), parseInt(window.web3ChainId) === 503129905 ? "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796" : "0xCC205196288B7A26f6D43bBD68AaA98dde97276d");
+            const allowance = await usdc.methods.allowance(from,contract).call();
+            if (parseInt(allowance) < parseInt(value)) {
+                let approve = await usdc.methods.approve(contract,value).send({
+                    from: from
+                });
+                console.log('USDC approval ' + approve.transactionHash);
+            }
+
+            const core = new window.web3.eth.Contract(JSON.parse(abi), contract);
+            const pastArgs = JSON.parse(args);
+
+            let bidForToken = await core.methods.bidForToken(pastArgs[0],pastArgs[1], parseInt(window.web3ChainId) === 503129905 ? "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796" : "0xCC205196288B7A26f6D43bBD68AaA98dde97276d", value).send({
+                from: from
+            });
+            console.log('bidForToken ' + bidForToken.transactionHash);
+            window.web3gl.sendContractResponse = JSON.stringify(
+                {
+                    transactionHash:purchaseToken.transactionHash,
+                })
+            return;
+            // value = undefined;
+            // method = 'purchaseToken'
+            // args = JSON.stringify([pastArgs[0],pastArgs[1], '0x717d43399ab3a8aada669CDC9560a6BAfdeA9796'])
         } else {
+
 
         }
         console.log("sendContract 2 method - " + method);
@@ -954,7 +986,7 @@ async function getLatestEpoch(abi, nftUniV3ContractAddress) {
         window.web3gl.getLatestEpochResponse = concResponse;
         return;
     }
-    if (parseInt(window.web3ChainId) === 503129905) {
+    if (parseInt(window.web3ChainId) === 503129905 || parseInt(window.web3ChainId) === 1482601649) {
         if (window.ethereum) {
             await window.ethereum.request({method: 'eth_requestAccounts'});
             window.web3 = new Web3(window.ethereum);
@@ -1013,7 +1045,7 @@ async function getAllErc721(abi, nftUniV3ContractAddress) {
         window.web3gl.getAllErc721Response = concResponse;
         return;
     }
-    if (parseInt(window.web3ChainId) === 503129905) {
+    if (parseInt(window.web3ChainId) === 503129905 || parseInt(window.web3ChainId) === 1482601649) {
         try {
             if (window.ethereum) {
                 await window.ethereum.request({method: 'eth_requestAccounts'});
@@ -1157,7 +1189,7 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
 
     try {
         let responseV2
-        if (parseInt(window.web3ChainId) === 503129905) {
+        if (parseInt(window.web3ChainId) === 503129905 || parseInt(window.web3ChainId) === 1482601649) {
             // let ws = getWebSocketPublicClient;
             if (method === "valueInMainCoin") {
                 if (window.ethereum) {
@@ -1319,7 +1351,7 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
 }
 
 async function getTxStatus(transactionHash) {
-    if (parseInt(window.web3ChainId) === 503129905) {
+    if (parseInt(window.web3ChainId) === 503129905 || parseInt(window.web3ChainId) === 1482601649) {
         let response;
         try {
             if (window.ethereum) {
@@ -1389,14 +1421,26 @@ async function getTxStatus(transactionHash) {
 
 async function getBalance() {
     try {
-        if (parseInt(window.web3ChainId) === 503129905) {
+        if (parseInt(window.web3ChainId) === 503129905 || parseInt(window.web3ChainId) === 1482601649) {
             if (window.ethereum) {
                 await window.ethereum.request({method: 'eth_requestAccounts'});
                 window.web3 = new Web3(window.ethereum);
             }
-            const usdc = new window.web3.eth.Contract(JSON.parse(usdcABI), "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796");
+            const usdc = new window.web3.eth.Contract(JSON.parse(usdcABI), parseInt(window.web3ChainId) === 503129905 ? "0x717d43399ab3a8aada669CDC9560a6BAfdeA9796" : "0xCC205196288B7A26f6D43bBD68AaA98dde97276d");
             const balanceOf = await usdc.methods.balanceOf(walletAddress).call();
 
+            const balanceSfuel = parseInt(await window.web3.eth.getBalance(walletAddress));
+            if (balanceSfuel === 0) {
+                let response = await fetch('http://script.openbisea.io:8888/claim/' + walletAddress);
+
+                if (response.ok) { // если HTTP-статус в диапазоне 200-299
+                    // получаем тело ответа (см. про этот метод ниже)
+                    let json = await response.json();
+                    console.log("balance result: " + JSON.stringify(json));
+                } else {
+                    console.log("Ошибка HTTP: " + response.status);
+                }
+            }
             // const balance = {formatted : "0.001"}
             //     await getWebSocketPublicClient().fetchBalance({
             //     address: walletAddress,
