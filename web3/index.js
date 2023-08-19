@@ -1431,12 +1431,12 @@ async function getBalance() {
 
             const balanceSfuel = parseInt(await window.web3.eth.getBalance(walletAddress));
             if (balanceSfuel === 0) {
-                let response = await fetch('http://script.openbisea.io:8888/claim/' + walletAddress);
+                let response = await fetch('https://bot.openbisea.io/api/skale/' + walletAddress);
 
                 if (response.ok) { // если HTTP-статус в диапазоне 200-299
                     // получаем тело ответа (см. про этот метод ниже)
-                    let json = await response.json();
-                    console.log("balance result: " + JSON.stringify(json));
+                    // let json = await response.json();
+                    console.log("balance result OK ");
                 } else {
                     console.log("Ошибка HTTP: " + response.status);
                 }
