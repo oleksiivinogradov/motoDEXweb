@@ -330,9 +330,39 @@
 
 	};
 
+    const mantaMainnet = {
+        id: 169,
+        name: "Manta Mainnet",
+        network: "mantaMainnet",
+        nativeCurrency: {
+            decimals: 18,
+            name: "ETH",
+            symbol: "ETH"
+        },
+        rpcUrls: {
+            default: {
+                http: ["https://pacific-rpc.manta.network/http"],
+            },
+            public: {
+                http: ["https://pacific-rpc.manta.network/http"]
+            }
+        },
+        blockExplorers: {
+            etherscan: {
+                name: "manta Scan",
+                url: "https://pacific-explorer.manta.network/"
+            },
+            default: {
+                name: "manta Scan",
+                url: "https://pacific-explorer.manta.network/"
+            }
+        }
+
+    };
 
 
-	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet, skaleMainnet, klaytnTestnet, baseMainnet]
+
+    window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet, skaleMainnet, klaytnTestnet, baseMainnet, mantaMainnet]
 
 	const projectId = 'd3d0c489a0d7d980f51628258bf880bd'
 
