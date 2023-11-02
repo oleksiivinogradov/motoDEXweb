@@ -96,6 +96,38 @@ async function connect() {
         }
         return;
     }
+    if (window.web3ChainId == 11456327825 || window.web3ChainId == 11456327830)
+    {
+        if (window.web3ChainId == 11456327830){
+            console.log("AZ Mainnet");
+            // web3gl.connectAccount = await connectConcordiumWallet(true);
+        }
+        else{
+            console.log("AZ Test");
+            await window.web3Enable('motoDEX');
+            const accounts = await window.web3Accounts();
+            console.log('accounts:', JSON.stringify(accounts))
+            web3gl.connectAccount = accounts[0].address;
+            window.azConnectAccount = accounts[0].address;
+            // window.web3Enable('motoDEX')
+            // 		.then(() => {
+            // 			console.log('enabled', true);
+            //
+            // 			return window.web3Accounts({
+            // 				extensions: ["aleph-zero-signer"],
+            // 				genesisHash:
+            // 						"0x05d5279c52c484cc80396535a316add7d47b1c5b9e0398dd1f584149341460c5",
+            // 			});
+            // 		})
+            // 		.then((accounts) => {
+            //
+            // 					console.log('accounts:', JSON.stringify(accounts))
+            // 				}
+            // 		);
+            // web3gl.connectAccount =
+        }
+        return;
+    }
 
     if (walletAddress === undefined) web3modal.subscribeModal(newState => {
         console.log('connect newState->', newState)
@@ -353,6 +385,23 @@ async function sendContract(method, abi, contract, args, value, gasLimit, gasPri
     if (method == "purchase")
     {
         googleAnalyticsSendEvent("purchase_nft");
+    }
+    if (window.web3ChainId == 11456327825 || window.web3ChainId == 11456327830)
+    {
+        let azResponse = await alephzeroSendContract(contract, method, args, value);
+        if ( azResponse == "received" ) azResponse = {"transactionHash": "0x8e6535d88481117c1f0a32ba8f9bffefe32047dce3e2138eb87f6ab15662b047"};
+        console.log("sendContract azResponse" + azResponse);
+        // console.log(typeof concResponse);
+        if (typeof azResponse != "string" || azResponse.length == 0)
+        {
+            window.web3gl.sendContractResponse = JSON.stringify(azResponse);
+        }
+        else
+        {
+            window.web3gl.sendContractResponse = azResponse;
+        }
+        console.log(window.web3gl.sendContractResponse);
+        return;
     }
 
     if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
@@ -939,7 +988,12 @@ async function changeChainId(chainIdnew) {
     console.log("changeChainId chainIdnew ", chainIdnew);
     window.web3ChainId = chainIdnew
 
-    if (parseInt(chainIdnew) == 1456327825 || parseInt(chainIdnew) == 1456327830) {
+    if (parseInt(chainIdnew) == 1456327825 ||
+        parseInt(chainIdnew) == 1456327830 ||
+        parseInt(chainIdnew) == 11456327830 ||
+        parseInt(chainIdnew) == 11456327830
+    )
+    {
         console.log("changeChainId chainIdnew ", chainIdnew);
         //web3modal.closeModal()
         return
@@ -947,9 +1001,9 @@ async function changeChainId(chainIdnew) {
 
     }
 
-    const account = getAccount()
+    const account = window.getAccount()
     console.log('changeChainId account->',account)
-    const network = getNetwork()
+    const network = window.getNetwork()
     console.log('changeChainId network->',network)
     console.log('changeChainId web3gl.networkId->',web3gl.networkId)
     if (network !== undefined && network.chain !== undefined) console.log('changeChainId network.chain.id->',network.chain.id)
@@ -1038,6 +1092,14 @@ async function getLatestEpoch(abi, nftUniV3ContractAddress) {
 
 
 async function getAllErc721(abi, nftUniV3ContractAddress) {
+    if (window.web3ChainId == 11456327825 || window.web3ChainId == 11456327830)
+    {
+        let azResponse = JSON.stringify(await alephzeroAllNfts(nftUniV3ContractAddress));
+        console.log(azResponse);
+        window.web3gl.getAllErc721Response = azResponse;
+        return;
+    }
+
     if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
     {
         let concResponse = JSON.stringify(await concordiumNftTokensForOwners(nftUniV3ContractAddress));
@@ -1110,9 +1172,473 @@ async function getAllErc721(abi, nftUniV3ContractAddress) {
     }
 }
 
+async function alephzeroAllNfts(motoDexContract, wallet) {
+    let balance = await alephzeroBalanceOf(motoDexContract, wallet);
+    let balanceInt = parseInt(balance + '');
+    let data = []
+
+    while (balanceInt > 0) {
+        let tokenId = await alephzeroOwnersTokenByIndex(motoDexContract, balanceInt - 1);
+        let tokenType = await alephzeroGetTokenTypeNFT(motoDexContract, tokenId);
+        let tokenPrice = await alephzeroValueInMainCoin(motoDexContract, tokenType);
+        let tokenHealth = await alephzeroGetTokenHealth(motoDexContract, tokenType);
+
+        let tokenTypeInt = parseInt(tokenType);
+        // let motodex_type = "HealthPill"
+        // if (tokenTypeInt => 100) motodex_type= "Track"
+        // if (tokenTypeInt <= 6) motodex_type= "Moto"
+        data.push({
+            "contract": motoDexContract,
+            "tokenId": tokenId,
+            "uri": "https://openbisea.mypinata.cloud/ipfs/QmQWJNzPhyMSpaE6Wwaxry46AuAG1bpWrQoG3PpotLbjzY/red%20buller.gif",
+            "balance" : "1",
+            "currHealthWei" : tokenHealth,
+            "maxHealthWei" : tokenPrice,
+            "maxHealth" : 200000,
+            "ItemData":{
+                "name" : "",
+                "description" : "",
+                "image" : "https://openbisea.mypinata.cloud/ipfs/QmQWJNzPhyMSpaE6Wwaxry46AuAG1bpWrQoG3PpotLbjzY/red%20buller.gif",
+                "type" : tokenTypeInt,
+                "price" : 5,
+            }
+        });
+        balanceInt--;
+    }
+    console.log("alephzeroAllNfts - balance " + balance);
+    console.log("alephzeroAllNfts - data " + JSON.stringify(data));
+
+
+    //data.push({"contract": nftUniV3ContractAddress, "tokenId": tokenID.toString(), "uri": tokenURI, "balance":"1"});
+
+
+    return data;
+}
+
+async function alephzeroTokenIdsAndOwners(motoDexContract) {
+    let storageDepositLimit = null;
+    let { gasRequired, storageDeposit, result, output } =  await window.azcontract.query.tokenIdsAndOwners(
+        window.azConnectAccount,
+        {
+            gasLimit : window.azGasLimit,
+            storageDepositLimit,
+        },
+        "0",
+        "0"
+    );
+    console.log(result.toHuman());
+    console.log(gasRequired.toHuman());
+
+    // console.log('callValue ',callValue);
+    if (result.isOk) {
+        // output the return value
+        let out = output.toHuman()
+        let outOk = out.Ok
+        let result = []
+
+        for (let i = 0; i < outOk.length; i++) {
+            let newObj = {}
+            // {"trackTokenId":"","trackType":"","motoTokenId":"0","motoType":"RED_BULLER","ownerId":"5HE63d7VRe4BjofejBHXGNJnjKXNzEWyTVCZzpeuHebGhxTT","activeSession":""}
+            for (const [key, value] of Object.entries(outOk[i])) {
+                console.log("alephzeroTokenIdsAndOwners " + key + "/" + value);
+                // let finalValue = (value === null)
+                if (key === "trackTokenId") newObj["track_token_id"] = value;
+                if (key === "trackType") newObj["track_type"] = value;
+                if (key === "motoTokenId") newObj["moto_token_id"] = value;
+                if (key === "motoType") newObj["moto_type"] = value;
+                if (key === "ownerId") newObj["owner_id"] = value;
+                // if (value === null) outOk[i][key] = ""
+            }
+            result.push(newObj);
+        }
+        console.log('alephzeroTokenIdsAndOwners result', result);
+
+        // console.log('alephzeroTokenIdsAndOwners Success', out);
+        // let outSting = JSON.stringify(out).replaceAll("null","");
+        // let outFinal = JSON.parse(outSting)
+
+        return result;
+    } else {
+        console.error('alephzeroTokenIdsAndOwners Error', result.asErr);
+
+    }
+}
+async function alephzeroBalanceOf(motoDexContract, wallet) {
+    console.log('alephzeroBalanceOf window.azConnectAccount ', window.azConnectAccount);
+
+    let storageDepositLimit = null;
+    let { gasRequired, storageDeposit, result, output } =  await window.azcontract.query.balanceOf(
+        window.azConnectAccount,
+        {
+            gasLimit : window.azGasLimit,
+            storageDepositLimit,
+        },
+        window.azConnectAccount
+    );
+    console.log(result.toHuman());
+    console.log(gasRequired.toHuman());
+
+    // console.log('callValue ',callValue);
+    if (result.isOk) {
+        // output the return value
+        let out = output.toHuman()
+        console.log('Success', out);
+        return out.Ok;
+    } else {
+        console.error('Error', result.asErr);
+    }
+    return "0"
+}
+
+async function alephzeroOwnersTokenByIndex(motoDexContract, index) {
+    console.log('alephzeroOwnersTokenByIndex window.azConnectAccount ', window.azConnectAccount);
+
+
+    let storageDepositLimit = null;
+    let { gasRequired, storageDeposit, result, output } =  await window.azcontract.query.ownersTokenByIndex(
+        window.azConnectAccount,
+        {
+            gasLimit : window.azGasLimit,
+            storageDepositLimit,
+        },
+        window.azConnectAccount,
+        index
+    );
+    console.log("alephzeroOwnersTokenByIndex ", result.toHuman());
+    console.log("alephzeroOwnersTokenByIndex ",gasRequired.toHuman());
+
+    // console.log('callValue ',callValue);
+    if (result.isOk) {
+        // output the return value
+        let out = output.toHuman()
+        console.log('alephzeroOwnersTokenByIndex Success', out);
+        return out.Ok;
+    } else {
+        console.error('alephzeroOwnersTokenByIndex Error', result.asErr);
+    }
+    return "0"
+}
+
+async function alephzeroGetTokenTypeNFT(motoDexContract, tokenId) {
+    console.log('alephzeroGetTokenTypeNFT window.azConnectAccount ', window.azConnectAccount);
+
+
+    let storageDepositLimit = null;
+    let { gasRequired, storageDeposit, result, output } =  await window.azcontract.query.getTokenTypeNft(
+        window.azConnectAccount,
+        {
+            gasLimit : window.azGasLimit,
+            storageDepositLimit,
+        },
+        tokenId,
+    );
+    console.log("alephzeroGetTokenTypeNFT ", result.toHuman());
+    console.log("alephzeroGetTokenTypeNFT ",gasRequired.toHuman());
+
+    // console.log('callValue ',callValue);
+    if (result.isOk) {
+        // output the return value
+        let out = output.toHuman()
+        console.log('alephzeroGetTokenTypeNFT Success', out);
+        return out.Ok;
+    } else {
+        console.error('alephzeroGetTokenTypeNFT Error', result.asErr);
+    }
+    return "0"
+}
+
+async function alephzeroGetTokenHealth(motoDexContract, tokenId) {
+    let storageDepositLimit = null;
+    let { gasRequired, storageDeposit, result, output } =  await window.azcontract.query.getTokenHealth(
+        window.azConnectAccount,
+        {
+            gasLimit : window.azGasLimit,
+            storageDepositLimit,
+        },
+        tokenId
+    );
+    console.log(result.toHuman());
+    console.log(gasRequired.toHuman());
+
+    // console.log('callValue ',callValue);
+    if (result.isOk) {
+        // output the return value
+        console.log('alephzeroGetPriceForType Success', output.toHuman());
+        let out = output.toHuman()
+
+        return out.Ok.replaceAll(',','');
+    } else {
+        console.error('alephzeroGetPriceForType Error', result.asErr);
+    }
+    return "0"
+}
+
+async function alephzeroGetPriceForType(motoDexContract, type) {
+    let storageDepositLimit = null;
+    let { gasRequired, storageDeposit, result, output } =  await window.azcontract.query.getPriceForType(
+        window.azConnectAccount,
+        {
+            gasLimit : window.azGasLimit,
+            storageDepositLimit,
+        },
+        type
+    );
+    console.log(result.toHuman());
+    console.log(gasRequired.toHuman());
+
+    // console.log('callValue ',callValue);
+    if (result.isOk) {
+        // output the return value
+        console.log('alephzeroGetPriceForType Success', output.toHuman());
+        let out = output.toHuman()
+
+        return out.Ok.replaceAll(',','');
+    } else {
+        console.error('alephzeroGetPriceForType Error', result.asErr);
+    }
+    return "0"
+}
+
+async function alephzeroValueInMainCoin(motoDexContract, type) {
+    let storageDepositLimit = null;
+    let { gasRequired, storageDeposit, result, output } =  await window.azcontract.query.valueInMainCoin(
+        window.azConnectAccount,
+        {
+            gasLimit : window.azGasLimit,
+            storageDepositLimit,
+        },
+        type
+    );
+    console.log(result.toHuman());
+    console.log(gasRequired.toHuman());
+
+    // console.log('callValue ',callValue);
+    if (result.isOk) {
+        // output the return value
+        console.log('alephzeroGetPriceForType Success', output.toHuman());
+        let out = output.toHuman()
+        return out.Ok.replaceAll(',','');
+    } else {
+        console.error('alephzeroGetPriceForType Error', result.asErr);
+    }
+    return "0"
+}
+
+async function alephzeroGetMinimalFeeRate(motoDexContract) {
+    let storageDepositLimit = null;
+    let { gasRequired, storageDeposit, result, output } =  await window.azcontract.query.getMinimalFeeRate(
+        window.azConnectAccount,
+        {
+            gasLimit : window.azGasLimit,
+            storageDepositLimit,
+        }
+    );
+    console.log(result.toHuman());
+    console.log(gasRequired.toHuman());
+
+    // console.log('callValue ',callValue);
+    if (result.isOk) {
+        // output the return value
+        console.log('alephzeroGetMinimalFeeRate Success', output.toHuman());
+        let out = output.toHuman()
+        return out.Ok.replaceAll(',','');
+    } else {
+        console.error('alephzeroGetMinimalFeeRate Error', result.asErr);
+    }
+    return "0"
+}
+
+async function alephzeroAddMoto(motoDexContract, tokenId) {
+    return new Promise(async function (resolve, reject)  {
+        const firstAddressInjector = await web3FromAddress(window.azConnectAccount)
+        const minimal_fee_in_usd = await alephzeroGetMinimalFeeRate(motoDexContract);
+        await window.azcontract.tx
+            .addMoto(tokenId, {value: minimal_fee_in_usd})
+            .signAndSend(window.azConnectAccount, {signer: firstAddressInjector.signer}, result => {
+                if (result.status.isInBlock) {
+                    console.log('in a block');
+                } else if (result.status.isFinalized) {
+                    console.log('finalized');
+                    resolve("received");
+                }
+            });
+    });
+}
+
+async function alephzeroPurchase(motoDexContract, typeNft) {
+    let storageDepositLimit = null;
+    let { gasRequired, storageDeposit, result, output } =  await window.azcontract.query.totalSupply(
+        window.azConnectAccount,
+        {
+            gasLimit : window.azGasLimit,
+            storageDepositLimit,
+        },
+    );
+    console.log(result.toHuman());
+    console.log(gasRequired.toHuman());
+
+    // console.log('callValue ',callValue);
+    if (result.isOk) {
+        // output the return value
+        console.log('alephzeroPurchase Success', output.toHuman());
+
+    } else {
+        console.error('alephzeroPurchase Error', result.asErr);
+    }
+
+    return new Promise(async function (resolve, reject)  {
+        const firstAddressInjector = await web3FromAddress(window.azConnectAccount)
+        const value = parseInt(await alephzeroValueInMainCoin(motoDexContract, typeNft) + '');
+        const valueFloat = value / 10e11
+        const valueFinal = Math.round(valueFloat) + 1;
+        console.log('alephzeroPurchase valueFinal ',valueFinal);
+
+        await window.azcontract.tx
+            .purchase(typeNft, {value: valueFinal})
+            .signAndSend(window.azConnectAccount, {signer: firstAddressInjector.signer}, result => {
+                if (result.status.isInBlock) {
+                    console.log('alephzeroPurchase in a block');
+                } else if (result.status.isFinalized) {
+                    console.log('alephzeroPurchase result.txHash.toString()', result.txHash.toString());
+                    console.log('alephzeroPurchase finalized output.toHuman().Ok ', output.toHuman().Ok);
+                    resolve(result.txHash.toString() + ","+output.toHuman().Ok);
+                }
+            });
+    });
+}
+
+async function alephzeroSendContract(motoDexContract, method, args, value) {
+    args = JSON.parse(args);
+    console.log(args);
+    console.log(args[0]);
+    let response;
+    try {
+        switch (method) {
+            case "purchase" :
+                response = await alephzeroPurchase(motoDexContract, parseInt(args[0]));
+                break;
+            case "addMoto" :
+                response = await alephzeroAddMoto(motoDexContract,  String(args[0]), true);
+                break;
+            case "addTrack" :
+                response = await alephzeroAddNft(motoDexContract, String(args[0]), false);
+                break;
+            case "returnMoto" :
+                response = await concordiumReturnNft(motoDexContract, String(args[0]), true);
+                break;
+            case "returnTrack" :
+                response = await concordiumReturnNft(motoDexContract, String(args[0]), false);
+                break;
+            case "addHealthNFT" :
+                response = await concordiumAddHealthNftParams(motoDexContract, String(args[0]),  String(args[1]));
+                break;
+            case "addHealthMoney" :
+                response = await concordiumAddHealthMoney(motoDexContract, String(args[0]));
+                break;
+            case "bidFor" :
+                response = await concordiumBidFor(motoDexContract, String(args[0]),  String(args[1]), value);
+                break;
+            default:
+                alert('Method is not added');
+        }
+    }catch (error) {
+        console.log(method + " - " + error.message);
+        response = "fail";
+    }
+    return response;
+}
+
+async function alephzeroMethodCall(motoDexContract, method, args, value) {
+    args = JSON.parse(args);
+    console.log(args);
+    console.log(args[0]);
+    let response;
+
+    try {
+        switch (method) {
+            case "getLimitsAndCounters" :
+                // response = await concordiumTokenIdsAndOwners(motoDexContract);
+                response = [];
+                break;
+            case "balanceOf" :
+                response = await alephzeroBalanceOf(motoDexContract, args[0]);
+                break;
+            case "tokenIdsAndOwners" :
+                response = await alephzeroTokenIdsAndOwners(motoDexContract);
+                break;
+            case "getPriceForType" :
+                response = await alephzeroGetPriceForType(motoDexContract, args[0]);
+
+                break;
+            case "valueInMainCoin" :
+                response = await alephzeroValueInMainCoin(motoDexContract, args[0]);
+                response = JSON.parse(response);
+                break;
+            case "getTokenType" :
+                response = await concordiumGetTokenTypeId(motoDexContract, args[0]);
+                response = JSON.parse(response);
+                break;
+            case "getHealthForId" :
+                response = await alephzeroGetTokenHealth(motoDexContract, args[0]);
+                response =  JSON.parse(response);
+                break;
+            case "getPercentForTrack" :
+                response = '30';//await concordiumGetPercentForTrack(motoDexContract, args[0]);
+                break;
+            case "getGameSessions" :
+                response = await concordiumGetGameSessions(motoDexContract);
+                break;
+            case "getAllGameBids" :
+                response = await concordiumGetAllGameBids(motoDexContract);
+                break;
+            case "latestEpochUpdate" :
+                response = await concordiumLatestEpochUpdate(motoDexContract);
+                break;
+            case "minimalFeeInUSD" :
+                response = await alephzeroGetMinimalFeeRate(motoDexContract);
+                break;
+            case "getLatestPrice" :
+                response = await concordiumGetLatestPrice(motoDexContract);
+                break;
+            case "syncEpochResultsBidsFinal" :
+                response = await concordiumSyncEpochResultsBidsFinal(motoDexContract);
+                break;
+            case "syncEpochResultsMotosFinal" :
+                response = await concordiumSyncEpochResultsMotosFinal(motoDexContract);
+                break;
+            default:
+                alert('Method is not added');
+        }
+    }catch (error) {
+        console.log(method + " - " + error.message);
+        response = "fail";
+    }
+
+    return response;
+}
+
+
 async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
     console.log('methodCall method->',method);
     console.log('methodCall nftUniV3ContractAddress->',nftUniV3ContractAddress);
+    console.log('methodCall window.web3ChainId->',window.web3ChainId)
+
+    if (window.web3ChainId == 11456327825 || window.web3ChainId == 11456327830)
+    {
+        let azResponse = await alephzeroMethodCall(nftUniV3ContractAddress, method, args, value);
+        // console.log(concResponse);
+
+        if (typeof azResponse != "string")
+        {
+            window.web3gl.methodCallResponse = JSON.stringify(azResponse);
+        }
+        else
+        {
+            window.web3gl.methodCallResponse = azResponse;
+        }
+        // console.log(window.web3gl.methodCallResponse);
+        return;
+    }
     if (window.web3ChainId == 1456327825 || window.web3ChainId == 1456327830)
     {
         let concResponse = await concordiumMethodCall(nftUniV3ContractAddress, method, args, value);
@@ -1176,7 +1702,6 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
     const network = getNetwork()
     console.log('methodCall network->',network)
     console.log('methodCall web3gl.networkId->',web3gl.networkId)
-    console.log('methodCall window.web3ChainId->',window.web3ChainId)
     if (network !== undefined && network.chain !== undefined && network.chain.id !== parseInt(web3gl.networkId) ) {
         console.log('methodCall switch network to ',window.web3ChainId)
 
@@ -1351,6 +1876,11 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
 }
 
 async function getTxStatus(transactionHash) {
+    if (window.web3ChainId == 11456327825 || window.web3ChainId == 11456327830)
+    {
+        window.web3gl.getTxStatusResponse = "success"
+        return;
+    }
     if (parseInt(window.web3ChainId) === 503129905 || parseInt(window.web3ChainId) === 1482601649) {
         let response;
         try {
