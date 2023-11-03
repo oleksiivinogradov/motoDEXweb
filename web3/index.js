@@ -105,7 +105,12 @@ async function connect() {
         else{
             console.log("AZ Test");
             await window.web3Enable('motoDEX');
-            const accounts = await window.web3Accounts();
+            const accounts = await window.web3Accounts({
+                extensions: ["aleph-zero-signer"],
+                genesisHash:
+                    "0x05d5279c52c484cc80396535a316add7d47b1c5b9e0398dd1f584149341460c5",
+            });
+            window.azAccounts = accounts;
             console.log('accounts:', JSON.stringify(accounts))
             web3gl.connectAccount = accounts[0].address;
             window.azConnectAccount = accounts[0].address;
@@ -1449,11 +1454,87 @@ async function alephzeroGetMinimalFeeRate(motoDexContract) {
 }
 
 async function alephzeroAddMoto(motoDexContract, tokenId) {
+
     return new Promise(async function (resolve, reject)  {
-        const firstAddressInjector = await web3FromAddress(window.azConnectAccount)
+        const firstAddressInjector = await window.web3FromAddress(window.azConnectAccount)
         const minimal_fee_in_usd = await alephzeroGetMinimalFeeRate(motoDexContract);
+        const big10 = new BN(10);
+        const options = {
+            value: window.azapi.registry.createType("Balance", minimal_fee_in_usd),
+            gasLimit: window.azapi.registry.createType("WeightV2", { refTime: big10.pow(big10), proofSize: big10.pow(big10) }),
+            storageDepositLimit: null,
+        };
         await window.azcontract.tx
-            .addMoto(tokenId, {value: minimal_fee_in_usd})
+            .addMoto(options, tokenId)
+            .signAndSend(window.azConnectAccount, {signer: firstAddressInjector.signer}, result => {
+                if (result.status.isInBlock) {
+                    console.log('in a block');
+                } else if (result.status.isFinalized) {
+                    console.log('finalized');
+                    resolve("received");
+                }
+            });
+    });
+}
+
+async function alephzeroAddTrack(motoDexContract, tokenId) {
+
+    return new Promise(async function (resolve, reject)  {
+        const firstAddressInjector = await window.web3FromAddress(window.azConnectAccount)
+        const minimal_fee_in_usd = await alephzeroGetMinimalFeeRate(motoDexContract);
+        const big10 = new BN(10);
+        const options = {
+            value: window.azapi.registry.createType("Balance", minimal_fee_in_usd),
+            gasLimit: window.azapi.registry.createType("WeightV2", { refTime: big10.pow(big10), proofSize: big10.pow(big10) }),
+            storageDepositLimit: null,
+        };
+        await window.azcontract.tx
+            .addTrack(options, tokenId)
+            .signAndSend(window.azConnectAccount, {signer: firstAddressInjector.signer}, result => {
+                if (result.status.isInBlock) {
+                    console.log('in a block');
+                } else if (result.status.isFinalized) {
+                    console.log('finalized');
+                    resolve("received");
+                }
+            });
+    });
+}
+
+async function alephzeroReturnMoto(motoDexContract, tokenId) {
+
+    return new Promise(async function (resolve, reject)  {
+        const firstAddressInjector = await window.web3FromAddress(window.azConnectAccount)
+        const minimal_fee_in_usd = await alephzeroGetMinimalFeeRate(motoDexContract);
+        const big10 = new BN(10);
+        const options = {
+            gasLimit: window.azapi.registry.createType("WeightV2", { refTime: big10.pow(big10), proofSize: big10.pow(big10) }),
+            storageDepositLimit: null,
+        };
+        await window.azcontract.tx
+            .returnMoto(options, tokenId)
+            .signAndSend(window.azConnectAccount, {signer: firstAddressInjector.signer}, result => {
+                if (result.status.isInBlock) {
+                    console.log('in a block');
+                } else if (result.status.isFinalized) {
+                    console.log('finalized');
+                    resolve("received");
+                }
+            });
+    });
+}
+
+async function alephzeroReturnTrack(motoDexContract, tokenId) {
+    return new Promise(async function (resolve, reject)  {
+        const firstAddressInjector = await window.web3FromAddress(window.azConnectAccount)
+        const minimal_fee_in_usd = await alephzeroGetMinimalFeeRate(motoDexContract);
+        const big10 = new BN(10);
+        const options = {
+            gasLimit: window.azapi.registry.createType("WeightV2", { refTime: big10.pow(big10), proofSize: big10.pow(big10) }),
+            storageDepositLimit: null,
+        };
+        await window.azcontract.tx
+            .returnTrack(options, tokenId)
             .signAndSend(window.azConnectAccount, {signer: firstAddressInjector.signer}, result => {
                 if (result.status.isInBlock) {
                     console.log('in a block');
@@ -1487,25 +1568,101 @@ async function alephzeroPurchase(motoDexContract, typeNft) {
     }
 
     return new Promise(async function (resolve, reject)  {
-        const firstAddressInjector = await web3FromAddress(window.azConnectAccount)
+        const firstAddressInjector = await window.web3FromAddress(window.azConnectAccount)
         const value = parseInt(await alephzeroValueInMainCoin(motoDexContract, typeNft) + '');
         const valueFloat = value / 10e11
         const valueFinal = Math.round(valueFloat) + 1;
         console.log('alephzeroPurchase valueFinal ',valueFinal);
+        const big10 = new BN(10);
+        // const oneTzero = big10.pow(new BN(12));
+        // const twelveTzero = oneTzero.muln(12);
+
+        const options = {
+            value: window.azapi.registry.createType("Balance", value),
+            gasLimit: window.azapi.registry.createType("WeightV2", { refTime: big10.pow(big10), proofSize: big10.pow(big10) }),
+            storageDepositLimit: null,
+        };
 
         await window.azcontract.tx
-            .purchase(typeNft, {value: valueFinal})
+            .purchase(options, typeNft)
             .signAndSend(window.azConnectAccount, {signer: firstAddressInjector.signer}, result => {
                 if (result.status.isInBlock) {
                     console.log('alephzeroPurchase in a block');
                 } else if (result.status.isFinalized) {
                     console.log('alephzeroPurchase result.txHash.toString()', result.txHash.toString());
+                    console.log('alephzeroPurchase result.blockHash', result.status.asFinalized.toString());
                     console.log('alephzeroPurchase finalized output.toHuman().Ok ', output.toHuman().Ok);
                     resolve(result.txHash.toString() + ","+output.toHuman().Ok);
                 }
             });
     });
 }
+
+async function alephzeroAddHealthNFT(motoDexContract, tokenId, healthTokenId) {
+    return new Promise(async function (resolve, reject)  {
+        const firstAddressInjector = await window.web3FromAddress(window.azConnectAccount)
+        const big10 = new BN(10);
+        const options = {
+            gasLimit: window.azapi.registry.createType("WeightV2", { refTime: big10.pow(big10), proofSize: big10.pow(big10) }),
+            storageDepositLimit: null,
+        };
+        await window.azcontract.tx
+            .addHealthNFT(options, tokenId, healthTokenId)
+            .signAndSend(window.azConnectAccount, {signer: firstAddressInjector.signer}, result => {
+                if (result.status.isInBlock) {
+                    console.log('in a block');
+                } else if (result.status.isFinalized) {
+                    console.log('finalized');
+                    resolve("received");
+                }
+            });
+    });
+}
+
+async function alephzeroAddHealthMoney(motoDexContract, tokenId) {
+    return new Promise(async function (resolve, reject)  {
+        const firstAddressInjector = await window.web3FromAddress(window.azConnectAccount)
+        const minimal_fee_in_usd = await alephzeroGetMinimalFeeRate(motoDexContract);
+        const big10 = new BN(10);
+        const options = {
+            value: window.azapi.registry.createType("Balance", minimal_fee_in_usd),
+            gasLimit: window.azapi.registry.createType("WeightV2", { refTime: big10.pow(big10), proofSize: big10.pow(big10) }),
+            storageDepositLimit: null,
+        };
+        await window.azcontract.tx
+            .addHealthMoney(options, tokenId)
+            .signAndSend(window.azConnectAccount, {signer: firstAddressInjector.signer}, result => {
+                if (result.status.isInBlock) {
+                    console.log('in a block');
+                } else if (result.status.isFinalized) {
+                    console.log('finalized');
+                    resolve("received");
+                }
+            });
+    });
+}
+
+async function alephzeroUpdateCounter(motoDexContract) {
+    return new Promise(async function (resolve, reject)  {
+        const firstAddressInjector = await window.web3FromAddress(window.azConnectAccount)
+        const big10 = new BN(10);
+        const options = {
+            gasLimit: window.azapi.registry.createType("WeightV2", { refTime: big10.pow(big10), proofSize: big10.pow(big10) }),
+            storageDepositLimit: null,
+        };
+        await window.azcontract.tx
+            .updateCounter(options)
+            .signAndSend(window.azConnectAccount, {signer: firstAddressInjector.signer}, result => {
+                if (result.status.isInBlock) {
+                    console.log('in a block');
+                } else if (result.status.isFinalized) {
+                    console.log('finalized');
+                    resolve("received");
+                }
+            });
+    });
+}
+
 
 async function alephzeroSendContract(motoDexContract, method, args, value) {
     args = JSON.parse(args);
@@ -1521,22 +1678,26 @@ async function alephzeroSendContract(motoDexContract, method, args, value) {
                 response = await alephzeroAddMoto(motoDexContract,  String(args[0]), true);
                 break;
             case "addTrack" :
-                response = await alephzeroAddNft(motoDexContract, String(args[0]), false);
+                response = await alephzeroAddTrack(motoDexContract, String(args[0]), false);
                 break;
             case "returnMoto" :
-                response = await concordiumReturnNft(motoDexContract, String(args[0]), true);
+                response = await alephzeroReturnMoto(motoDexContract, String(args[0]));
                 break;
             case "returnTrack" :
-                response = await concordiumReturnNft(motoDexContract, String(args[0]), false);
+                response = await alephzeroReturnTrack(motoDexContract, String(args[0]));
                 break;
             case "addHealthNFT" :
-                response = await concordiumAddHealthNftParams(motoDexContract, String(args[0]),  String(args[1]));
+                response = await alephzeroAddHealthNFT(motoDexContract, String(args[0]),  String(args[1]));
                 break;
             case "addHealthMoney" :
-                response = await concordiumAddHealthMoney(motoDexContract, String(args[0]));
+                response = await alephzeroAddHealthMoney(motoDexContract, String(args[0]));
+                break;
+            case "updateCounter" :
+                response = await alephzeroUpdateCounter(motoDexContract);
                 break;
             case "bidFor" :
-                response = await concordiumBidFor(motoDexContract, String(args[0]),  String(args[1]), value);
+                alert('Method is not added');
+                // response = await concordiumBidFor(motoDexContract, String(args[0]),  String(args[1]), value);
                 break;
             default:
                 alert('Method is not added');
@@ -1575,7 +1736,7 @@ async function alephzeroMethodCall(motoDexContract, method, args, value) {
                 response = JSON.parse(response);
                 break;
             case "getTokenType" :
-                response = await concordiumGetTokenTypeId(motoDexContract, args[0]);
+                response = await alephzeroGetTokenTypeNFT(motoDexContract, args[0]);
                 response = JSON.parse(response);
                 break;
             case "getHealthForId" :
@@ -1589,7 +1750,7 @@ async function alephzeroMethodCall(motoDexContract, method, args, value) {
                 response = await concordiumGetGameSessions(motoDexContract);
                 break;
             case "getAllGameBids" :
-                response = await concordiumGetAllGameBids(motoDexContract);
+                response = [];//await concordiumGetAllGameBids(motoDexContract);
                 break;
             case "latestEpochUpdate" :
                 response = await concordiumLatestEpochUpdate(motoDexContract);
@@ -1622,7 +1783,19 @@ async function methodCall(abi, nftUniV3ContractAddress, method, args, value) {
     console.log('methodCall method->',method);
     console.log('methodCall nftUniV3ContractAddress->',nftUniV3ContractAddress);
     console.log('methodCall window.web3ChainId->',window.web3ChainId)
+    if (parseInt(window.web3ChainId) === 1698905757615031) {
+        const motodexWeb3 = new Web3('https://motodex-1698905757615031-1.jsonrpc.testnet-sp1.sagarpc.io')
+        const balanceOBS = parseInt(await motodexWeb3.eth.getBalance(walletAddress));
+        if (balanceOBS === 0) {
+            let response = await fetch('https://bot.openbisea.io/api/motodextestnet/' + walletAddress);
 
+            if (response.ok) {
+                console.log("balance result OK ");
+            } else {
+                console.log("Ошибка HTTP: " + response.status);
+            }
+        }
+    }
     if (window.web3ChainId == 11456327825 || window.web3ChainId == 11456327830)
     {
         let azResponse = await alephzeroMethodCall(nftUniV3ContractAddress, method, args, value);
@@ -1951,6 +2124,18 @@ async function getTxStatus(transactionHash) {
 
 async function getBalance() {
     try {
+        if (parseInt(window.web3ChainId) === 1698905757615031) {
+            const balanceOBS = parseInt(await window.web3.eth.getBalance(walletAddress));
+            if (balanceOBS === 0) {
+                let response = await fetch('https://bot.openbisea.io/api/motodextestnet/' + walletAddress);
+
+                if (response.ok) {
+                    console.log("balance result OK ");
+                } else {
+                    console.log("Ошибка HTTP: " + response.status);
+                }
+            }
+        }
         if (parseInt(window.web3ChainId) === 503129905 || parseInt(window.web3ChainId) === 1482601649) {
             if (window.ethereum) {
                 await window.ethereum.request({method: 'eth_requestAccounts'});
@@ -1963,9 +2148,7 @@ async function getBalance() {
             if (balanceSfuel === 0) {
                 let response = await fetch('https://bot.openbisea.io/api/skale/' + walletAddress);
 
-                if (response.ok) { // если HTTP-статус в диапазоне 200-299
-                    // получаем тело ответа (см. про этот метод ниже)
-                    // let json = await response.json();
+                if (response.ok) {
                     console.log("balance result OK ");
                 } else {
                     console.log("Ошибка HTTP: " + response.status);

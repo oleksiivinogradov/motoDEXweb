@@ -77,7 +77,10 @@
 	const contract = new ContractPromise(api, abi, "5GmGRj3EKgBajwKNM53MtWwwF5aKEz1FYJ46Mi8idHEFQTbK");
 	// the address to subtract the fees from
 	// const from = '5H8YFDBodQeqxkfFc9A5FkDAoha9jDycxrTNh2gXQ4yC2dJ6';
-
+	import {
+		BN
+	} from 'https://cdn.jsdelivr.net/npm/bn.js/+esm'
+	window.BN = BN
 
 	import {
 		web3Accounts, web3Enable, web3FromAddress
