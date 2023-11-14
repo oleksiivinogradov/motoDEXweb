@@ -108,7 +108,7 @@ async function connect() {
             const accounts = await window.web3Accounts({
                 extensions: ["aleph-zero-signer"],
                 genesisHash:
-                    "0x05d5279c52c484cc80396535a316add7d47b1c5b9e0398dd1f584149341460c5",
+                    "0x70255b4d28de0fc4e1a193d7e175ad1ccef431598211c55538f1018651a0344e",
             });
             window.azAccounts = accounts;
             console.log('accounts:', JSON.stringify(accounts))
