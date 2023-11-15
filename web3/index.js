@@ -110,6 +110,11 @@ async function connect() {
                 genesisHash:
                     "0x70255b4d28de0fc4e1a193d7e175ad1ccef431598211c55538f1018651a0344e",
             });
+            if (accounts.length === 0) {
+                alert('No accounts connected')
+                web3gl.connectAccount = "fail";
+                return
+            }
             window.azAccounts = accounts;
             console.log('accounts:', JSON.stringify(accounts))
             web3gl.connectAccount = accounts[0].address;

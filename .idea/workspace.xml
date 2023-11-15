@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fbb7e28c-5d37-4f11-b9a4-75f01ca30fa5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../../GameSystems/Scripts/AvailableNetworks.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../GameSystems/Scripts/AvailableNetworks.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../StreamingAssets/build_info" beforeDir="false" afterPath="$PROJECT_DIR$/../../StreamingAssets/build_info" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web3/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/web3/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +45,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1699897962864</updated>
-      <workItem from="1699897964141" duration="5413000" />
+      <workItem from="1699897964141" duration="7129000" />
     </task>
     <servers />
   </component>
