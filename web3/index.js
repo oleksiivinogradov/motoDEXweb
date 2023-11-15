@@ -1368,12 +1368,12 @@ async function alephzeroGetTokenHealth(motoDexContract, tokenId) {
     // console.log('callValue ',callValue);
     if (result.isOk) {
         // output the return value
-        console.log('alephzeroGetPriceForType Success', output.toHuman());
+        console.log('alephzeroGetTokenHealth Success', output.toHuman());
         let out = output.toHuman()
 
         return out.Ok.replaceAll(',','');
     } else {
-        console.error('alephzeroGetPriceForType Error', result.asErr);
+        console.error('alephzeroGetTokenHealth Error', result.asErr);
     }
     return "0"
 }
@@ -1728,7 +1728,8 @@ async function alephzeroMethodCall(motoDexContract, method, args, value) {
                 response = await alephzeroTokenIdsAndOwners(motoDexContract);
                 break;
             case "getPriceForType" :
-                response = await alephzeroGetPriceForType(motoDexContract, args[0]);
+                // response = await alephzeroGetPriceForType(motoDexContract, args[0]);
+                response = await alephzeroValueInMainCoin(motoDexContract, args[0]);
 
                 break;
             case "valueInMainCoin" :

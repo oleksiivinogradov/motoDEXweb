@@ -493,8 +493,38 @@
 
 	};
 
+	const toposTestnet = {
+		id: 2359,
+		name: "Topos Testnet",
+		network: "topos_t",
+		nativeCurrency: {
+			decimals: 18,
+			name: "TOPOS",
+			symbol: "TOPOS"
+		},
+		rpcUrls: {
+			default: {
+				http: ["https://rpc.topos-subnet.testnet-1.topos.technology"],
+			},
+			public: {
+				http: ["https://rpc.topos-subnet.testnet-1.topos.technology"]
+			}
+		},
+		blockExplorers: {
+			etherscan: {
+				name: "Topos Scan",
+				url: "https://explorer.testnet-1.topos.technology/"
+			},
+			default: {
+				name: "Topos Scan",
+				url: "https://explorer.testnet-1.topos.technology/"
+			}
+		}
 
-    window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet, skaleMainnet, klaytnTestnet, baseMainnet, mantaMainnet, motodexTestnet]
+	};
+
+
+    window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet, skaleMainnet, klaytnTestnet, baseMainnet, mantaMainnet, motodexTestnet, toposTestnet]
 
 	const projectId = 'd3d0c489a0d7d980f51628258bf880bd'
 
