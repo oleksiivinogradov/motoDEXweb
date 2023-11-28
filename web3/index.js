@@ -2323,9 +2323,9 @@ async function connectConcordiumWallet(mainnet, routeBackURL) {
     const acct = { credId: accountAddress };//new concordiumSDK.AccountAddress(accountAddress);
     console.log("Connecting to CCD... acct " + JSON.stringify(acct));
 
-    const accountInfo = await client.getAccountInfo(acct);
-    //console.log("Connecting to CCD... accountInfo.accountAmount " + accountInfo.accountAmount);
-    const accountAmount = accountInfo.accountAmount;
+    // const accountInfo = await client.getAccountInfo(acct);
+    // console.log("Connecting to CCD... accountInfo.accountAmount " + accountInfo.accountAmount);
+    // const accountAmount = accountInfo.accountAmount;
     return accountAddress;
 }
 
