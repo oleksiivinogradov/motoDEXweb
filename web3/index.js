@@ -2316,7 +2316,7 @@ async function connectConcordiumWallet(mainnet, routeBackURL) {
     };
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const consensusStatus = await client.getConsensusStatus();
     const lastFinalizedBlock = await consensusStatus.lastFinalizedBlock;
     console.log("Connecting to CCD... lastFinalizedBlock " + lastFinalizedBlock);
@@ -2333,7 +2333,7 @@ async function concordiumTokenIdsAndOwners(motoDexContract) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -2405,7 +2405,7 @@ async function concordiumNftTokensForOwners(motoDexContract) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -2474,7 +2474,7 @@ async function concordiumLatestEpochUpdate(motoDexContract) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -2520,7 +2520,7 @@ async function concordiumGetLatestPrice(motoDexContract) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -2567,7 +2567,7 @@ async function concordiumSyncEpochResultsBidsFinal(motoDexContract) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -2622,7 +2622,7 @@ async function concordiumSyncEpochResultsMotosFinal(motoDexContract) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -2677,7 +2677,7 @@ async function concordiumGetTokenHealth(motoDexContract, tokenId) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -2736,7 +2736,7 @@ async function concordiumValueInMainCoin(motoDexContract, typeNft) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -2795,7 +2795,7 @@ async function concordiumGetPercentForTrack(motoDexContract, tokenId) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -2854,7 +2854,7 @@ async function concordiumGetGameSessions(motoDexContract, tokenId) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -2901,7 +2901,7 @@ async function concordiumGetAllGameBids(motoDexContract, tokenId) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -2956,7 +2956,7 @@ async function concordiumGetTokenTypeId(motoDexContract, tokenId) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -3016,7 +3016,7 @@ async function concordiumMinimalFeeInUSD(motoDexContract) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -3060,7 +3060,7 @@ async function concordiumPurchase(motoDexContract, typeNft) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -3114,7 +3114,7 @@ async function concordiumAddHealthMoney(motoDexContract, tokenId) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -3163,7 +3163,7 @@ async function concordiumBidFor(motoDexContract, trackTokenId, motoTokenId, valu
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -3213,7 +3213,7 @@ async function concordiumAddHealthNftParams(motoDexContract, tokenId, healthPill
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -3264,7 +3264,7 @@ async function concordiumAddNft(motoDexContract, tokenId, isMoto) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
@@ -3314,7 +3314,7 @@ async function concordiumReturnNft(motoDexContract, tokenId, isMoto) {
     const provider = await concordiumHelpers.detectConcordiumProvider();
     const accountAddress = await provider.connect();
     console.log("Connecting to CCD... accountAddress " + accountAddress);
-    const client = await provider.getJsonRpcClient();
+    const client = await provider.getGrpcClient();
     const contractAddress = {
         subindex: 0n,
         index: BigInt(motoDexContract.split(":")[1]),
