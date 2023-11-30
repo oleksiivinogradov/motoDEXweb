@@ -523,8 +523,38 @@
 
 	};
 
+	const qMainnet = {
+		id: 35441,
+		name: "Q Mainnet",
+		network: "q",
+		nativeCurrency: {
+			decimals: 18,
+			name: "Q",
+			symbol: "Q"
+		},
+		rpcUrls: {
+			default: {
+				http: ["https://rpc.q.org"],
+			},
+			public: {
+				http: ["https://rpc.q.org"]
+			}
+		},
+		blockExplorers: {
+			etherscan: {
+				name: "Q Scan",
+				url: "https://explorer.q.org/"
+			},
+			default: {
+				name: "Q Scan",
+				url: "https://explorer.q.org/"
+			}
+		}
 
-    window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet, skaleMainnet, klaytnTestnet, baseMainnet, mantaMainnet, motodexTestnet, toposTestnet]
+	};
+
+
+	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet, skaleMainnet, klaytnTestnet, baseMainnet, mantaMainnet, motodexTestnet, toposTestnet, qMainnet]
 
 	const projectId = 'd3d0c489a0d7d980f51628258bf880bd'
 
