@@ -553,8 +553,68 @@
 
 	};
 
+    const victionTestnet = {
+        id: 89,
+        name: "Viction Mainnet",
+        network: "viction_t",
+        nativeCurrency: {
+            decimals: 18,
+            name: "TOMO",
+            symbol: "TOMO"
+        },
+        rpcUrls: {
+            default: {
+                http: ["https://rpc.testnet.tomochain.com"],
+            },
+            public: {
+                http: ["https://rpc.testnet.tomochain.com"]
+            }
+        },
+        blockExplorers: {
+            etherscan: {
+                name: "Viction Scan",
+                url: "https://testnet.tomoscan.io/"
+            },
+            default: {
+                name: "Viction Scan",
+                url: "https://testnet.tomoscan.io/"
+            }
+        }
 
-	window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet, skaleMainnet, klaytnTestnet, baseMainnet, mantaMainnet, motodexTestnet, toposTestnet, qMainnet]
+	};
+
+    const kromaMainnet = {
+        id: 255,
+        name: "Kroma Mainnet",
+        network: "kroma",
+        nativeCurrency: {
+            decimals: 18,
+            name: "ETH",
+            symbol: "ETH"
+        },
+        rpcUrls: {
+            default: {
+                http: ["https://api.kroma.network"],
+            },
+            public: {
+                http: ["https://api.kroma.network"]
+            }
+        },
+        blockExplorers: {
+            etherscan: {
+                name: "Kroma Scan",
+                url: "https://blockscout.kroma.network/"
+            },
+            default: {
+                name: "Q Scan",
+                url: "https://blockscout.kroma.network/"
+            }
+        }
+
+    };
+
+
+    window.chains = [aurora, bscTestnet, auroraTestnet, polygon, eos, mantleTestnet, mantle, zetachainTestnet, skaleTestnet, skaleMainnet, klaytnTestnet, baseMainnet, mantaMainnet, motodexTestnet, toposTestnet, qMainnet, victionTestnet, kromaMainnet]
 
 	const projectId = 'd3d0c489a0d7d980f51628258bf880bd'
 
